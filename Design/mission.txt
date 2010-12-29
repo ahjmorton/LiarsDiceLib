@@ -1,0 +1,1 @@
+The goal of this project is to produce a version of the game "Liars Dice" for the GNOME desktop platform 
