@@ -1,0 +1,32 @@
+Story 1
+User starts up application
+
+The user starts up the application
+The user is presented with the main game screen with 5 computer generated players
+The game is default
+
+Story 2 
+User starts a new game
+
+The application is running and at any point the user may start a new game
+To start a new game the user selects "New" then "Game" from the resulting dropdown
+The game starts again as if the user had started up the application
+
+Story 3
+User starts a custom game
+
+The application is runnning and at any point the user may start a new custom game.
+To start a new game the user selects "New" then "Custom Game" from the resulting dropdown
+The user is presented with a menu offering them the ability to set the number of computer players as well as if ones are wild or fixed
+If the user selects Cancel then no new game is started
+If the user selects OK then a new game matching the user details is started
+
+Story 4
+User playing the game
+
+The main play area has the players in the game arranged in a random order.
+
+
+The application is running and at any point the user may start a new game
+To start a new game the user selects "New" then "Game" from the resulting dropdown
+The game starts again as if the user had started up the application
