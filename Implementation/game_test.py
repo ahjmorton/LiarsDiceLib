@@ -27,6 +27,19 @@ class GameDataTest(unittest.TestCase) :
         bid = self.subject.get_bid(player)
         self.assertTrue(bid is None)
 
+    def testAddingDice(self) :
+        player = Mock(spec=Player)
+        self.subject.add_player(player)
+        dice = [1,2,3,4]
+        self.subject.set_dice(player, dice)
+        self.assertTrue(dice == self.subject.get_dice(player))
+
+    def testAddingDiceWithNoPlayerThrowsException(self) :
+        player = Mock(spec=Player)
+        dice = [1,2,3,4]
+        def caller() :
+            self.subject.set_dice(player, dice)
+        self.assertRaises(ValueError, caller)
 
 class GameObjectTest(unittest.TestCase) :
     pass
