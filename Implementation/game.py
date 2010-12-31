@@ -37,20 +37,54 @@ class GameData(object) :
         else :
             self.dice[player][1] = bid
 
+class MissingPlayerError(Exception) :
+    
+    def __init__(self, value) :
+        self.val = value
+
+    def __str__(self) :
+        return repr(self.value)
+
+
+class IllegalStateChangeError(Exception) :
+    
+    def __init__(self, value) :
+        self.val = value
+
+    def __str__(self) :
+        return repr(self.value)
+
 class GameState(object) :
-    """The game state object controls the games reaction to certain events based on the current event"""
+    """The game state object controls the games reaction to certain events based on the current event. Default implementations of all state methods thrown illegal state change error"""
 
     def __init__(self, game) :
         self.game = game
 
     def on_game_start(self, human_player) :
-        pass
-
+        raise IllegalStateChangeError("Cannot call on_game_start")
+        
     def on_bid(self, player, bid) :
-        pass
+        raise IllegalStateChangeError("Cannot call on_bid")
 
     def on_challenge(self, challanger, challenged) :
-        pass
+        raise IllegalStateChangeError("Cannot call on_challenge")
+
+class GameStartState(GameState) :
+    """This state is the state the game first enters in after the players have been added to the game but before any moves have been played"""
+    
+    def __init__(self, game, enter_state) :
+        GameState.__init__(self, game)
+        self.first = enter_state
+
+    def on_game_start(self, human_player) : 
+        """Game start should check the player provided is in the game data, if not thrown an error"""
+        if human_player not in self.game.get_state().get_players() :
+            raise MissingPlayerError("Player provided for starting of game not in list of players")
+        else : 
+            #Could also add logic to do random number generation to work out who goes first
+            self.game.set_current_player(human_player)
+            return self.first
+
 
 class Game(object) :
     """The game object provides the application logic for the game and enforcing the game rules."""
