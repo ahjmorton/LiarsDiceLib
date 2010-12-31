@@ -6,7 +6,14 @@ import game
 from player import Player
 
 class GameDataTest(unittest.TestCase) :
-    pass
+
+    def setUp(self) :
+        self.subject = game.GameData()
+
+    def testStartingState(self) : 
+        players = self.subject.get_players()
+        self.assertTrue(players is not None)
+        self.assertEquals(0, len(players))
 
 class GameObjectTest(unittest.TestCase) :
     pass

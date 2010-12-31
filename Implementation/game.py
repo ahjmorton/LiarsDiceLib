@@ -5,8 +5,7 @@ class GameData(object) :
     
     def __init__(self) :
         """Create a game object with a random source"""
-        self.dice_roll = dice_sim
-        self.dice = map()
+        self.dice = dict()
 
     def add_player(self, player) :
         """Add a player to the list of players in the game. If this method is not called then any call to add dice will fail"""
