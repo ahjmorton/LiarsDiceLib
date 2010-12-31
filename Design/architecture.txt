@@ -4,6 +4,7 @@ The top layer has the UI / user interface.
     Any delays are here, not delays caused on server.
 The middle layer has the application logic.
     The application logic includes the players dice
+    The interface for the top layer should be a Game struct / object
 The lower layer has the raw data.
     The raw data is the players, the player names, their current bid.
 
