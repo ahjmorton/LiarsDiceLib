@@ -56,7 +56,16 @@ class GameDataTest(unittest.TestCase) :
         self.assertRaises(ValueError, caller)
 
 class GameObjectTest(unittest.TestCase) :
-    pass
+    
+    def setUp(self) :
+        self.data = Mock(spec=game.GameData)
+        self.state = Mock(spec=game.GameState)
+        self.subject = game.Game(self.data, self.state)
+
+    def testStartupStateOfGameObject(self) :
+        self.assertTrue(self.subject.get_current_player() is None)
+        self.assertTrue(not self.state.on_game_start.called)
+        self.assertTrue(not self.data.add_player.called)
 
 def suite() :
     suite = unittest.TestSuite()

@@ -56,12 +56,12 @@ class Game(object) :
     """The game object provides the application logic for the game and enforcing the game rules."""
 
     def __init__(self, data, start_state) :
-        self.plays = state
+        self.plays = data
         self.state = start_state
         self.cur_player = None
 
     def start_game(self, human_player) :
-        self.state = self.state.on_game_start(start_player)
+        self.state = self.state.on_game_start(human_player)
 
     def set_current_player(self, player) :
         self.cur_player = player
