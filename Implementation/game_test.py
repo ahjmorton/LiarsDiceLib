@@ -88,11 +88,43 @@ class GameObjectTest(unittest.TestCase) :
         self.subject.make_challenge(challenge)
         self.state.on_challenge.assert_called_with(challenge, player)
 
+class GameStateTest(unittest.TestCase) :
+    
+    def setUp(self) :
+        self.game = Mock(spec=game.Game)
+        self.subject = self.get_subject(self.game)
+        
+    def get_subject(self, g) :
+        return game.GameState(g)
+
+    def testOnGameStart(self) :
+        player = Mock(spec=Player)
+        def call() :
+            self.subject.on_game_start(player)
+        self.assertRaises(game.IllegalStateChangeError, call)
+
+    def testOnBid(self) :
+        player = Mock(spec=Player)
+        bid = (1,2)
+        def call() :
+            self.subject.on_bid(player, bid)
+        self.assertRaises(game.IllegalStateChangeError, call)
+
+    def testOnChallenge(self) :
+        player = Mock(spec=Player)
+        challenge = Mock(spec=Player)
+        bid = (1,2)
+        def call() :
+            self.subject.on_challenge(challenge, player)
+        self.assertRaises(game.IllegalStateChangeError, call)
+        
+
 def suite() :
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
     suite.addTests(loader.loadTestsFromTestCase(GameDataTest))
     suite.addTests(loader.loadTestsFromTestCase(GameObjectTest))
+    suite.addTests(loader.loadTestsFromTestCase(GameStateTest))
     return suite
 
 if __name__ == "__main__" :
