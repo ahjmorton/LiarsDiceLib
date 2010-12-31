@@ -118,6 +118,23 @@ class GameStateTest(unittest.TestCase) :
             self.subject.on_challenge(challenge, player)
         self.assertRaises(game.IllegalStateChangeError, call)
         
+class GameStartStateTest(GameStateTest) :
+    
+    def get_subject(self, g) :
+        self.next_state = Mock(spec=game.GameState)
+        self.data = Mock(spec=game.GameData)
+        self.game.get_state.return_value = self.data
+        return game.GameStartState(g, self.next_state)
+
+    def testOnGameStart(self) :
+        player = Mock(spec=Player)
+        players = [player]
+        self.data.get_players.return_value = players
+        res = self.subject.on_game_start(player)
+        self.assertTrue(res is not None)
+        self.assertTrue(res is self.next_state)
+        self.assertTrue(self.data.get_players.called)
+
 
 def suite() :
     suite = unittest.TestSuite()
@@ -125,6 +142,7 @@ def suite() :
     suite.addTests(loader.loadTestsFromTestCase(GameDataTest))
     suite.addTests(loader.loadTestsFromTestCase(GameObjectTest))
     suite.addTests(loader.loadTestsFromTestCase(GameStateTest))
+    suite.addTests(loader.loadTestsFromTestCase(GameStartStateTest))
     return suite
 
 if __name__ == "__main__" :
