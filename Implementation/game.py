@@ -47,25 +47,17 @@ class GameState(object) :
     def on_game_start(self, human_player) :
         pass
 
-    def on_game_end(self) :
+    def on_bid(self) :
         pass
 
-    def on_bid(self, player) :
-        pass
-
-    def on_no_challange(self, challanger, challenged) :
-        pass
-
-    def on_challenge(self, challanger, challenged) :
+    def on_challenge(self, challanger) :
         pass
 
 class Game(object) :
 
     """The game object provides the application logic for the game and enforcing the game rules."""
-    def __init__(self, data, dice_roller, dice_sides, start_state) :
+    def __init__(self, data, start_state) :
         self.plays = state
-        self.roll = dice_roller
-        self.dice_max = dice_sides
         self.state = start_state
         self.cur_player = None
 
@@ -79,5 +71,8 @@ class Game(object) :
         return self.cur_player
 
     def make_bid(self, bid) :
-        self.cur
-        self.state = self.state.on_bid(bid)
+        self.plays.set_bid(self.cur_player, bid)
+        self.state = self.state.on_bid()
+
+    def make_challenge(self, challenger) :
+        self.state = self.state.on_challenge(challenger, self.cur_player)
