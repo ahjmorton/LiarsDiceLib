@@ -33,7 +33,7 @@ class GameData(object) :
      
     def set_bid(self, player, bid) :
         """Set the bid for a particular player has made. If player has not been added to object then raise a value error"""
-        if player is not in self.dice :
+        if player not in self.dice :
             raise ValueError
         else :
             self.dice[player][1] = bid
