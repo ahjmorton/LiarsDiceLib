@@ -46,10 +46,10 @@ class GameState(object) :
     def on_game_start(self, human_player) :
         pass
 
-    def on_bid(self) :
+    def on_bid(self, player, bid) :
         pass
 
-    def on_challenge(self, challanger) :
+    def on_challenge(self, challanger, challenged) :
         pass
 
 class Game(object) :
@@ -71,9 +71,11 @@ class Game(object) :
 
     def make_bid(self, bid) :
         """Make a bid for the current player in a tuple format"""
-        self.plays.set_bid(self.cur_player, bid)
-        self.state = self.state.on_bid()
+        self.state = self.state.on_bid(self.cur_player, bid)
 
     def make_challenge(self, challenger) :
         """Register a challange against the current player"""
         self.state = self.state.on_challenge(challenger, self.cur_player)
+
+    def get_state(self) :
+        return self.state

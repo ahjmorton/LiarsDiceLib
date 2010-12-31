@@ -67,6 +67,27 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(not self.state.on_game_start.called)
         self.assertTrue(not self.data.add_player.called)
 
+    def testStartingAGame(self) :
+        player = Mock(spec=Player)
+        self.subject.start_game(player)
+        self.assertTrue(self.subject.get_current_player() is None)
+        self.state.on_game_start.assert_called_with(player)
+
+    def testMakingABid(self) :
+        player = Mock(spec=Player)
+        self.subject.set_current_player(player)
+        bid = (1,2)
+        self.subject.make_bid(bid)
+        self.state.on_bid.assert_called_with(player, bid)
+        self.assertTrue(not self.data.set_bid.called)
+
+    def testMakingAChallenge(self) :
+        player = Mock(spec=Player)
+        challenge = Mock(spec=Player)
+        self.subject.set_current_player(player)
+        self.subject.make_challenge(challenge)
+        self.state.on_challenge.assert_called_with(challenge, player)
+
 def suite() :
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
