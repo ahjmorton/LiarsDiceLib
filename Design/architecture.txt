@@ -1,0 +1,11 @@
+The game has 3 layers.
+
+The top layer has the UI / user interface.
+    Any delays are here, not delays caused on server.
+The middle layer has the application logic.
+    The application logic includes the players dice
+The lower layer has the raw data.
+    The raw data is the players, the player names, their current bid.
+
+Communication through the layers should be event / message based where possible.
+
