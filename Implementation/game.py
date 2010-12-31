@@ -10,7 +10,7 @@ class GameData(object) :
 
     def add_player(self, player) :
     """Add a player to the list of players in the game. If this method is not called then any call to add dice will fail"""
-        self.dice[player] = list()
+        self.dice[player] = [None, None]
 
     def get_players(self) :
     """Return the players currently in the game"""
@@ -18,14 +18,25 @@ class GameData(object) :
 
     def get_dice(self, player) :
     """Get the dice for a particular player"""
-        return self.dice[player]
+        return self.dice[player][0]
+
+    def get_bid(self, player) :
+    """Get the bid for a particular player"""
+        return self.dice[player][1]
 
     def set_dice(self, player, dice) :
     """Set the dice a particular player has in their hand. If player has not had players added to it then raise a ValueError"""
         if player not in self.dice :
             raise ValueError
         else :
-            self.dice[player] = dice
+            self.dice[player][0] = dice
+     
+    def set_bid(self, player, bid) :
+    """Set the bid for a particular player has made. If player has not been added to object then raise a value error"""
+        if player is not in self.dice :
+            raise ValueError
+        else :
+            self.dice[player][1] = bid
 
 class GameState(object) :
     """The game state object controls the games reaction to certain events based on the current event"""
@@ -67,3 +78,6 @@ class Game(object) :
     def get_current_player(self) :
         return self.cur_player
 
+    def make_bid(self, bid) :
+        self.cur
+        self.state = self.state.on_bid(bid)
