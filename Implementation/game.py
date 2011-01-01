@@ -37,6 +37,8 @@ class GameData(object) :
         else :
             self.dice[player][1] = bid
 
+
+
 class MissingPlayerError(Exception) :
     
     def __init__(self, value) :
@@ -50,6 +52,14 @@ class IllegalStateChangeError(Exception) :
     
     def __init__(self, value) :
         self.val = value
+
+    def __str__(self) :
+        return repr(self.value)
+
+class IllegalBidError(Exception) :
+
+    def __init__(self, value) :
+        self.val
 
     def __str__(self) :
         return repr(self.value)
@@ -70,20 +80,58 @@ class GameState(object) :
         raise IllegalStateChangeError("Cannot call on_challenge")
 
 class GameStartState(GameState) :
-    """This state is the state the game first enters in after the players have been added to the game but before any moves have been played"""
+    """This state is the state the game first enters in after the players have been added to the game. At this point the dice are shuffled and the first player for the round is chosen"""
     
     def __init__(self, game, enter_state) :
         GameState.__init__(self, game)
         self.first = enter_state
 
     def on_game_start(self, human_player) : 
-        """Game start should check the player provided is in the game data, if not thrown an error"""
+        """Game start should check the player provided is in the game data, if not thrown an error.
+Also performs shuffling of dice """
         if human_player not in self.game.get_state().get_players() :
             raise MissingPlayerError("Player provided for starting of game not in list of players")
         else : 
             #Could also add logic to do random number generation to work out who goes first
             self.game.set_current_player(human_player)
             return self.first
+
+class FirstBidState(GameState) :
+    def __init__(self, game, bid_state, new_game_state) :
+        GameState.__init__(self, game)
+        self.next = bid_state
+        self.restart = new_game_state
+
+    def on_game_start(self, human_player) :
+        return self.restart.on_game_start(human_player)
+
+    def on_bid(self, player, bid) :
+        self.game.get_state().set_bid(player, bid)
+        self.game.set_current_player(self.game.get_next_player())
+        return self.next
+
+class BidState(GameState) :
+
+    def __init__(self, game, bid_state, new_game_state) :
+        GameState.__init__(self, game)
+        self.next = bid_state
+        self.restart = new_game_state
+
+    def on_game_start(self, human_player) :
+        return self.restart.on_game_start(human_player)
+
+    def on_bid(self, player, bid) :
+        cur_bid = self.game.get_previous_bid()
+        if bid[0] >= cur_bid[0] and bid[1] > cur_bid[1] :
+            data = self.game.get_state()
+            data.set_bid(player, bid)
+            self.game.set_current_player(self.game.get_next_player())
+            return self.next
+        else :
+            raise IllegalBidError((bid, cur_bid))
+
+    
+        
 
 
 class Game(object) :
@@ -102,6 +150,18 @@ class Game(object) :
 
     def get_current_player(self) :
         return self.cur_player
+
+    def get_next_player(self) :
+        pass
+
+    def get_previous_player(self) :
+        pass
+
+    def get_previous_bid(self) :
+        pass                
+
+    def get_current_bid(self) :
+        return self.plays.get_bid(self.cur_player)
 
     def make_bid(self, bid) :
         """Make a bid for the current player in a tuple format"""
