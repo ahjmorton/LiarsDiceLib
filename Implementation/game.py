@@ -131,7 +131,7 @@ class FirstBidState(GameState) :
         return self.restart.on_game_start(human_player)
 
     def on_bid(self, player, bid) :
-        self.game.get_state().set_bid(player, bid)
+        self.game.set_bid(player, bid)
         self.game.set_current_player(self.game.get_next_player())
         return self.next
 
@@ -187,7 +187,13 @@ class Game(object) :
         self.plays.set_dice(player, dice)
 
     def get_dice(self, player) :
-        self.plays.get_dice(player)
+        return self.plays.get_dice(player)
+
+    def set_bid(self, player, bid) :
+        self.plays.set_bid(player, bid)
+
+    def get_bid(self, player) :
+        return self.plays.get_bid(player)
 
     def get_players(self) :
         return self.plays.get_players()
