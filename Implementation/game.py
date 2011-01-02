@@ -148,16 +148,11 @@ class BidState(GameState) :
     def on_bid(self, player, bid) :
         cur_bid = self.game.get_previous_bid()
         if bid[0] >= cur_bid[0] and bid[1] > cur_bid[1] :
-            data = self.game.get_state()
-            data.set_bid(player, bid)
+            self.game.set_bid(player, bid)
             self.game.set_current_player(self.game.get_next_player())
             return self.next
         else :
             raise IllegalBidError((bid, cur_bid))
-
-    
-        
-
 
 class Game(object) :
     """The game object provides the application logic for the game and enforcing the game rules."""
