@@ -199,7 +199,11 @@ class Game(object) :
         return player in self.plays.get_players()
 
     def get_previous_player(self) :
-        pass
+        players = self.plays.get_players()
+        index = players.index(self.cur_player) - 1
+        if index < 0 :
+            index = len(players) - 1
+        return players[index]
 
     def get_previous_bid(self) :
         pass                
