@@ -145,6 +145,18 @@ class GameObjectTest(unittest.TestCase) :
         self.assertEquals(players[0], ret)
         self.assertTrue(self.data.get_players.called)
 
+    def testGettingPreviousBid(self) :
+        players = [Mock(spec=Player) for x in xrange(0, 2)]
+        bid = (1,2)
+        self.data.get_players.return_value = players
+        self.data.get_bid.return_value = bid
+        self.subject.set_current_player(players[1])
+        ret = self.subject.get_previous_bid()
+        self.assertTrue(ret is not None)
+        self.assertEquals(bid, ret)
+        self.data.get_bid.assert_called_with(players[0])
+
+
    
 class DiceRollerTest(unittest.TestCase) :
     

@@ -206,7 +206,7 @@ class Game(object) :
         return players[index]
 
     def get_previous_bid(self) :
-        pass                
+        return self.plays.get_bid(self.get_previous_player())
 
     def get_current_bid(self) :
         return self.plays.get_bid(self.cur_player)
