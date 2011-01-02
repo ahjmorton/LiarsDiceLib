@@ -153,6 +153,15 @@ class BidState(GameState) :
             return self.next
         else :
             raise IllegalBidError((bid, cur_bid))
+    
+    def on_challenge(self, challenger, challenged) :
+        bid = self.game.get_previous_bid()
+        if self.game.true_bid(bid) :
+            self.game.remove_dice(challenger)
+        else :
+            self.game.remove_dice(challenged)
+        return self.next
+        
 
 class Game(object) :
     """The game object provides the application logic for the game and enforcing the game rules."""
@@ -198,6 +207,12 @@ class Game(object) :
 
     def has_player(self, player) :
         return player in self.plays.get_players()
+
+    def true_bid(self, bid) :
+        pass
+
+    def remove_dice(self, player) :
+        pass
 
     def get_previous_player(self) :
         players = self.plays.get_players()

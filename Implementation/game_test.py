@@ -282,11 +282,28 @@ class BidGameStateTest(GameStateTest) :
         self.assertRaises(game.IllegalBidError, call)
 
     def testOnChallenge(self) :
-        pass
+        player1 = Mock(spec=Player)
+        player2 = Mock(spec=Player)
+        cur_bid = (3, 4)
+        self.game.true_bid.return_value = True
+        self.game.get_previous_bid.return_value = cur_bid
+        ret = self.subject.on_challenge(player1, player2)
+        self.assertTrue(ret is not None)
+        self.assertTrue(ret == self.next_state)
+        self.game.true_bid.assert_called_with(cur_bid)
+        self.game.remove_dice.assert_called_with(player1)              
 
     def testOnChallengeNegative(self) :
-        pass
-
+        player1 = Mock(spec=Player)
+        player2 = Mock(spec=Player)
+        cur_bid = (3, 4)
+        self.game.true_bid.return_value = False
+        self.game.get_previous_bid.return_value = cur_bid
+        ret = self.subject.on_challenge(player1, player2)
+        self.assertTrue(ret is not None)
+        self.assertTrue(ret == self.next_state)
+        self.game.true_bid.assert_called_with(cur_bid)
+        self.game.remove_dice.assert_called_with(player2)
         
 class GameStartStateTest(GameStateTest) :
     
