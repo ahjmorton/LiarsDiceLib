@@ -214,7 +214,7 @@ class GameStateTest(unittest.TestCase) :
             self.subject.on_challenge(challenge, player)
         self.assertRaises(game.IllegalStateChangeError, call)
 
-class FirstBidGameStateTest(unittest.TestCase) :
+class FirstBidGameStateTest(GameStateTest) :
     
     def get_subject(self, g) :
         self.first = Mock(spec=game.GameState)
@@ -225,9 +225,9 @@ class FirstBidGameStateTest(unittest.TestCase) :
         mock_state = Mock(spec=game.GameState)
         player = Mock(spec=Player)
         self.first.on_game_start.return_value = mock_state
-        ret = self.game.on_game_start(player)
+        ret = self.subject.on_game_start(player)
         self.assertTrue(ret is not None)
-        self.mock_first.assert_called_with(player)
+        self.first.on_game_start.assert_called_with(player)
         self.assertTrue(ret == mock_state)
 
     def testOnBid(self) :
@@ -239,6 +239,28 @@ class FirstBidGameStateTest(unittest.TestCase) :
         self.assertTrue(ret is not None)
         self.game.set_bid.assert_called_with(player, bid)
         self.game.set_current_player.assert_called_with(player2)
+
+class BidGameStateTest(GameStateTest) :
+    def get_subject(self, g) :
+        self.first = Mock(spec=game.GameState)
+        self.next_state = Mock(spec=game.GameState)
+        return game.FirstBidState(g, self.next_state, self.first)
+
+    def testOnGameStart(self) :
+        mock_state = Mock(spec=game.GameState)
+        player = Mock(spec=Player)
+        self.first.on_game_start.return_value = mock_state
+        ret = self.subject.on_game_start(player)
+        self.assertTrue(ret is not None)
+        self.first.on_game_start.assert_called_with(player)
+        self.assertTrue(ret == mock_state)
+
+    def testOnBid(self) :
+        pass
+
+    def testOnChallenge(self) :
+        pass
+
         
 class GameStartStateTest(GameStateTest) :
     
@@ -286,6 +308,8 @@ def suite() :
     suite.addTests(loader.loadTestsFromTestCase(GameObjectTest))
     suite.addTests(loader.loadTestsFromTestCase(GameStateTest))
     suite.addTests(loader.loadTestsFromTestCase(GameStartStateTest))
+    suite.addTests(loader.loadTestsFromTestCase(FirstBidGameStateTest))
+    suite.addTests(loader.loadTestsFromTestCase(BidGameStateTest))
     return suite
 
 if __name__ == "__main__" :
