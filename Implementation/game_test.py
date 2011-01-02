@@ -105,6 +105,15 @@ class DiceRollerTest(unittest.TestCase) :
         self.assertTrue(ret == val)
         self.assertTrue(self.random.randint.called)
         self.assertTrue(self.random.randint.callcount == 1)
+    
+    def testRollingSetOfDice(self) :
+        ret = 3
+        amount = 6
+        self.random.randint.return_value = ret
+        val = self.subject.roll_set_of_dice(amount)
+        self.assertTrue(val is not None)
+        self.assertTrue(len(val) == amount)
+        self.assertTrue(reduce(lambda x, y: x and (y == ret), val, True))
 
 class GameStateTest(unittest.TestCase) :
     
