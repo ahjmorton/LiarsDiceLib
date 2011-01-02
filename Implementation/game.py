@@ -1,3 +1,5 @@
+import prng
+
 class GameData(object) :
     """The game object is responsible for maintaining state about the game in progresss.
 
@@ -59,10 +61,23 @@ class IllegalStateChangeError(Exception) :
 class IllegalBidError(Exception) :
 
     def __init__(self, value) :
-        self.val
+        self.val = value
 
     def __str__(self) :
         return repr(self.value)
+
+class DiceRoller(object) :
+    
+    def __init__(self, max_face=6, min_face=1, random=prng.get_random()) :
+        self.face_min = min_face
+        self.face_max = max_face
+        self.rand = random
+
+    def roll_dice(self) :
+        return self.rand.randint(self.min_face, self.max_face)
+
+    def roll_set_of_dice(self, num) :
+        return [self.roll_dice() for x in xrange(num)]
 
 class GameState(object) :
     """The game state object controls the games reaction to certain events based on the current event. Default implementations of all state methods thrown illegal state change error"""

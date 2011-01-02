@@ -1,4 +1,5 @@
 import unittest
+import random
 
 from mock import Mock
 
@@ -88,6 +89,23 @@ class GameObjectTest(unittest.TestCase) :
         self.subject.make_challenge(challenge)
         self.state.on_challenge.assert_called_with(challenge, player)
 
+class DiceRollerTest(unittest.TestCase) :
+    
+    def setUp(self) :
+        self.u = 6
+        self.l = 1
+        self.random = Mock(spec=random.Random)
+        self.subject = game.DiceRoller(self.u, self.l, self.random)
+
+    def testRollingDice(self) :
+        ret = 3
+        self.random.randint.return_value = ret
+        val = self.subject.roll_dice()
+        self.assertTrue(val is not None)
+        self.assertTrue(ret == val)
+        self.assertTrue(self.random.randint.called)
+        self.assertTrue(self.random.randint.callcount == 1)
+
 class GameStateTest(unittest.TestCase) :
     
     def setUp(self) :
@@ -124,6 +142,7 @@ class GameStartStateTest(GameStateTest) :
         self.next_state = Mock(spec=game.GameState)
         self.data = Mock(spec=game.GameData)
         self.game.get_state.return_value = self.data
+        self.max_face = 6
         return game.GameStartState(g, self.next_state)
 
     def testOnGameStart(self) :
