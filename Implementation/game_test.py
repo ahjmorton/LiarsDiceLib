@@ -165,7 +165,26 @@ class GameStartStateTest(GameStateTest) :
         self.assertTrue(res is not None)
         self.assertTrue(res is self.next_state)
         self.assertTrue(self.data.get_players.called)
-
+        self.game.set_current_player.assert_called_with(player)
+    
+    def testOnGameStartShufflesDice(self) :
+        player = Mock(spec=Player)
+        players = [player] + [Mock(spec=Player) for i in xrange(1, 4)]
+        ret_dice = [1,2,3,4,5,6]
+        self.data.get_num_of_starting_dice.return_value = 6
+        self.dice_roll.roll_set_of_dice.return_value = ret_dice
+        self.data.get_players.return_value = players
+        res = self.subject.on_game_start(player)
+        self.assertTrue(res is not None)
+        self.assertTrue(res is self.next_state)
+        self.assertTrue(self.data.get_players.called) 
+        self.assertTrue(self.data.get_num_of_starting_dice.called)
+        self.assertTrue(self.dice_roll.roll_set_of_dice.called)
+        self.assertEquals(len(players), self.dice_roll.roll_set_of_dice.call_count)
+        self.assertTrue(self.data.set_dice.called)
+        self.assertEquals(len(players), self.data.set_dice.call_count)
+        for x in players :
+            self.data.set_dice.assert_called_with(x, ret_dice)
 
 def suite() :
     suite = unittest.TestSuite()
