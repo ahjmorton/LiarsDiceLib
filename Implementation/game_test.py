@@ -169,6 +169,16 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_dice_map.called)
         self.dice_check.check_bids.assert_called_with(bid, dice_dict)
 
+    def testRemovingDice(self) :
+        length = 4
+        ret_list = [1 for x in xrange(0, length)]
+        player = Mock(spec=Player)
+        self.data.get_dice.return_value = ret_list
+        self.subject.remove_dice(player)
+        self.data.get_dice.assert_called_with(player)
+        self.assertTrue(self.data.set_dice.called)
+        self.assertEquals(length - 1, len(self.data.set_dice.call_args[0][1]))
+
 class BidCheckerTest(unittest.TestCase) :
     
     def setUp(self) :

@@ -226,7 +226,9 @@ class Game(object) :
         return self.bid_checker.check_bids(bid, self.plays.get_dice_map())
 
     def remove_dice(self, player) :
-        pass
+        dice = self.plays.get_dice(player)
+        dice = dice[:-1]
+        self.plays.set_dice(player, dice)
 
     def get_previous_player(self) :
         players = self.plays.get_players()
