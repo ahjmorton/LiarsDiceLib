@@ -45,7 +45,11 @@ class GameData(object) :
     def get_num_of_starting_dice(self) :
         return self.starting
 
-
+    def get_dice_map(self) :
+        ret = dict() 
+        for player in self.dice :
+            ret[player] = self.get_dice(player)
+        return ret
 
 class MissingPlayerError(Exception) :
     
@@ -71,6 +75,15 @@ class IllegalBidError(Exception) :
 
     def __str__(self) :
         return repr(self.value)
+
+class BidChecker(object) :
+    
+    def check_bids(self, bid, originator, dice) :
+        die = bid[1]
+        count = 0
+        for x in dice :
+            count = count + dice[x].count(die)
+        return count >= bid[0]
 
 class DiceRoller(object) :
     

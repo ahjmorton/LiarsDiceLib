@@ -156,8 +156,27 @@ class GameObjectTest(unittest.TestCase) :
         self.assertEquals(bid, ret)
         self.data.get_bid.assert_called_with(players[0])
 
+class BidCheckerTest(unittest.TestCase) :
+    
+    def setUp(self) :
+        self.subject = game.BidChecker()
 
-   
+    def testCheckingBidSimple(self) :
+        player = Mock(spec=Player)
+        bid = (2,4)
+        dice_map = {player:[2,4,4]}
+        ret = self.subject.check_bids(bid, player, dice_map)
+        self.assertTrue(ret is not None)
+        self.assertTrue(ret)
+    
+    def testCheckingBidNegative(self) :
+        player = Mock(spec=Player)
+        bid = (2,4)
+        dice_map = {player:[2,4]}
+        ret = self.subject.check_bids(bid, player, dice_map)
+        self.assertTrue(ret is not None)
+        self.assertTrue(not ret) 
+
 class DiceRollerTest(unittest.TestCase) :
     
     def setUp(self) :
@@ -352,6 +371,7 @@ def suite() :
     suite.addTests(loader.loadTestsFromTestCase(GameStateTest))
     suite.addTests(loader.loadTestsFromTestCase(GameStartStateTest))
     suite.addTests(loader.loadTestsFromTestCase(FirstBidGameStateTest))
+    suite.addTests(loader.loadTestsFromTestCase(BidCheckerTest))
     suite.addTests(loader.loadTestsFromTestCase(BidGameStateTest))
     return suite
 
