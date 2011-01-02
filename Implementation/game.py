@@ -3,11 +3,14 @@ import prng
 class GameData(object) :
     """The game object is responsible for maintaining state about the game in progresss.
 
-    It maintains a list of players in the game as well as the dice values for each player"""
+    It maintains a list of players in the game as well as the dice values for each player
     
-    def __init__(self) :
+    Additionally it holds the number of starting dice """
+    
+    def __init__(self, starting_dice=5) :
         """Create a game object with a random source"""
         self.dice = dict()
+        self.starting = starting_dice
 
     def add_player(self, player) :
         """Add a player to the list of players in the game. If this method is not called then any call to add dice will fail"""
@@ -38,6 +41,9 @@ class GameData(object) :
             raise ValueError
         else :
             self.dice[player][1] = bid
+
+    def get_num_of_starting_dice(self) :
+        return self.starting
 
 
 
@@ -97,9 +103,10 @@ class GameState(object) :
 class GameStartState(GameState) :
     """This state is the state the game first enters in after the players have been added to the game. At this point the dice are shuffled and the first player for the round is chosen"""
     
-    def __init__(self, game, enter_state) :
+    def __init__(self, game, enter_state, dice_roller) :
         GameState.__init__(self, game)
         self.first = enter_state
+        self.dice_roll = dice_roller
 
     def on_game_start(self, human_player) : 
         """Game start should check the player provided is in the game data, if not thrown an error.

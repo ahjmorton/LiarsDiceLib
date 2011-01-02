@@ -9,12 +9,14 @@ from player import Player
 class GameDataTest(unittest.TestCase) :
 
     def setUp(self) :
-        self.subject = game.GameData()
+        self.starting = 3
+        self.subject = game.GameData(self.starting)
 
     def testStartingState(self) : 
         players = self.subject.get_players()
         self.assertTrue(players is not None)
         self.assertEquals(0, len(players))
+        self.assertEquals(self.subject.get_num_of_starting_dice(), self.starting)
 
     def testAddingPlayer(self) :
         player = Mock(spec=Player)
@@ -148,11 +150,12 @@ class GameStateTest(unittest.TestCase) :
 class GameStartStateTest(GameStateTest) :
     
     def get_subject(self, g) :
+        self.dice_roll = Mock(spec=game.DiceRoller)
         self.next_state = Mock(spec=game.GameState)
         self.data = Mock(spec=game.GameData)
         self.game.get_state.return_value = self.data
         self.max_face = 6
-        return game.GameStartState(g, self.next_state)
+        return game.GameStartState(g, self.next_state, self.dice_roll)
 
     def testOnGameStart(self) :
         player = Mock(spec=Player)
