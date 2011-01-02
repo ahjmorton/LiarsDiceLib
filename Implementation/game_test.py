@@ -171,38 +171,37 @@ class GameStartStateTest(GameStateTest) :
     def get_subject(self, g) :
         self.dice_roll = Mock(spec=game.DiceRoller)
         self.next_state = Mock(spec=game.GameState)
-        self.data = Mock(spec=game.GameData)
-        self.game.get_state.return_value = self.data
         self.max_face = 6
         return game.GameStartState(g, self.next_state, self.dice_roll)
 
     def testOnGameStart(self) :
         player = Mock(spec=Player)
-        players = [player]
-        self.data.get_players.return_value = players
+        self.game.has_player.return_value = True
+        self.game.get_players.return_value = []
         res = self.subject.on_game_start(player)
         self.assertTrue(res is not None)
         self.assertTrue(res is self.next_state)
-        self.assertTrue(self.data.get_players.called)
+        self.assertTrue(self.game.has_player.called)
         self.game.set_current_player.assert_called_with(player)
     
     def testOnGameStartShufflesDice(self) :
         player = Mock(spec=Player)
         players = [player] + [Mock(spec=Player) for i in xrange(1, 4)]
+        self.game.get_players.return_value = players
         ret_dice = [1,2,3,4,5,6]
-        self.data.get_num_of_starting_dice.return_value = 6
+        self.game.has_player.return_value = True
+        self.game.number_of_starting_dice.return_value = 6
         self.dice_roll.roll_set_of_dice.return_value = ret_dice
-        self.data.get_players.return_value = players
         res = self.subject.on_game_start(player)
         self.assertTrue(res is not None)
         self.assertTrue(res is self.next_state)
-        self.assertTrue(self.data.get_players.called) 
-        self.assertTrue(self.data.get_num_of_starting_dice.called)
+        self.assertTrue(self.game.has_player.called) 
+        self.assertTrue(self.game.number_of_starting_dice.called)
         self.assertTrue(self.dice_roll.roll_set_of_dice.called)
         self.assertEquals(len(players), self.dice_roll.roll_set_of_dice.call_count)
-        self.assertTrue(self.data.set_dice.called)
-        self.assertEquals(len(players), self.data.set_dice.call_count)
-        full_call_args = self.data.set_dice.call_args_list
+        self.assertTrue(self.game.set_dice.called)
+        self.assertEquals(len(players), self.game.set_dice.call_count)
+        full_call_args = self.game.set_dice.call_args_list
         for x in players :
             self.assertTrue(((x, ret_dice), {}) in full_call_args)
 
