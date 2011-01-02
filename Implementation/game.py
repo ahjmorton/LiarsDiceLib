@@ -179,7 +179,11 @@ class Game(object) :
         return self.cur_player
 
     def get_next_player(self) :
-        pass
+        players = self.plays.get_players()
+        index = players.index(self.cur_player) + 1
+        if index >= len(players) :
+            index = 0
+        return players[index]
 
     def get_previous_player(self) :
         pass
