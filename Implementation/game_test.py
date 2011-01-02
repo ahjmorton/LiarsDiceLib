@@ -126,8 +126,26 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(ret is not None)
         self.assertEquals(players[4], ret)
         self.assertTrue(self.data.get_players.called)
+    
+    def testGettingNextPlayerWithOnePlayer(self) :
+        players = [Mock(spec=Player)]
+        self.data.get_players.return_value = players
+        self.subject.set_current_player(players[0])
+        ret = self.subject.get_next_player()
+        self.assertTrue(ret is not None)
+        self.assertEquals(players[0], ret)
+        self.assertTrue(self.data.get_players.called)
 
+    def testGettingPreviousPlayerWithOnePlayer(self) :
+        players = [Mock(spec=Player)]
+        self.data.get_players.return_value = players
+        self.subject.set_current_player(players[0])
+        ret = self.subject.get_previous_player()
+        self.assertTrue(ret is not None)
+        self.assertEquals(players[0], ret)
+        self.assertTrue(self.data.get_players.called)
 
+   
 class DiceRollerTest(unittest.TestCase) :
     
     def setUp(self) :
