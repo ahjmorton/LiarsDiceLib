@@ -63,7 +63,8 @@ class GameObjectTest(unittest.TestCase) :
     def setUp(self) :
         self.data = Mock(spec=game.GameData)
         self.state = Mock(spec=game.GameState)
-        self.subject = game.Game(self.data, self.state)
+        self.dice_check = Mock(spec=game.BidChecker)
+        self.subject = game.Game(self.data, self.state, self.dice_check)
 
     def testStartupStateOfGameObject(self) :
         self.assertTrue(self.subject.get_current_player() is None)
@@ -156,6 +157,18 @@ class GameObjectTest(unittest.TestCase) :
         self.assertEquals(bid, ret)
         self.data.get_bid.assert_called_with(players[0])
 
+    def testBidChecking(self) :
+        dice_dict = dict()
+        exp = True
+        self.data.get_dice_map.return_value = dice_dict
+        self.dice_check.check_bids.return_value = exp
+        bid = (1, 2)
+        ret = self.subject.true_bid(bid)
+        self.assertTrue(ret is not None)
+        self.assertTrue(exp == ret)
+        self.assertTrue(self.data.get_dice_map.called)
+        self.dice_check.check_bids.assert_called_with(bid, dice_dict)
+
 class BidCheckerTest(unittest.TestCase) :
     
     def setUp(self) :
@@ -165,7 +178,7 @@ class BidCheckerTest(unittest.TestCase) :
         player = Mock(spec=Player)
         bid = (2,4)
         dice_map = {player:[2,4,4]}
-        ret = self.subject.check_bids(bid, player, dice_map)
+        ret = self.subject.check_bids(bid, dice_map)
         self.assertTrue(ret is not None)
         self.assertTrue(ret)
     
@@ -173,7 +186,7 @@ class BidCheckerTest(unittest.TestCase) :
         player = Mock(spec=Player)
         bid = (2,4)
         dice_map = {player:[2,4]}
-        ret = self.subject.check_bids(bid, player, dice_map)
+        ret = self.subject.check_bids(bid, dice_map)
         self.assertTrue(ret is not None)
         self.assertTrue(not ret) 
 

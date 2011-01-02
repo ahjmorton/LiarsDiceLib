@@ -78,7 +78,7 @@ class IllegalBidError(Exception) :
 
 class BidChecker(object) :
     
-    def check_bids(self, bid, originator, dice) :
+    def check_bids(self, bid, dice) :
         die = bid[1]
         count = 0
         for x in dice :
@@ -179,10 +179,11 @@ class BidState(GameState) :
 class Game(object) :
     """The game object provides the application logic for the game and enforcing the game rules."""
 
-    def __init__(self, data, start_state) :
+    def __init__(self, data, start_state, bid_checker) :
         self.plays = data
         self.state = start_state
         self.cur_player = None
+        self.bid_checker = bid_checker
 
     def start_game(self, human_player) :
         self.state = self.state.on_game_start(human_player)
@@ -222,7 +223,7 @@ class Game(object) :
         return player in self.plays.get_players()
 
     def true_bid(self, bid) :
-        pass
+        return self.bid_checker.check_bids(bid, self.plays.get_dice_map())
 
     def remove_dice(self, player) :
         pass
