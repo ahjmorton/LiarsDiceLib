@@ -111,11 +111,16 @@ class GameStartState(GameState) :
     def on_game_start(self, human_player) : 
         """Game start should check the player provided is in the game data, if not thrown an error.
 Also performs shuffling of dice """
-        if human_player not in self.game.get_state().get_players() :
+        game_data = self.game.get_state()
+        players = game_data.get_players()
+        if human_player not in players :
             raise MissingPlayerError("Player provided for starting of game not in list of players")
         else : 
             #Could also add logic to do random number generation to work out who goes first
             self.game.set_current_player(human_player)
+            max_dice = game_data.get_num_of_starting_dice()
+            for x in players :
+                game_data.set_dice(x, self.dice_roll.roll_set_of_dice(max_dice))
             return self.first
 
 class FirstBidState(GameState) :

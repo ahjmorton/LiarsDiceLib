@@ -183,8 +183,9 @@ class GameStartStateTest(GameStateTest) :
         self.assertEquals(len(players), self.dice_roll.roll_set_of_dice.call_count)
         self.assertTrue(self.data.set_dice.called)
         self.assertEquals(len(players), self.data.set_dice.call_count)
+        full_call_args = self.data.set_dice.call_args_list
         for x in players :
-            self.data.set_dice.assert_called_with(x, ret_dice)
+            self.assertTrue(((x, ret_dice), {}) in full_call_args)
 
 def suite() :
     suite = unittest.TestSuite()
