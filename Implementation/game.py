@@ -13,12 +13,24 @@ class GameData(object) :
         self.starting = starting_dice
 
     def add_player(self, player) :
-        """Add a player to the list of players in the game. If this method is not called then any call to add dice will fail"""
+        """Add a player to the list of players in the round. If this method is not called then any call to add dice will fail"""
         self.dice[player] = [None, None]
-
+    
     def get_players(self) :
-        """Return the players currently in the game"""
+        """Return the players currently marked active"""
         return list(self.dice)
+
+    def get_all_players(self) :
+        """Return all players, including those marked inactive"""
+        pass
+
+    def make_all_active(self) :
+        """Mark all players as active"""
+        pass
+
+    def mark_inactive(self, player) :
+        """Mark a player as being inactive, an inactive player is not included in a call to get_players"""
+        pass
 
     def get_dice(self, player) :
         """Get the dice for a particular player"""
@@ -173,7 +185,10 @@ class BidState(GameState) :
             self.game.remove_dice(challenger)
         else :
             self.game.remove_dice(challenged)
-        return self.next
+        if self.game.finished() :        
+            return self.next
+        else :
+            return self
         
 
 class Game(object) :
@@ -185,8 +200,8 @@ class Game(object) :
         self.cur_player = None
         self.bid_checker = bid_checker
 
-    def start_game(self, human_player) :
-        self.state = self.state.on_game_start(human_player)
+    def start_game(self, first_player) :
+        self.state = self.state.on_game_start(first_player)
 
     def set_current_player(self, player) :
         self.cur_player = player
@@ -200,6 +215,15 @@ class Game(object) :
         if index >= len(players) :
             index = 0
         return players[index]
+
+    def add_player(self, player) :
+        self.plays.add_player(player)
+
+    def remove_player(self, player) :
+        self.plays.remove_player(player)
+
+    def get_all_players(self) :
+        return self.plays.get_all_players() 
 
     def set_dice(self, player, dice) :
         self.plays.set_dice(player, dice)
@@ -236,6 +260,9 @@ class Game(object) :
         if index < 0 :
             index = len(players) - 1
         return players[index]
+
+    def finished(self) :
+        pass
 
     def get_previous_bid(self) :
         return self.plays.get_bid(self.get_previous_player())

@@ -322,25 +322,53 @@ class BidGameStateTest(GameStateTest) :
         def call() :
             self.subject.on_bid(player, test_bid2)
         self.assertRaises(game.IllegalBidError, call)
-
+    
     def testOnChallenge(self) :
         player1 = Mock(spec=Player)
         player2 = Mock(spec=Player)
         cur_bid = (3, 4)
         self.game.true_bid.return_value = True
         self.game.get_previous_bid.return_value = cur_bid
+        self.game.finished.return_value = False
+        ret = self.subject.on_challenge(player1, player2)
+        self.assertTrue(ret is not None)
+        self.assertTrue(ret == self.subject)
+        self.game.true_bid.assert_called_with(cur_bid)
+        self.game.remove_dice.assert_called_with(player1)              
+
+    def testOnChallengeNegativeRepeats(self) :
+        player1 = Mock(spec=Player)
+        player2 = Mock(spec=Player)
+        cur_bid = (3, 4)
+        self.game.true_bid.return_value = False
+        self.game.get_previous_bid.return_value = cur_bid
+        self.game.finished.return_value = False
+        ret = self.subject.on_challenge(player1, player2)
+        self.assertTrue(ret is not None)
+        self.assertTrue(ret == self.subject)
+        self.game.true_bid.assert_called_with(cur_bid)
+        self.game.remove_dice.assert_called_with(player2)
+
+    def testOnChallengeToFinalState(self) :
+        player1 = Mock(spec=Player)
+        player2 = Mock(spec=Player)
+        cur_bid = (3, 4)
+        self.game.true_bid.return_value = True
+        self.game.get_previous_bid.return_value = cur_bid
+        self.game.finished.return_value = True
         ret = self.subject.on_challenge(player1, player2)
         self.assertTrue(ret is not None)
         self.assertTrue(ret == self.next_state)
         self.game.true_bid.assert_called_with(cur_bid)
         self.game.remove_dice.assert_called_with(player1)              
 
-    def testOnChallengeNegative(self) :
+    def testOnChallengeNegativeToFinalState(self) :
         player1 = Mock(spec=Player)
         player2 = Mock(spec=Player)
         cur_bid = (3, 4)
         self.game.true_bid.return_value = False
         self.game.get_previous_bid.return_value = cur_bid
+        self.game.finished.return_value = True
         ret = self.subject.on_challenge(player1, player2)
         self.assertTrue(ret is not None)
         self.assertTrue(ret == self.next_state)
