@@ -10,27 +10,33 @@ class GameData(object) :
     def __init__(self, starting_dice=5) :
         """Create a game object with a random source"""
         self.dice = dict()
+        self.inactive = set()
         self.starting = starting_dice
 
     def add_player(self, player) :
-        """Add a player to the list of players in the round. If this method is not called then any call to add dice will fail"""
+        """Add a player to the list of players in the round. If this method is not called then any call to add dice will fail. The player is added and is considered active on adding"""
         self.dice[player] = [None, None]
+
+    def remove_player(self, player) : 
+        """Remove player from the game"""
+        del self.dice[player]
+        self.inactive.discard(player)
     
     def get_players(self) :
         """Return the players currently marked active"""
-        return list(self.dice)
+        return list(set(self.dice) - self.inactive) 
 
     def get_all_players(self) :
         """Return all players, including those marked inactive"""
-        pass
+        return list(self.dice)
 
     def make_all_active(self) :
         """Mark all players as active"""
-        pass
+        self.inactive.clear()
 
     def mark_inactive(self, player) :
         """Mark a player as being inactive, an inactive player is not included in a call to get_players"""
-        pass
+        self.inactive.add(player)
 
     def get_dice(self, player) :
         """Get the dice for a particular player"""
