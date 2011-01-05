@@ -57,7 +57,7 @@ class GameView(object) :
         """This method is called when a player is deactivated"""
         pass
 
-    def on_game_end(self, player) : 
+    def on_game_end(self, winner) : 
         """This method is called when the game ends and gives the players name"""
         pass
 
@@ -249,9 +249,9 @@ class BidState(GameState) :
     def on_challenge(self, challenger, challenged) :
         bid = self.game.get_previous_bid()
         if self.game.true_bid(bid) :
-            self.game.remove_dice(challenger)
+            self.game.on_win(challenged, challenger, bid)
         else :
-            self.game.remove_dice(challenged)
+            self.game.on_win(challenger, challenged, bid)
         if self.game.finished() :        
             return self.next
         else :
@@ -337,6 +337,9 @@ class Game(object) :
         return players[index]
 
     def finished(self) :
+        pass
+
+    def on_win(self, winner, loser, bid) :
         pass
 
     def get_previous_bid(self) :

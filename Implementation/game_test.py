@@ -389,7 +389,7 @@ class BidGameStateTest(GameStateTest) :
         self.assertTrue(ret is not None)
         self.assertTrue(ret == self.subject)
         self.game.true_bid.assert_called_with(cur_bid)
-        self.game.remove_dice.assert_called_with(player1)              
+        self.game.on_win.assert_called_with(player2, player1, cur_bid)
 
     def testOnChallengeNegativeRepeats(self) :
         player1 = Mock(spec=game.Player)
@@ -402,7 +402,7 @@ class BidGameStateTest(GameStateTest) :
         self.assertTrue(ret is not None)
         self.assertTrue(ret == self.subject)
         self.game.true_bid.assert_called_with(cur_bid)
-        self.game.remove_dice.assert_called_with(player2)
+        self.game.on_win.assert_called_with(player1, player2, cur_bid)
 
     def testOnChallengeToFinalState(self) :
         player1 = Mock(spec=game.Player)
@@ -415,7 +415,7 @@ class BidGameStateTest(GameStateTest) :
         self.assertTrue(ret is not None)
         self.assertTrue(ret == self.next_state)
         self.game.true_bid.assert_called_with(cur_bid)
-        self.game.remove_dice.assert_called_with(player1)              
+        self.game.on_win.assert_called_with(player2, player1, cur_bid)
 
     def testOnChallengeNegativeToFinalState(self) :
         player1 = Mock(spec=game.Player)
@@ -428,7 +428,7 @@ class BidGameStateTest(GameStateTest) :
         self.assertTrue(ret is not None)
         self.assertTrue(ret == self.next_state)
         self.game.true_bid.assert_called_with(cur_bid)
-        self.game.remove_dice.assert_called_with(player2)
+        self.game.on_win.assert_called_with(player1, player2, cur_bid)
         
 class GameStartStateTest(GameStateTest) :
     
