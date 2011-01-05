@@ -1,5 +1,66 @@
 import prng
 
+class Player(object) :
+    """This game object represents a game player with event based methods"""
+    
+    def __init__(self, name) :
+        self.name = name
+
+    def get_name(self) :
+        return self.name
+
+    def on_game_start(self, dice) :
+        """This method is called when the game is started and the dice the player has are given"""
+        pass
+
+    def on_made_active(self) :
+        """This method is called when a player is set as the current player"""
+        pass
+
+    def on_made_inactive(self) :
+        """This method is called when a plahyer is made inactive"""
+        pass
+
+    def on_game_end(self) :
+        """This method is called when the game ends"""
+        pass
+
+class GameView(object) :
+    """This object represents an observer on the game object for updating a user interface"""
+
+    
+    def on_game_start(self, player_list) :
+        """This method is called when the game begins. It contains a list of players who are in the game"""
+        pass
+
+    def on_bid(self, player_name, bid) :
+        """This method is called when a player bids with the players name and a bid"""
+        pass
+
+    def on_challenge(self, challaneger, challenged, winner, dice_map) :
+        """This method is called at the end of a challenge with the challenger, challenged, the winner and dice of each player"""
+        pass
+
+    def on_activation(self, player_name) :
+        """This method is called when a player is made active"""
+        pass
+
+    def on_player_addition(self, player_name) :
+        """This method is called when a player is added to the game"""
+        pass
+
+    def on_player_remove(self, player_name) :
+        """This method is called when a player is removed from the game"""
+        pass
+
+    def on_deactivate(self, player_name) :
+        """This method is called when a player is deactivated"""
+        pass
+
+    def on_game_end(self, player) : 
+        """This method is called when the game ends and gives the players name"""
+        pass
+
 class GameData(object) :
     """The game object is responsible for maintaining state about the game in progresss.
 
