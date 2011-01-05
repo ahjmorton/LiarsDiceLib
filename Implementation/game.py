@@ -358,7 +358,7 @@ class Game(object) :
         return players[index]
 
     def finished(self) :
-        pass
+        return self.win_checker.get_winner(self.plays.get_dice_map()) is not None
 
     def on_win(self, winner, loser, bid) :
         pass

@@ -122,6 +122,27 @@ class GameObjectTest(unittest.TestCase) :
         self.win_check = Mock(spec=game.WinChecker)
         self.subject = game.Game(self.data, self.state, self.dice_check, self.win_check)
 
+    def testCheckingForFinished(self) :
+        player1 = Mock(spec=game.Player)
+        dice_map = dict()
+        self.win_check.get_winner.return_value = player1
+        self.data.get_dice_map.return_value = dice_map
+        ret = self.subject.finished()
+        self.assertTrue(ret is not None)
+        self.assertTrue(ret)
+        self.data.get_dice_map.assert_called_with()
+        self.win_check.get_winner.assert_called_with(dice_map)
+    
+    def testCheckingForFinishedNegative(self) :
+        self.win_check.get_winner.return_value = None
+        dice_map = dict()
+        self.data.get_dice_map.return_value = dice_map
+        ret = self.subject.finished()
+        self.assertTrue(ret is not None)
+        self.assertTrue(not ret)
+        self.data.get_dice_map.assert_called_with()
+        self.win_check.get_winner.assert_called_with(dice_map)
+
     def testStartupStateOfGameObject(self) :
         self.assertTrue(self.subject.get_current_player() is None)
         self.assertTrue(not self.state.on_game_start.called)
