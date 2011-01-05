@@ -25,6 +25,10 @@ class Player(object) :
         """This method is called when the game ends"""
         pass
 
+    def on_new_dice_amount(self, amount) :
+        """This method is called when the dice amount changes, possibly due to a loss of dice"""
+        pass
+
 class GameView(object) :
     """This object represents an observer on the game object for updating a user interface"""
 
@@ -59,6 +63,10 @@ class GameView(object) :
 
     def on_game_end(self, winner) : 
         """This method is called when the game ends and gives the players name"""
+        pass
+
+    def on_new_dice_amount(self, player, amount) :
+        """This method is called when a players dice aomunt changes"""
         pass
 
 class GameData(object) :
@@ -163,6 +171,18 @@ class BidChecker(object) :
         for x in dice :
             count = count + dice[x].count(die)
         return count >= bid[0]
+
+class WinChecker(object) :
+    
+    def get_winner(self, dice_map) :
+        cur_win = None
+        for x in dice_map :
+            if len(dice_map[x]) > 0 :
+                if cur_win is not None :
+                    return None
+                else :
+                    cur_win = x
+        return cur_win
 
 class DiceRoller(object) :
     
@@ -269,11 +289,12 @@ class FinishedState(GameState) :
 class Game(object) :
     """The game object provides the application logic for the game and enforcing the game rules."""
 
-    def __init__(self, data, start_state, bid_checker) :
+    def __init__(self, data, start_state, bid_checker, win_checker) :
         self.plays = data
         self.state = start_state
         self.cur_player = None
         self.bid_checker = bid_checker
+        self.win_checker = win_checker
 
     def start_game(self, first_player) :
         self.state = self.state.on_game_start(first_player)

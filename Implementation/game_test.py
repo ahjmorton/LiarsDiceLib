@@ -119,7 +119,8 @@ class GameObjectTest(unittest.TestCase) :
         self.data = Mock(spec=game.GameData)
         self.state = Mock(spec=game.GameState)
         self.dice_check = Mock(spec=game.BidChecker)
-        self.subject = game.Game(self.data, self.state, self.dice_check)
+        self.win_check = Mock(spec=game.WinChecker)
+        self.subject = game.Game(self.data, self.state, self.dice_check, self.win_check)
 
     def testStartupStateOfGameObject(self) :
         self.assertTrue(self.subject.get_current_player() is None)
@@ -254,6 +255,23 @@ class BidCheckerTest(unittest.TestCase) :
         ret = self.subject.check_bids(bid, dice_map)
         self.assertTrue(ret is not None)
         self.assertTrue(not ret) 
+
+class WinCheckerTest(unittest.TestCase) :
+    
+    def setUp(self) :
+        self.subject = game.WinChecker()
+
+    def testCheckingBidAllNone(self) :
+        dice_map = {"a":[1,2,3], "b":[1], "c":[1,4,2]}
+        self.assertTrue(self.subject.get_winner(dice_map) is None)
+
+    def testCheckingBidOneWin(self) :
+        winner = "a"
+        dice_map = {winner:[1,2,3], "b":[], "c":[]}
+        ret = self.subject.get_winner(dice_map)
+        self.assertTrue(ret is not None)
+        self.assertTrue(winner == ret)
+
 
 class DiceRollerTest(unittest.TestCase) :
     
@@ -494,6 +512,7 @@ def suite() :
     suite.addTests(loader.loadTestsFromTestCase(BidCheckerTest))
     suite.addTests(loader.loadTestsFromTestCase(BidGameStateTest))
     suite.addTests(loader.loadTestsFromTestCase(FinalGameStateTest))
+    suite.addTests(loader.loadTestsFromTestCase(WinCheckerTest))
     return suite
 
 if __name__ == "__main__" :
