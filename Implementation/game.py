@@ -257,6 +257,14 @@ class BidState(GameState) :
         else :
             return self
         
+class FinishedState(GameState) : 
+    def __init__(self, game, end) :
+        GameState.__init__(self, game)
+        self.end = end
+
+    def on_game_start(self, human_player) :
+        return self.end.on_game_start(human_player)
+
 
 class Game(object) :
     """The game object provides the application logic for the game and enforcing the game rules."""

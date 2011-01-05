@@ -4,7 +4,6 @@ import random
 from mock import Mock
 
 import game
-from player import Player
 
 class GameDataTest(unittest.TestCase) :
 
@@ -19,7 +18,7 @@ class GameDataTest(unittest.TestCase) :
         self.assertEquals(self.subject.get_num_of_starting_dice(), self.starting)
 
     def testAddingPlayer(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.subject.add_player(player)
         players = self.subject.get_players()
         self.assertTrue(players is not None)
@@ -35,7 +34,7 @@ class GameDataTest(unittest.TestCase) :
         self.assertTrue(player in players)
     
     def testRemovingPlayer(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.subject.add_player(player)
         players = self.subject.get_players()
         self.assertTrue(players is not None)
@@ -54,14 +53,14 @@ class GameDataTest(unittest.TestCase) :
         self.assertEquals(0, len(players))
 
     def testAddingDice(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.subject.add_player(player)
         dice = [1,2,3,4]
         self.subject.set_dice(player, dice)
         self.assertTrue(dice == self.subject.get_dice(player))
 
     def testMakingPlayerInactive(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.subject.add_player(player)
         self.subject.mark_inactive(player)
         players = self.subject.get_players()
@@ -73,7 +72,7 @@ class GameDataTest(unittest.TestCase) :
         self.assertTrue(player in players)
 
     def testMakingPlayerInactiveThenReactivating(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.subject.add_player(player)
         self.subject.mark_inactive(player)
         players = self.subject.get_players()
@@ -93,22 +92,22 @@ class GameDataTest(unittest.TestCase) :
         self.assertEquals(1, len(players))
         self.assertTrue(player in players)
 
-    def testAddingDiceWithNoPlayerThrowsException(self) :
-        player = Mock(spec=Player)
+    def testAddingDiceWithNoPlayerThorwsException(self) :
+        player = Mock(spec=game.Player)
         dice = [1,2,3,4]
         def caller() :
             self.subject.set_dice(player, dice)
         self.assertRaises(ValueError, caller)
     
     def testAddingBids(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.subject.add_player(player)
         bid = (2, 4)
         self.subject.set_bid(player, bid)
         self.assertTrue(bid == self.subject.get_bid(player))
 
-    def testAddingDiceWithNoPlayerThrowsException(self) :
-        player = Mock(spec=Player)
+    def testAddingDiceWithNoPlayerThorwsException(self) :
+        player = Mock(spec=game.Player)
         bid = (1,2)
         def caller() :
             self.subject.set_bid(player, bid)
@@ -128,13 +127,13 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(not self.data.add_player.called)
 
     def testStartingAGame(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.subject.start_game(player)
         self.assertTrue(self.subject.get_current_player() is None)
         self.state.on_game_start.assert_called_with(player)
 
     def testMakingABid(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.subject.set_current_player(player)
         bid = (1,2)
         self.subject.make_bid(bid)
@@ -142,14 +141,14 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(not self.data.set_bid.called)
 
     def testMakingAChallenge(self) :
-        player = Mock(spec=Player)
-        challenge = Mock(spec=Player)
+        player = Mock(spec=game.Player)
+        challenge = Mock(spec=game.Player)
         self.subject.set_current_player(player)
         self.subject.make_challenge(challenge)
         self.state.on_challenge.assert_called_with(challenge, player)
 
     def testGettingNextPlayer(self) :
-        players = [Mock(spec=Player) for x in xrange(0, 5)]
+        players = [Mock(spec=game.Player) for x in xrange(0, 5)]
         self.data.get_players.return_value = players
         self.subject.set_current_player(players[0])
         ret = self.subject.get_next_player()
@@ -158,7 +157,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
 
     def testGettingNextPlayerOnLastPlayer(self) :
-        players = [Mock(spec=Player) for x in xrange(0, 5)]
+        players = [Mock(spec=game.Player) for x in xrange(0, 5)]
         self.data.get_players.return_value = players
         self.subject.set_current_player(players[4])
         ret = self.subject.get_next_player()
@@ -167,7 +166,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
     
     def testGettingPreviousPlayer(self) :
-        players = [Mock(spec=Player) for x in xrange(0, 5)]
+        players = [Mock(spec=game.Player) for x in xrange(0, 5)]
         self.data.get_players.return_value = players
         self.subject.set_current_player(players[4])
         ret = self.subject.get_previous_player()
@@ -176,7 +175,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
 
     def testGettingPreviousPlayerOnFirstPlayer(self) :
-        players = [Mock(spec=Player) for x in xrange(0, 5)]
+        players = [Mock(spec=game.Player) for x in xrange(0, 5)]
         self.data.get_players.return_value = players
         self.subject.set_current_player(players[0])
         ret = self.subject.get_previous_player()
@@ -185,7 +184,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
     
     def testGettingNextPlayerWithOnePlayer(self) :
-        players = [Mock(spec=Player)]
+        players = [Mock(spec=game.Player)]
         self.data.get_players.return_value = players
         self.subject.set_current_player(players[0])
         ret = self.subject.get_next_player()
@@ -194,7 +193,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
 
     def testGettingPreviousPlayerWithOnePlayer(self) :
-        players = [Mock(spec=Player)]
+        players = [Mock(spec=game.Player)]
         self.data.get_players.return_value = players
         self.subject.set_current_player(players[0])
         ret = self.subject.get_previous_player()
@@ -203,7 +202,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
 
     def testGettingPreviousBid(self) :
-        players = [Mock(spec=Player) for x in xrange(0, 2)]
+        players = [Mock(spec=game.Player) for x in xrange(0, 2)]
         bid = (1,2)
         self.data.get_players.return_value = players
         self.data.get_bid.return_value = bid
@@ -228,7 +227,7 @@ class GameObjectTest(unittest.TestCase) :
     def testRemovingDice(self) :
         length = 4
         ret_list = [1 for x in xrange(0, length)]
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.data.get_dice.return_value = ret_list
         self.subject.remove_dice(player)
         self.data.get_dice.assert_called_with(player)
@@ -241,7 +240,7 @@ class BidCheckerTest(unittest.TestCase) :
         self.subject = game.BidChecker()
 
     def testCheckingBidSimple(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         bid = (2,4)
         dice_map = {player:[2,4,4]}
         ret = self.subject.check_bids(bid, dice_map)
@@ -249,7 +248,7 @@ class BidCheckerTest(unittest.TestCase) :
         self.assertTrue(ret)
     
     def testCheckingBidNegative(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         bid = (2,4)
         dice_map = {player:[2,4]}
         ret = self.subject.check_bids(bid, dice_map)
@@ -292,21 +291,21 @@ class GameStateTest(unittest.TestCase) :
         return game.GameState(g)
 
     def testOnGameStart(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         def call() :
             self.subject.on_game_start(player)
         self.assertRaises(game.IllegalStateChangeError, call)
 
     def testOnBid(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         bid = (1,2)
         def call() :
             self.subject.on_bid(player, bid)
         self.assertRaises(game.IllegalStateChangeError, call)
 
     def testOnChallenge(self) :
-        player = Mock(spec=Player)
-        challenge = Mock(spec=Player)
+        player = Mock(spec=game.Player)
+        challenge = Mock(spec=game.Player)
         bid = (1,2)
         def call() :
             self.subject.on_challenge(challenge, player)
@@ -321,7 +320,7 @@ class FirstBidGameStateTest(GameStateTest) :
 
     def testOnGameStart(self) :
         mock_state = Mock(spec=game.GameState)
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.first.on_game_start.return_value = mock_state
         ret = self.subject.on_game_start(player)
         self.assertTrue(ret is not None)
@@ -330,8 +329,8 @@ class FirstBidGameStateTest(GameStateTest) :
 
     def testOnBid(self) :
         bid = (1,2)
-        player = Mock(spec=Player)
-        player2 = Mock(spec=Player)
+        player = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
         self.game.get_next_player.return_value = player2
         ret = self.subject.on_bid(player, bid)
         self.assertTrue(ret is not None)
@@ -346,7 +345,7 @@ class BidGameStateTest(GameStateTest) :
 
     def testOnGameStart(self) :
         mock_state = Mock(spec=game.GameState)
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.first.on_game_start.return_value = mock_state
         ret = self.subject.on_game_start(player)
         self.assertTrue(ret is not None)
@@ -356,8 +355,8 @@ class BidGameStateTest(GameStateTest) :
     def testOnBid(self) :
         cur_bid = (3, 4)
         prev_bid = (1, 2)
-        player = Mock(spec=Player)
-        player2 = Mock(spec=Player)
+        player = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
         self.game.get_previous_bid.return_value = prev_bid
         self.game.get_next_player.return_value = player2
         ret = self.subject.on_bid(player, cur_bid)
@@ -370,7 +369,7 @@ class BidGameStateTest(GameStateTest) :
         test_bid1 = (4, 3)
         test_bid2 = (3, 6)
         prev_bid = (4, 4)
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.game.get_previous_bid.return_value = prev_bid
         def call() :
             self.subject.on_bid(player, test_bid1)
@@ -380,8 +379,8 @@ class BidGameStateTest(GameStateTest) :
         self.assertRaises(game.IllegalBidError, call)
     
     def testOnChallenge(self) :
-        player1 = Mock(spec=Player)
-        player2 = Mock(spec=Player)
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
         cur_bid = (3, 4)
         self.game.true_bid.return_value = True
         self.game.get_previous_bid.return_value = cur_bid
@@ -393,8 +392,8 @@ class BidGameStateTest(GameStateTest) :
         self.game.remove_dice.assert_called_with(player1)              
 
     def testOnChallengeNegativeRepeats(self) :
-        player1 = Mock(spec=Player)
-        player2 = Mock(spec=Player)
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
         cur_bid = (3, 4)
         self.game.true_bid.return_value = False
         self.game.get_previous_bid.return_value = cur_bid
@@ -406,8 +405,8 @@ class BidGameStateTest(GameStateTest) :
         self.game.remove_dice.assert_called_with(player2)
 
     def testOnChallengeToFinalState(self) :
-        player1 = Mock(spec=Player)
-        player2 = Mock(spec=Player)
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
         cur_bid = (3, 4)
         self.game.true_bid.return_value = True
         self.game.get_previous_bid.return_value = cur_bid
@@ -419,8 +418,8 @@ class BidGameStateTest(GameStateTest) :
         self.game.remove_dice.assert_called_with(player1)              
 
     def testOnChallengeNegativeToFinalState(self) :
-        player1 = Mock(spec=Player)
-        player2 = Mock(spec=Player)
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
         cur_bid = (3, 4)
         self.game.true_bid.return_value = False
         self.game.get_previous_bid.return_value = cur_bid
@@ -440,7 +439,7 @@ class GameStartStateTest(GameStateTest) :
         return game.GameStartState(g, self.next_state, self.dice_roll)
 
     def testOnGameStart(self) :
-        player = Mock(spec=Player)
+        player = Mock(spec=game.Player)
         self.game.has_player.return_value = True
         self.game.get_players.return_value = []
         res = self.subject.on_game_start(player)
@@ -450,8 +449,8 @@ class GameStartStateTest(GameStateTest) :
         self.game.set_current_player.assert_called_with(player)
     
     def testOnGameStartShufflesDice(self) :
-        player = Mock(spec=Player)
-        players = [player] + [Mock(spec=Player) for i in xrange(1, 4)]
+        player = Mock(spec=game.Player)
+        players = [player] + [Mock(spec=game.Player) for i in xrange(1, 4)]
         self.game.get_players.return_value = players
         ret_dice = [1,2,3,4,5,6]
         self.game.has_player.return_value = True
@@ -470,6 +469,20 @@ class GameStartStateTest(GameStateTest) :
         for x in players :
             self.assertTrue(((x, ret_dice), {}) in full_call_args)
 
+class FinalGameStateTest(GameStateTest) :
+    def get_subject(self, g) :
+        self.first = Mock(spec=game.GameState)
+        return game.FinishedState(g, self.first)
+
+    def testOnGameStart(self) :
+        mock_state = Mock(spec=game.GameState)
+        player = Mock(spec=game.Player)
+        self.first.on_game_start.return_value = mock_state
+        ret = self.subject.on_game_start(player)
+        self.assertTrue(ret is not None)
+        self.first.on_game_start.assert_called_with(player)
+        self.assertTrue(ret == mock_state)
+
 def suite() :
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
@@ -480,6 +493,7 @@ def suite() :
     suite.addTests(loader.loadTestsFromTestCase(FirstBidGameStateTest))
     suite.addTests(loader.loadTestsFromTestCase(BidCheckerTest))
     suite.addTests(loader.loadTestsFromTestCase(BidGameStateTest))
+    suite.addTests(loader.loadTestsFromTestCase(FinalGameStateTest))
     return suite
 
 if __name__ == "__main__" :
