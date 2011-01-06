@@ -276,7 +276,8 @@ class BidState(GameState) :
             self.game.on_win(challenged, challenger, bid)
         else :
             self.game.on_win(challenger, challenged, bid)
-        if self.game.finished() :        
+        if self.game.finished() :
+            self.game.end_game(self.game.get_winning_player())
             return self.next
         else :
             return self
@@ -303,6 +304,12 @@ class Game(object) :
 
     def start_game(self, first_player) :
         self.state = self.state.on_game_start(first_player)
+
+    def get_winning_player(self) :
+        return self.win_checker.get_winner(self.plays.get_dice_map())
+
+    def end_game(self, winner) :
+        pass
 
     def set_current_player(self, player) :
         self.cur_player = player
@@ -381,6 +388,12 @@ class Game(object) :
     def make_challenge(self, challenger) :
         """Register a challange against the current player"""
         self.state = self.state.on_challenge(challenger, self.cur_player)
+
+class GameObservable(object) :
+    
+    def __init__(self, game) :
+        self.game = game
+        self.player
 
 if __name__ == "__main__" :
     pass

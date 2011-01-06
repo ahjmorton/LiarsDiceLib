@@ -264,6 +264,17 @@ class GameObjectTest(unittest.TestCase) :
         self.subject.on_win(player1, player2, cur_bid)
         self.win_hand.on_win.assert_called_with(player1, player2, cur_bid, self.subject)
 
+    def testGettingWinningPlayer(self) :
+        player1 = Mock(spec=game.Player)
+        ret_map = {player1:[1]}
+        self.data.get_dice_map.return_value = ret_map
+        self.win_check.get_winner.return_value = player1
+        ret = self.subject.get_winning_player()
+        self.assertTrue(ret is not None)
+        self.assertTrue(ret == player1)
+        self.win_check.get_winner.assert_called_with(ret_map)
+        self.data.get_dice_map.assert_called_with()
+
 class BidCheckerTest(unittest.TestCase) :
     
     def setUp(self) :
@@ -469,12 +480,15 @@ class BidGameStateTest(GameStateTest) :
         cur_bid = (3, 4)
         self.game.true_bid.return_value = True
         self.game.get_previous_bid.return_value = cur_bid
+        self.game.get_winning_player.return_value = player1
         self.game.finished.return_value = True
         ret = self.subject.on_challenge(player1, player2)
         self.assertTrue(ret is not None)
         self.assertTrue(ret == self.next_state)
         self.game.true_bid.assert_called_with(cur_bid)
         self.game.on_win.assert_called_with(player2, player1, cur_bid)
+        self.game.get_winning_player.assert_called_with()
+        self.game.end_game.assert_called_with(player1)
 
     def testOnChallengeNegativeToFinalState(self) :
         player1 = Mock(spec=game.Player)
@@ -483,11 +497,15 @@ class BidGameStateTest(GameStateTest) :
         self.game.true_bid.return_value = False
         self.game.get_previous_bid.return_value = cur_bid
         self.game.finished.return_value = True
+        self.game.get_winning_player.return_value = player2
         ret = self.subject.on_challenge(player1, player2)
         self.assertTrue(ret is not None)
         self.assertTrue(ret == self.next_state)
         self.game.true_bid.assert_called_with(cur_bid)
         self.game.on_win.assert_called_with(player1, player2, cur_bid)
+        self.game.get_winning_player.assert_called_with()
+        self.game.end_game.assert_called_with(player2)
+
         
 class GameStartStateTest(GameStateTest) :
     
