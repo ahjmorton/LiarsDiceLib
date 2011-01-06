@@ -146,7 +146,6 @@ class MissingPlayerError(Exception) :
     def __str__(self) :
         return repr(self.value)
 
-
 class IllegalStateChangeError(Exception) :
     
     def __init__(self, value) :
@@ -382,3 +381,6 @@ class Game(object) :
     def make_challenge(self, challenger) :
         """Register a challange against the current player"""
         self.state = self.state.on_challenge(challenger, self.cur_player)
+
+if __name__ == "__main__" :
+    pass
