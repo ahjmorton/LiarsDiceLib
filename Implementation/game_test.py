@@ -332,28 +332,30 @@ class WinHandlerTest(unittest.TestCase) :
 class DiceRollerTest(unittest.TestCase) :
     
     def setUp(self) :
-        self.u = 6
-        self.l = 1
         self.random = Mock(spec=random.Random)
-        self.subject = game.DiceRoller(self.u, self.l, self.random)
+        self.subject = game.DiceRoller(self.random)
 
     def testRollingDice(self) :
         ret = 3
+        face = (1, 6)
         self.random.randint.return_value = ret
-        val = self.subject.roll_dice()
+        val = self.subject.roll_dice(face)
         self.assertTrue(val is not None)
         self.assertTrue(ret == val)
         self.assertTrue(self.random.randint.called)
-        self.assertTrue(self.random.randint.callcount == 1)
+        self.assertTrue(self.random.randint.call_count == 1)
     
     def testRollingSetOfDice(self) :
         ret = 3
         amount = 6
+        face = (1, 6)
         self.random.randint.return_value = ret
-        val = self.subject.roll_set_of_dice(amount)
+        val = self.subject.roll_set_of_dice(amount, face)
         self.assertTrue(val is not None)
         self.assertTrue(len(val) == amount)
         self.assertTrue(reduce(lambda x, y: x and (y == ret), val, True))
+        self.assertTrue(self.random.randint.called)
+        self.assertTrue(self.random.randint.call_count == amount)
 
 class GameStateTest(unittest.TestCase) :
     
@@ -516,13 +518,14 @@ class GameStartStateTest(GameStateTest) :
     def get_subject(self, g) :
         self.dice_roll = Mock(spec=game.DiceRoller)
         self.next_state = Mock(spec=game.GameState)
-        self.max_face = 6
         return game.GameStartState(g, self.next_state, self.dice_roll)
 
     def testOnGameStart(self) :
         player = Mock(spec=game.Player)
+        face = (1,6)
         self.game.has_player.return_value = True
         self.game.get_players.return_value = []
+        self.game.get_face_values.return_value = face
         res = self.subject.on_game_start(player)
         self.assertTrue(res is not None)
         self.assertTrue(res is self.next_state)
@@ -535,8 +538,11 @@ class GameStartStateTest(GameStateTest) :
         players = [player] + [Mock(spec=game.Player) for i in xrange(1, 4)]
         self.game.get_players.return_value = players
         ret_dice = [1,2,3,4,5,6]
+        face = (1,6)
+        max_dice = 6
         self.game.has_player.return_value = True
-        self.game.number_of_starting_dice.return_value = 6
+        self.game.number_of_starting_dice.return_value = max_dice
+        self.game.get_face_values.return_value = face
         self.dice_roll.roll_set_of_dice.return_value = ret_dice
         res = self.subject.on_game_start(player)
         self.assertTrue(res is not None)
@@ -545,6 +551,7 @@ class GameStartStateTest(GameStateTest) :
         self.assertTrue(self.game.number_of_starting_dice.called)
         self.assertTrue(self.dice_roll.roll_set_of_dice.called)
         self.assertEquals(len(players), self.dice_roll.roll_set_of_dice.call_count)
+        self.dice_roll.roll_set_of_dice.assert_called_with(max_dice, face)
         self.assertTrue(self.game.set_dice.called)
         self.assertEquals(len(players), self.game.set_dice.call_count)
         full_call_args = self.game.set_dice.call_args_list
@@ -576,6 +583,7 @@ def suite() :
     suite.addTests(loader.loadTestsFromTestCase(BidCheckerTest))
     suite.addTests(loader.loadTestsFromTestCase(BidGameStateTest))
     suite.addTests(loader.loadTestsFromTestCase(FinalGameStateTest))
+    suite.addTests(loader.loadTestsFromTestCase(DiceRollerTest))
     suite.addTests(loader.loadTestsFromTestCase(WinCheckerTest))
     suite.addTests(loader.loadTestsFromTestCase(WinHandlerTest))
     return suite

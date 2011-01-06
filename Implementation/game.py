@@ -61,11 +61,11 @@ class GameView(object) :
         """This method is called when a player is made active"""
         pass
 
-    def on_player_start_turn(self, player, bid) :
+    def on_player_start_turn(self, player_name, bid) :
         """This method is called when a player is made the current player"""
         pass
 
-    def on_player_end_turn(self, player) :
+    def on_player_end_turn(self, player_name) :
         """This methodi s called when a player's turns ends"""
         pass
 
@@ -81,11 +81,11 @@ class GameView(object) :
         """This method is called when a player is deactivated"""
         pass
 
-    def on_game_end(self, winner) : 
+    def on_game_end(self, winner_name) : 
         """This method is called when the game ends and gives the players name"""
         pass
 
-    def on_new_dice_amount(self, player, amount) :
+    def on_new_dice_amount(self, player_name, amount) :
         """This method is called when a players dice aomunt changes"""
         pass
 
@@ -100,11 +100,13 @@ class GameData(object) :
     
     Additionally it holds the number of starting dice """
     
-    def __init__(self, starting_dice=5) :
+    def __init__(self, starting_dice=5, lowest_face=1, highest_face=6) :
         """Create a game object with a random source"""
         self.dice = dict()
         self.inactive = set()
         self.starting = starting_dice
+        self.low = lowest_face
+        self.high = highest_face
 
     def add_player(self, player) :
         """Add a player to the list of players in the round. If this method is not called then any call to add dice will fail. The player is added and is considered active on adding"""
@@ -162,6 +164,13 @@ class GameData(object) :
             ret[player] = self.get_dice(player)
         return ret
 
+    def get_lowest_dice(self) :
+        return self.low
+    
+    def get_highest_dice(self) :
+        return self.high
+
+
 class MissingPlayerError(Exception) :
     
     def __init__(self, value) :
@@ -209,16 +218,14 @@ class WinChecker(object) :
 
 class DiceRoller(object) :
     
-    def __init__(self, max_face=6, min_face=1, random=prng.get_random()) :
-        self.face_min = min_face
-        self.face_max = max_face
+    def __init__(self, random=prng.get_random()) :
         self.rand = random
 
-    def roll_dice(self) :
-        return self.rand.randint(self.min_face, self.max_face)
+    def roll_dice(self, face_vals) :
+        return self.rand.randint(face_vals[0], face_vals[1])
 
-    def roll_set_of_dice(self, num) :
-        return [self.roll_dice() for x in xrange(num)]
+    def roll_set_of_dice(self, num, face_vals) :
+        return [self.roll_dice(face_vals) for x in xrange(num)]
 
 class WinHandler(object) :
 
@@ -258,8 +265,9 @@ Also performs shuffling of dice """
             self.game.activate_players()
             self.game.set_current_player(human_player)
             max_dice = self.game.number_of_starting_dice()
+            face = self.game.get_face_values()
             for x in self.game.get_players() :
-                self.game.set_dice(x, self.dice_roll.roll_set_of_dice(max_dice))
+                self.game.set_dice(x, self.dice_roll.roll_set_of_dice(max_dice, face))
             return self.first
 
 class FirstBidState(GameState) :
@@ -417,6 +425,10 @@ class Game(object) :
         """Register a challange against the current player"""
         self.state = self.state.on_challenge(challenger, self.cur_player)
 
+    def get_face_values(self) :
+        """Return the highest and lowest faces on the dice"""
+        return (self.plays.get_lowest_dice(), self.plays.get_highest_dice())
+
 class ObservableGame(Game) :
     
     def __init__(self, data, start_state, bid_checker, win_checker, win_handler) :
@@ -426,7 +438,7 @@ class ObservableGame(Game) :
     def add_observer(self, observer) :
         self.game_views.append(observer)
 
-    def start_game(self, first_player) :
+    def start_game(self) :
         pass
 
     def end_game(self, winner) :
