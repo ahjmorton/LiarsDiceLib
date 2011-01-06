@@ -275,6 +275,10 @@ class GameObjectTest(unittest.TestCase) :
         self.win_check.get_winner.assert_called_with(ret_map)
         self.data.get_dice_map.assert_called_with()
 
+    def testActivatingAllPlayers(self) :
+        self.subject.activate_players()
+        self.data.make_all_active.assert_called_with()
+
 class BidCheckerTest(unittest.TestCase) :
     
     def setUp(self) :

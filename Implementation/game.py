@@ -9,8 +9,12 @@ class Player(object) :
     def get_name(self) :
         return self.name
 
-    def on_game_start(self, dice) :
+    def on_game_start(self) :
         """This method is called when the game is started and the dice the player has are given"""
+        pass
+
+    def on_set_dice(self, dice) :
+        """This method is called when the dice are set for the player"""
         pass
 
     def on_start_turn(self, bid) :
@@ -251,6 +255,7 @@ Also performs shuffling of dice """
             raise MissingPlayerError("Player provided for starting of game not in list of players")
         else : 
             #Could also add logic to do random number generation to work out who goes first
+            self.game.activate_players()
             self.game.set_current_player(human_player)
             max_dice = self.game.number_of_starting_dice()
             for x in self.game.get_players() :
@@ -324,6 +329,9 @@ class Game(object) :
 
     def start_game(self, first_player) :
         self.state = self.state.on_game_start(first_player)
+
+    def activate_players(self) :
+        self.plays.make_all_active()
 
     def get_winning_player(self) :
         return self.win_checker.get_winner(self.plays.get_dice_map())
@@ -413,8 +421,40 @@ class ObservableGame(Game) :
     
     def __init__(self, data, start_state, bid_checker, win_checker, win_handler) :
         Game.__init__(self, data, start_state, bid_checker, win_checker, win_handler)
-        self.player_views = list()
         self.game_views = list()
+
+    def add_observer(self, observer) :
+        self.game_views.append(observer)
+
+    def start_game(self, first_player) :
+        pass
+
+    def end_game(self, winner) :
+        pass
+
+    def on_win(self, winner, loser, bid) :
+        pass
+    
+    def remove_dice(self, player) :
+        pass
+    
+    def add_player(self, player) :
+        pass
+
+    def remove_player(self, player) :
+        pass
+
+    def set_current_player(self, player) :
+        pass
+
+    def set_bid(self, player, bid) :
+        pass
+
+    def set_dice(self, player, dice) :
+        pass
+
+    def activate_players(self) :
+        pass
 
 if __name__ == "__main__" :
     pass
