@@ -13,8 +13,16 @@ class Player(object) :
         """This method is called when the game is started and the dice the player has are given"""
         pass
 
+    def on_start_turn(self, bid) :
+        """This method is called when the player is made the current player"""
+        pass
+
+    def on_end_turn(self) :
+        """This method is called when the player is done with his turn"""
+        pass
+
     def on_made_active(self) :
-        """This method is called when a player is set as the current player"""
+        """This method is called when a player is set as active, at the start of a round"""
         pass
 
     def on_made_inactive(self) :
@@ -49,6 +57,14 @@ class GameView(object) :
         """This method is called when a player is made active"""
         pass
 
+    def on_player_start_turn(self, player, bid) :
+        """This method is called when a player is made the current player"""
+        pass
+
+    def on_player_end_turn(self, player) :
+        """This methodi s called when a player's turns ends"""
+        pass
+
     def on_player_addition(self, player_name) :
         """This method is called when a player is added to the game"""
         pass
@@ -67,6 +83,10 @@ class GameView(object) :
 
     def on_new_dice_amount(self, player, amount) :
         """This method is called when a players dice aomunt changes"""
+        pass
+
+    def on_error(self, value) :
+        """This method is called when there is an error with the remote"""
         pass
 
 class GameData(object) :
@@ -389,10 +409,12 @@ class Game(object) :
         """Register a challange against the current player"""
         self.state = self.state.on_challenge(challenger, self.cur_player)
 
-class GameObservable(object) :
+class ObservableGame(Game) :
     
-    def __init__(self, game) :
-        self.game = game
+    def __init__(self, data, start_state, bid_checker, win_checker, win_handler) :
+        Game.__init__(self, data, start_state, bid_checker, win_checker, win_handler)
+        self.player_views = list()
+        self.game_views = list()
 
 if __name__ == "__main__" :
     pass
