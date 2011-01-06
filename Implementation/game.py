@@ -197,6 +197,11 @@ class DiceRoller(object) :
     def roll_set_of_dice(self, num) :
         return [self.roll_dice() for x in xrange(num)]
 
+class WinHandler(object) :
+
+    def on_win(self, winner, loser, bid, game) :
+        pass
+
 class GameState(object) :
     """The game state object controls the games reaction to certain events based on the current event. Default implementations of all state methods thrown illegal state change error"""
 
@@ -289,12 +294,13 @@ class FinishedState(GameState) :
 class Game(object) :
     """The game object provides the application logic for the game and enforcing the game rules."""
 
-    def __init__(self, data, start_state, bid_checker, win_checker) :
+    def __init__(self, data, start_state, bid_checker, win_checker, win_handler) :
         self.plays = data
         self.state = start_state
         self.cur_player = None
         self.bid_checker = bid_checker
         self.win_checker = win_checker
+        self.win_handler = win_handler
 
     def start_game(self, first_player) :
         self.state = self.state.on_game_start(first_player)
@@ -361,7 +367,7 @@ class Game(object) :
         return self.win_checker.get_winner(self.plays.get_dice_map()) is not None
 
     def on_win(self, winner, loser, bid) :
-        pass
+        self.win_handler.on_win(winner, loser, bid, self)
 
     def get_previous_bid(self) :
         return self.plays.get_bid(self.get_previous_player())

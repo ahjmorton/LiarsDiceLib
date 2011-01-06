@@ -120,7 +120,8 @@ class GameObjectTest(unittest.TestCase) :
         self.state = Mock(spec=game.GameState)
         self.dice_check = Mock(spec=game.BidChecker)
         self.win_check = Mock(spec=game.WinChecker)
-        self.subject = game.Game(self.data, self.state, self.dice_check, self.win_check)
+        self.win_hand = Mock(spec=game.WinHandler)
+        self.subject = game.Game(self.data, self.state, self.dice_check, self.win_check, self.win_hand)
 
     def testCheckingForFinished(self) :
         player1 = Mock(spec=game.Player)
@@ -255,6 +256,13 @@ class GameObjectTest(unittest.TestCase) :
         self.data.get_dice.assert_called_with(player)
         self.assertTrue(self.data.set_dice.called)
         self.assertEquals(length - 1, len(self.data.set_dice.call_args[0][1]))
+
+    def testWinHandling(self) :
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
+        cur_bid = (1,2)
+        self.subject.on_win(player1, player2, cur_bid)
+        self.win_hand.on_win.assert_called_with(player1, player2, cur_bid, self.subject)
 
 class BidCheckerTest(unittest.TestCase) :
     
