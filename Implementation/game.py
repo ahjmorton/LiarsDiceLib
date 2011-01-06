@@ -393,7 +393,6 @@ class GameObservable(object) :
     
     def __init__(self, game) :
         self.game = game
-        self.player
 
 if __name__ == "__main__" :
     pass
