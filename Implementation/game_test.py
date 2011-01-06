@@ -527,6 +527,7 @@ class GameStartStateTest(GameStateTest) :
         self.assertTrue(res is not None)
         self.assertTrue(res is self.next_state)
         self.assertTrue(self.game.has_player.called)
+        self.game.activate_players.assert_called_with()
         self.game.set_current_player.assert_called_with(player)
     
     def testOnGameStartShufflesDice(self) :
