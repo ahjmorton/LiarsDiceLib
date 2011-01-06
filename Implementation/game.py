@@ -200,7 +200,7 @@ class DiceRoller(object) :
 class WinHandler(object) :
 
     def on_win(self, winner, loser, bid, game) :
-        pass
+        game.remove_dice(loser)
 
 class GameState(object) :
     """The game state object controls the games reaction to certain events based on the current event. Default implementations of all state methods thrown illegal state change error"""

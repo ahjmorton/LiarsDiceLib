@@ -301,6 +301,18 @@ class WinCheckerTest(unittest.TestCase) :
         self.assertTrue(ret is not None)
         self.assertTrue(winner == ret)
 
+class WinHandlerTest(unittest.TestCase) :
+    
+    def setUp(self) :
+        self.subject = game.WinHandler()
+
+    def testHandlingWin(self) :
+        player1 = Mock(game.Player)
+        player2 = Mock(game.Player)
+        bid = (1,2)
+        game_obj = Mock(game.Game)
+        self.subject.on_win(player1, player2, bid, game_obj)
+        game_obj.remove_dice.assert_called_with(player2)
 
 class DiceRollerTest(unittest.TestCase) :
     
@@ -542,6 +554,7 @@ def suite() :
     suite.addTests(loader.loadTestsFromTestCase(BidGameStateTest))
     suite.addTests(loader.loadTestsFromTestCase(FinalGameStateTest))
     suite.addTests(loader.loadTestsFromTestCase(WinCheckerTest))
+    suite.addTests(loader.loadTestsFromTestCase(WinHandlerTest))
     return suite
 
 if __name__ == "__main__" :
