@@ -572,6 +572,34 @@ class FinalGameStateTest(GameStateTest) :
         self.first.on_game_start.assert_called_with(player)
         self.assertTrue(ret == mock_state)
 
+class ProxyDispatcherTest(unittest.TestCase) :
+    
+    def setUp(self) :
+        self.game = Mock(spec=[])
+        self.prox = Mock(spec=[])
+        self.subject = game.ProxyDispatcher(self.game, self.prox)
+
+    def testDispatchingToProxy(self) :
+        fake = Mock()
+        self.prox.mock_method = fake
+        ret = self.subject.mock_method
+        self.assertTrue(ret == fake)
+
+    def testDispatchingToGame(self) :
+        fake = Mock()
+        self.game.mock_method = fake
+        ret = self.subject.mock_method
+        self.assertTrue(ret == fake)
+
+    def testDispatchingToProxyOverGame(self) :
+        fake1 = Mock()
+        fake2 = Mock()
+        self.game.mock_method = fake1
+        self.prox.mock_method = fake2
+        ret = self.subject.mock_method
+        self.assertTrue(ret == fake2)
+
+
 def suite() :
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
@@ -586,6 +614,7 @@ def suite() :
     suite.addTests(loader.loadTestsFromTestCase(DiceRollerTest))
     suite.addTests(loader.loadTestsFromTestCase(WinCheckerTest))
     suite.addTests(loader.loadTestsFromTestCase(WinHandlerTest))
+    suite.addTests(loader.loadTestsFromTestCase(ProxyDispatcherTest))
     return suite
 
 if __name__ == "__main__" :

@@ -429,44 +429,19 @@ class Game(object) :
         """Return the highest and lowest faces on the dice"""
         return (self.plays.get_lowest_dice(), self.plays.get_highest_dice())
 
-class ObservableGame(Game) :
+class ProxyDispatcher(object) :
     
-    def __init__(self, data, start_state, bid_checker, win_checker, win_handler) :
-        Game.__init__(self, data, start_state, bid_checker, win_checker, win_handler)
-        self.game_views = list()
+    def __init__(self, game, proxy) :
+        self.game = game
+        self.proxy = proxy
 
-    def add_observer(self, observer) :
-        self.game_views.append(observer)
+    def __getattr__(self, attrib) :
+        if hasattr(self.game, attrib) and not hasattr(self.proxy, attrib) :
+            return getattr(self.game, attrib)
+        else :
+            return getattr(self.proxy, attrib)
 
-    def start_game(self) :
-        pass
 
-    def end_game(self, winner) :
-        pass
-
-    def on_win(self, winner, loser, bid) :
-        pass
-    
-    def remove_dice(self, player) :
-        pass
-    
-    def add_player(self, player) :
-        pass
-
-    def remove_player(self, player) :
-        pass
-
-    def set_current_player(self, player) :
-        pass
-
-    def set_bid(self, player, bid) :
-        pass
-
-    def set_dice(self, player, dice) :
-        pass
-
-    def activate_players(self) :
-        pass
 
 if __name__ == "__main__" :
     pass
