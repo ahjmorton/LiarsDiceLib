@@ -440,6 +440,45 @@ class ProxyGame(object) :
 
     def get_game_views(self) :
         return self.game_views
+    
+    def start_game(self, first_player) :
+        pass
+
+    def activate_players(self) :
+        pass
+
+    def end_game(self, winner) :
+        pass
+
+    def set_current_player(self, player) :
+        pass
+
+    def add_player(self, player) :
+        pass 
+
+    def remove_player(self, player) :
+        pass
+
+    def get_all_players(self) :
+        pass
+
+    def set_dice(self, player, dice) :
+        pass
+
+    def set_bid(self, player, bid) :
+        pass
+
+    def remove_dice(self, player) :
+        pass
+
+    def on_win(self, winner, loser, bid) :
+        pass
+
+    def make_bid(self, bid) :
+        pass
+
+    def make_challenge(self, challenger) :
+        pass
 
 class ProxyDispatcher(object) :
     
