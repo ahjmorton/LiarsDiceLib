@@ -231,6 +231,8 @@ class WinHandler(object) :
 
     def on_win(self, winner, loser, bid, game) :
         game.remove_dice(loser)
+        if game.get_dice(loser) <= 0 :
+            game.deactivate_player(loser)
 
 class GameState(object) :
     """The game state object controls the games reaction to certain events based on the current event. Default implementations of all state methods thrown illegal state change error"""
@@ -410,6 +412,9 @@ class Game(object) :
 
     def on_win(self, winner, loser, bid) :
         self.win_handler.on_win(winner, loser, bid, self)
+
+    def deactivate_player(self, player) :
+        self.plays.mark_inactive(player)
 
     def get_previous_bid(self) :
         return self.plays.get_bid(self.get_previous_player())

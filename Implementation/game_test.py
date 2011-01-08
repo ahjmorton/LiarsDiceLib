@@ -123,6 +123,11 @@ class GameObjectTest(unittest.TestCase) :
         self.win_hand = Mock(spec=game.WinHandler)
         self.subject = game.Game(self.data, self.state, self.dice_check, self.win_check, self.win_hand)
 
+    def testDeactivatePlayer(self) :
+        player1 = Mock(spec=game.Player)
+        self.subject.deactivate_player(player1)
+        self.data.mark_inactive.assert_called_with(player1)
+
     def testCheckingForFinished(self) :
         player1 = Mock(spec=game.Player)
         dice_map = dict()
@@ -321,13 +326,26 @@ class WinHandlerTest(unittest.TestCase) :
     def setUp(self) :
         self.subject = game.WinHandler()
 
-    def testHandlingWin(self) :
+    def testHandlingWinWithoutMakingPlayerInactive(self) :
         player1 = Mock(game.Player)
         player2 = Mock(game.Player)
         bid = (1,2)
         game_obj = Mock(game.Game)
+        game_obj.get_dice.return_value = 1
         self.subject.on_win(player1, player2, bid, game_obj)
         game_obj.remove_dice.assert_called_with(player2)
+        game_obj.get_dice.assert_called_with(player2)
+
+    def testHandlingWinWithMakingPlayerInactive(self) :
+        player1 = Mock(game.Player)
+        player2 = Mock(game.Player)
+        bid = (1,2)
+        game_obj = Mock(game.Game)
+        game_obj.get_dice.return_value = 0
+        self.subject.on_win(player1, player2, bid, game_obj)
+        game_obj.remove_dice.assert_called_with(player2)
+        game_obj.get_dice.assert_called_with(player2)
+        game_obj.deactivate_player.assert_called_with(player2)
 
 class DiceRollerTest(unittest.TestCase) :
     
