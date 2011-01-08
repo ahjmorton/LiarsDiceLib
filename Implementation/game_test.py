@@ -599,6 +599,16 @@ class ProxyDispatcherTest(unittest.TestCase) :
         ret = self.subject.mock_method
         self.assertTrue(ret == fake2)
 
+class ProxyGameTest(unittest.TestCase) :
+    
+    def setUp(self) :
+        self.game = Mock(spec=game.Game)
+        self.subject = game.ProxyGame(self.game)
+
+    def testAddingGameView(self) :
+        view = Mock(spec=game.GameView)
+        self.subject.add_game_view(view)
+        self.assertTrue(view in self.subject.get_game_views())
 
 def suite() :
     suite = unittest.TestSuite()
@@ -615,6 +625,7 @@ def suite() :
     suite.addTests(loader.loadTestsFromTestCase(WinCheckerTest))
     suite.addTests(loader.loadTestsFromTestCase(WinHandlerTest))
     suite.addTests(loader.loadTestsFromTestCase(ProxyDispatcherTest))
+    suite.addTests(loader.loadTestsFromTestCase(ProxyGameTest))
     return suite
 
 if __name__ == "__main__" :

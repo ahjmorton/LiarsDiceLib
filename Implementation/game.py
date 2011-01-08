@@ -429,6 +429,18 @@ class Game(object) :
         """Return the highest and lowest faces on the dice"""
         return (self.plays.get_lowest_dice(), self.plays.get_highest_dice())
 
+class ProxyGame(object) :
+    
+    def __init__(self, game) :
+        self.game = game
+        self.game_views = list()
+    
+    def add_game_view(self, view) :
+        self.game_views.append(view)
+
+    def get_game_views(self) :
+        return self.game_views
+
 class ProxyDispatcher(object) :
     
     def __init__(self, game, proxy) :
