@@ -447,7 +447,13 @@ class ProxyGame(object) :
         return self.game_views
     
     def start_game(self, first_player) :
-        pass
+        self.game.start_game(first_player)
+        players = self.game.get_all_players()
+        for player in players :
+            player.on_game_start()
+        player_names = map(lambda player: player.get_name(), players)
+        for view in self.game_views :
+            view.on_game_start(player_names)
 
     def activate_players(self) :
         pass
@@ -483,6 +489,9 @@ class ProxyGame(object) :
         pass
 
     def make_challenge(self, challenger) :
+        pass
+
+    def deactivate_player(self, player) :
         pass
 
 class ProxyDispatcher(object) :

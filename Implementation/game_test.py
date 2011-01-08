@@ -628,6 +628,21 @@ class ProxyGameTest(unittest.TestCase) :
         self.subject.add_game_view(view)
         self.assertTrue(view in self.subject.get_game_views())
 
+    def testStartingGame(self) :
+        view = Mock(spec=game.GameView)
+        player = Mock(spec=game.Player)
+        players = [player]
+        playername = "player1"
+        player.get_name.return_value = playername
+        self.game.get_all_players.return_value = players
+        self.subject.add_game_view(view)
+        self.subject.start_game(player)
+        self.assertTrue(player.get_name.called)
+        self.game.start_game.assert_called_with(player)
+        view.on_game_start.assert_Called_with([playername])
+        player.on_game_start.assert_called_with()
+
+
 def suite() :
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
