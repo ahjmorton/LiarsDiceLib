@@ -445,15 +445,19 @@ class ProxyGame(object) :
 
     def get_game_views(self) :
         return self.game_views
+
+    def _burst_to_game_views(self, func) :
+        map(func, self.game_views)
+
+    def _burst_to_players(self, func) :
+        map(func, self.game.get_all_players())
     
     def start_game(self, first_player) :
         self.game.start_game(first_player)
         players = self.game.get_all_players()
-        for player in players :
-            player.on_game_start()
         player_names = map(lambda player: player.get_name(), players)
-        for view in self.game_views :
-            view.on_game_start(player_names)
+        self._burst_to_game_views(lambda view : view.on_game_start(player_names))
+        self._burst_to_players(lambda player : player.on_game_start())
 
     def activate_players(self) :
         pass
