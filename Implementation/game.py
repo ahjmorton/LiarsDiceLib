@@ -454,8 +454,7 @@ class ProxyGame(object) :
     
     def start_game(self, first_player) :
         self.game.start_game(first_player)
-        players = self.game.get_all_players()
-        player_names = map(lambda player: player.get_name(), players)
+        player_names = map(lambda player: player.get_name(), self.game.get_all_players())
         self._burst_to_game_views(lambda view : view.on_game_start(player_names))
         self._burst_to_players(lambda player : player.on_game_start())
 
@@ -463,18 +462,17 @@ class ProxyGame(object) :
         pass
 
     def end_game(self, winner) :
-        pass
+        self.game.end_game(winner)
+        self._burst_to_game_views(lambda view : view.on_game_end(winner.get_name()))
+        self._burst_to_players(lambda player : player.on_game_end())
 
     def set_current_player(self, player) :
         pass
 
     def add_player(self, player) :
-        pass 
-
-    def remove_player(self, player) :
         pass
 
-    def get_all_players(self) :
+    def remove_player(self, player) :
         pass
 
     def set_dice(self, player, dice) :

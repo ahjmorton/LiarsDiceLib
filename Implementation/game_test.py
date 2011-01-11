@@ -642,6 +642,22 @@ class ProxyGameTest(unittest.TestCase) :
         view.on_game_start.assert_Called_with([playername])
         player.on_game_start.assert_called_with()
 
+    def testEndingGame(self) :
+        view = Mock(spec=game.GameView)
+        winner = Mock(spec=game.Player)
+        player = Mock(spec=game.Player)
+        players = [player]
+        playername = "Player1"
+        winner.get_name.return_value = playername
+        self.game.get_all_players.return_value = players
+        self.subject.add_game_view(view)
+        self.subject.end_game(winner)
+        self.assertTrue(winner.get_name.called)
+        self.game.end_game.assert_called_with(winner)
+        view.on_game_end.assert_called_with(playername)
+        player.on_game_end.assert_called_with()
+
+
 
 def suite() :
     suite = unittest.TestSuite()
