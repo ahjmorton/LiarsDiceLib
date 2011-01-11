@@ -60,6 +60,10 @@ class GameView(object) :
     def on_activation(self, player_name) :
         """This method is called when a player is made active"""
         pass
+    
+    def on_multi_activation(self, player_names) :
+        """This method is called when a number of players are made active"""
+        pass
 
     def on_player_start_turn(self, player_name, bid) :
         """This method is called when a player is made the current player"""
