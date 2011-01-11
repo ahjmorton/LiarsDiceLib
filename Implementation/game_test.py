@@ -657,7 +657,45 @@ class ProxyGameTest(unittest.TestCase) :
         view.on_game_end.assert_called_with(playername)
         player.on_game_end.assert_called_with()
 
+    def testSettingDiceAmount(self) :
+        view = Mock(spec=game.GameView)
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
+        players = [player1, player2]
+        playername = "Player1"
+        amount = 4
+        player1.get_name.return_value = playername
+        self.game.get_all_players.return_value = players
+        self.game.get_dice.return_value = amount
+        self.subject.add_game_view(view)
+        self.subject.set_dice(player1, amount)
+        self.assertTrue(player1.get_name.called)
+        self.assertTrue(not player2.get_name.called)
+        self.game.set_dice.assert_called_with(player1, amount)
+        self.game.get_dice.assert_called_with(player1)
+        view.on_new_dice_amount.assert_called_with(playername, amount)
+        player1.on_new_dice_amount.assert_called_with(amount)
+        self.assertTrue(not player2.on_new_dice_amount.called)
 
+    def testRemovingDice(self) :
+        view = Mock(spec=game.GameView)
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
+        players = [player1, player2]
+        playername = "Player1"
+        amount = 4
+        player1.get_name.return_value = playername
+        self.game.get_all_players.return_value = players
+        self.game.get_dice.return_value = amount
+        self.subject.add_game_view(view)
+        self.subject.remove_dice(player1)
+        self.assertTrue(player1.get_name.called)
+        self.assertTrue(not player2.get_name.called)
+        self.game.remove_dice.assert_called_with(player1)
+        self.game.get_dice.assert_called_with(player1)
+        view.on_new_dice_amount.assert_called_with(playername, amount)
+        player1.on_new_dice_amount.assert_called_with(amount)
+        self.assertTrue(not player2.on_new_dice_amount.called)
 
 def suite() :
     suite = unittest.TestSuite()
