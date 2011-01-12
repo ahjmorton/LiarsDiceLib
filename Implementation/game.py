@@ -503,7 +503,9 @@ class ProxyGame(object) :
         pass
 
     def deactivate_player(self, player) :
-        pass
+        self.game.deactivate_player(player)
+        player.on_made_inactive()
+        self._burst_to_game_views(lambda view : view.on_deactivate(player.get_name()))
 
 class ProxyDispatcher(object) :
     

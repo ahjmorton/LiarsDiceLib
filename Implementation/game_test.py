@@ -734,6 +734,19 @@ class ProxyGameTest(unittest.TestCase) :
         view.on_new_dice_amount.assert_called_with(playername, amount)
         player1.on_new_dice_amount.assert_called_with(amount)
         self.assertTrue(not player2.on_new_dice_amount.called)
+    
+    def testDeactivatePlayer(self) :
+        view = Mock(spec=game.GameView)
+        player1 = Mock(spec=game.Player)
+        players = [player1]
+        playername = "Player1"
+        player1.get_name.return_value = playername
+        self.subject.add_game_view(view)
+        self.subject.deactivate_player(player1)
+        player1.get_name.assert_called_with()
+        player1.on_made_inactive.called_with()
+        self.game.deactivate_player.assert_called_with(player1)
+        view.on_deactivate.assert_called_with(playername)    
 
 def suite() :
     suite = unittest.TestSuite()
