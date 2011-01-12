@@ -703,6 +703,17 @@ class ProxyGameTest(unittest.TestCase) :
         self.game.add_player.assert_called_with(player1)
         view.on_player_addition.assert_called_with(playername)
 
+    def testRemovingPlayer(self) :
+        view = Mock(spec=game.GameView)
+        player1 = Mock(spec=game.Player)
+        players = [player1]
+        playername = "Player1"
+        player1.get_name.return_value = playername
+        self.subject.add_game_view(view)
+        self.subject.remove_player(player1)
+        player1.get_name.assert_called_with()
+        self.game.remove_player.assert_called_with(player1)
+        view.on_player_remove.assert_called_with(playername)    
  
     def testRemovingDice(self) :
         view = Mock(spec=game.GameView)

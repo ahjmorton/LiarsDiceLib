@@ -485,7 +485,8 @@ class ProxyGame(object) :
         self._burst_to_game_views(lambda view : view.on_player_addition(player.get_name()))
 
     def remove_player(self, player) :
-        pass
+        self.game.remove_player(player)
+        self._burst_to_game_views(lambda view : view.on_player_remove(player.get_name()))
 
     def set_dice(self, player, dice) :
         self.game.set_dice(player, dice)
