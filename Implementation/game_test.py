@@ -669,7 +669,7 @@ class ProxyGameTest(unittest.TestCase) :
         self.game.get_dice.return_value = amount
         self.subject.add_game_view(view)
         self.subject.set_dice(player1, amount)
-        self.assertTrue(player1.get_name.called)
+        player1.get_name.assert_called_with()
         self.assertTrue(not player2.get_name.called)
         self.game.set_dice.assert_called_with(player1, amount)
         self.game.get_dice.assert_called_with(player1)
@@ -686,10 +686,23 @@ class ProxyGameTest(unittest.TestCase) :
         self.game.get_all_players.return_value = players
         self.subject.add_game_view(view)
         self.subject.activate_players()
-        self.assertTrue(player1.get_name.called)
+        player1.get_name.assert_called_with()
         self.game.activate_players.assert_called_with()
         view.on_multi_activation.assert_called_with([playername])
         player1.on_made_active.assert_called_with()
+    
+    def testAddingPlayer(self) :
+        view = Mock(spec=game.GameView)
+        player1 = Mock(spec=game.Player)
+        players = [player1]
+        playername = "Player1"
+        player1.get_name.return_value = playername
+        self.subject.add_game_view(view)
+        self.subject.add_player(player1)
+        player1.get_name.assert_called_with()
+        self.game.add_player.assert_called_with(player1)
+        view.on_player_addition.assert_called_with(playername)
+
  
     def testRemovingDice(self) :
         view = Mock(spec=game.GameView)

@@ -477,12 +477,12 @@ class ProxyGame(object) :
         self._burst_to_game_views(lambda view : view.on_game_end(winner.get_name()))
         self._burst_to_players(lambda player : player.on_game_end())
 
-
     def set_current_player(self, player) :
         pass
 
     def add_player(self, player) :
-        pass
+        self.game.add_player(player)
+        self._burst_to_game_views(lambda view : view.on_player_addition(player.get_name()))
 
     def remove_player(self, player) :
         pass
@@ -499,12 +499,6 @@ class ProxyGame(object) :
         self._burst_dice_amounts(player)
 
     def on_win(self, winner, loser, bid) :
-        pass
-
-    def make_bid(self, bid) :
-        pass
-
-    def make_challenge(self, challenger) :
         pass
 
     def deactivate_player(self, player) :
