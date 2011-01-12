@@ -468,7 +468,9 @@ class ProxyGame(object) :
         self._burst_to_players(lambda player : player.on_game_start())
 
     def activate_players(self) :
-        pass
+        self.game.activate_players()
+        self._burst_to_game_views(lambda view : view.on_multi_activation(map(lambda player : player.get_name(), self.game.get_all_players())))
+        self._burst_to_players(lambda player : player.on_made_active())
 
     def end_game(self, winner) :
         self.game.end_game(winner)
