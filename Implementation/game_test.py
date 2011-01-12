@@ -284,6 +284,13 @@ class GameObjectTest(unittest.TestCase) :
         self.subject.activate_players()
         self.data.make_all_active.assert_called_with()
 
+    def testGettingDiceMap(self) :
+        player1 = Mock(spec=game.Player)
+        ret_map = {player1:[1]}
+        self.data.get_dice_map.return_value = ret_map
+        ret = self.subject.get_dice_map()
+        self.assertEquals(ret_map, ret)
+
 class BidCheckerTest(unittest.TestCase) :
     
     def setUp(self) :
@@ -747,6 +754,19 @@ class ProxyGameTest(unittest.TestCase) :
         player1.on_made_inactive.called_with()
         self.game.deactivate_player.assert_called_with(player1)
         view.on_deactivate.assert_called_with(playername)    
+
+    def testSettingBid(self) :
+        view = Mock(spec=game.GameView)
+        player1 = Mock(spec=game.Player)
+        playername = "Player1"
+        player1.get_name.return_value = playername
+        cur_bid = (1,2)
+        self.subject.add_game_view(view)
+        self.subject.set_bid(player1, cur_bid)
+        player1.get_name.assert_called_with()
+        self.game.set_bid.assert_called_with(player1, cur_bid)
+        view.on_bid.assert_called_with(playername, cur_bid)
+
 
 def suite() :
     suite = unittest.TestSuite()

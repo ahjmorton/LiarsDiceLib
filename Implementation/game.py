@@ -399,6 +399,9 @@ class Game(object) :
     def true_bid(self, bid) :
         return self.bid_checker.check_bids(bid, self.plays.get_dice_map())
 
+    def get_dice_map(self) :
+        return self.plays.get_dice_map()
+
     def remove_dice(self, player) :
         dice = self.plays.get_dice(player)
         dice = dice[:-1]
@@ -491,9 +494,10 @@ class ProxyGame(object) :
     def set_dice(self, player, dice) :
         self.game.set_dice(player, dice)
         self._burst_dice_amounts(player)
-
+    
     def set_bid(self, player, bid) :
-        pass
+        self.game.set_bid(player, bid) 
+        self._burst_to_game_views(lambda view : view.on_bid(player.get_name(), bid))
 
     def remove_dice(self, player) :
         self.game.remove_dice(player)
