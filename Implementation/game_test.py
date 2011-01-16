@@ -151,6 +151,7 @@ class GameObjectTest(unittest.TestCase) :
 
     def testStartupStateOfGameObject(self) :
         self.assertTrue(self.subject.get_current_player() is None)
+        self.assertTrue(self.subject.get_state() == self.state)
         self.assertTrue(not self.state.on_game_start.called)
         self.assertTrue(not self.data.add_player.called)
 
@@ -159,6 +160,11 @@ class GameObjectTest(unittest.TestCase) :
         self.subject.start_game(player)
         self.assertTrue(self.subject.get_current_player() is None)
         self.state.on_game_start.assert_called_with(player)
+
+    def testSettingAState(self) :
+        state1 = Mock(spec=game.GameState)
+        self.subject.set_state(state1)
+        self.assertEquals(state1, self.subject.get_state())
 
     def testMakingABid(self) :
         player = Mock(spec=game.Player)
@@ -174,7 +180,7 @@ class GameObjectTest(unittest.TestCase) :
         self.subject.set_current_player(player)
         self.subject.make_challenge(challenge)
         self.state.on_challenge.assert_called_with(challenge, player)
-
+    
     def testGettingNextPlayer(self) :
         players = [Mock(spec=game.Player) for x in xrange(0, 5)]
         self.data.get_players.return_value = players

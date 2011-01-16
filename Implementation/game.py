@@ -344,7 +344,7 @@ class Game(object) :
     def set_state(self, state) :
         self.state = state
 
-    def get_state(self, state) :
+    def get_state(self) :
         return self.state
 
     def start_game(self, first_player) :
