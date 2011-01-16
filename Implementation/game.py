@@ -463,9 +463,9 @@ class ProxyGame(object) :
         map(func, self.game.get_all_players())
 
     def _burst_dice_amounts(self, player) :
-        new_amount = self.game.get_dice(player)
-        player.on_new_dice_amount(new_amount)
-        self._burst_to_game_views(lambda view : view.on_new_dice_amount(player.get_name(), new_amount))
+        new_dice = len(self.game.get_dice(player))
+        player.on_new_dice_amount(new_dice)
+        self._burst_to_game_views(lambda view : view.on_new_dice_amount(player.get_name(), new_dice))
     
     def start_game(self, first_player) :
         self.game.start_game(first_player)
@@ -506,6 +506,7 @@ class ProxyGame(object) :
     def set_dice(self, player, dice) :
         self.game.set_dice(player, dice)
         self._burst_dice_amounts(player)
+        player.on_set_dice(dice)
     
     def set_bid(self, player, bid) :
         self.game.set_bid(player, bid) 

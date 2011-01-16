@@ -677,18 +677,21 @@ class ProxyGameTest(unittest.TestCase) :
         players = [player1, player2]
         playername = "Player1"
         amount = 4
+        dice = [1] * amount
         player1.get_name.return_value = playername
         self.game.get_all_players.return_value = players
-        self.game.get_dice.return_value = amount
+        self.game.get_dice.return_value = dice
         self.subject.add_game_view(view)
-        self.subject.set_dice(player1, amount)
+        self.subject.set_dice(player1, dice)
         player1.get_name.assert_called_with()
         self.assertTrue(not player2.get_name.called)
-        self.game.set_dice.assert_called_with(player1, amount)
+        self.game.set_dice.assert_called_with(player1, dice)
         self.game.get_dice.assert_called_with(player1)
         view.on_new_dice_amount.assert_called_with(playername, amount)
         player1.on_new_dice_amount.assert_called_with(amount)
+        player1.on_set_dice.assert_called_with(dice)
         self.assertTrue(not player2.on_new_dice_amount.called)
+        self.assertTrue(not player2.on_set_dice.called)
 
     def testActivatingPlayers(self) :
         view = Mock(spec=game.GameView)
@@ -735,9 +738,10 @@ class ProxyGameTest(unittest.TestCase) :
         players = [player1, player2]
         playername = "Player1"
         amount = 4
+        dice = [1] * amount
         player1.get_name.return_value = playername
         self.game.get_all_players.return_value = players
-        self.game.get_dice.return_value = amount
+        self.game.get_dice.return_value = dice
         self.subject.add_game_view(view)
         self.subject.remove_dice(player1)
         self.assertTrue(player1.get_name.called)

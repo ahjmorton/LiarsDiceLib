@@ -13,8 +13,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.player2 = Mock(spec=game.Player)
         self.player1name = "Player1"
         self.player2name = "Player2"
-        self.player1.get_name.return_value = player1name
-        self.player2.get_name.return_value = player2name
+        self.player1.get_name.return_value = self.player1name
+        self.player2.get_name.return_value = self.player2name
 
         #Initialise game data store and add players
         self.starting_dice = 3
@@ -28,7 +28,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.view = Mock(spec=game.GameView)
         self.proxy = game.ProxyGame(None)
         self.proxy_dispatcher = game.ProxyDispatcher(None, self.proxy)
-        self.proxy.add_view(self.view)
+        self.proxy.add_game_view(self.view)
 
         #Create the utility objects
         self.random = prng.get_random()
@@ -50,6 +50,25 @@ class GameIntegrationTest(unittest.TestCase) :
         self.game = game.Game(self.data_store, self.game_start_state, self.bid_checker, self.win_checker, self.win_handler)
         self.proxy.game = self.game
         self.proxy_dispatcher.game = self.game
+
+    def testStartingAGame(self) :
+        self.proxy_dispatcher.start_game(self.player1)
+        self.player1.on_made_active.assert_called_with()
+        self.player2.on_made_active.assert_called_with()
+        self.player1.on_game_start.assert_called_with()
+        self.player2.on_game_start.assert_called_with()
+        self.assertTrue(self.player1.on_set_dice.called)
+        self.assertTrue(self.player2.on_set_dice.called)
+        self.player1.on_start_turn.assert_called_with()
+        dice_map = self.data_store.get_dice_map()
+        self.assertEquals(2, len(dice_map))
+        self.assertTrue(self.player1 in dice_map)
+        self.assertTrue(self.player2 in dice_map)
+        for player in dice_map :
+            dice = dice_map[player]
+            self.assertEquals(self.starting_dice, len(dice))
+            self.assertTrue(all(map(lambda x : self.lowest_face <= x <= self.highest_face, dice)))
+        
 
 def suite() :
     suite = unittest.TestSuite()
