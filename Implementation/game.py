@@ -515,7 +515,12 @@ class ProxyGame(object) :
     def on_win(self, winner, loser, bid) :
         self.game.on_win(winner, loser, bid)
         dice_map = self.game.get_dice_map()
-        self._burst_to_game_views(lambda view : view.on_challenge(winner, loser, dice_map, bid))
+        ret_map = dict()
+        for player in dice_map :
+            ret_map[player.get_name()] = dice_map[player]
+        winner = winner.get_name()
+        loser = loser.get_name()
+        self._burst_to_game_views(lambda view : view.on_challenge(winner, loser, ret_map, bid))
 
     def deactivate_player(self, player) :
         self.game.deactivate_player(player)

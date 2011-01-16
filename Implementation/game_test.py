@@ -790,7 +790,6 @@ class ProxyGameTest(unittest.TestCase) :
     def testSettingCurrentWhenCurrentPlayerIsNone(self) :
         view = Mock(spec=game.GameView)
         self.subject.add_game_view(view)
-        player1 = Mock(spec=game.Player)
         player = Mock(spec=game.Player)
         playername = "Player1"
         player.get_name.return_value = playername
@@ -801,6 +800,28 @@ class ProxyGameTest(unittest.TestCase) :
         player.get_name.assert_called_with()
         player.on_start_turn.assert_called_with()
         view.on_player_start_turn.assert_called_with(playername)
+    
+    def testOnWinning(self) :
+        view = Mock(spec=game.GameView)
+        self.subject.add_game_view(view)
+        bid = (6, 5)
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
+        player1name = "Player1"
+        player2name = "Player2"
+        player1.get_name.return_value = player1name
+        player2.get_name.return_value = player2name
+        dice_map = {player1:[1,5,4,2], player2:[3,5,4,5]}
+        self.game.get_dice_map.return_value = dice_map
+        ret_map = {player1name:[1,5,4,2], player2name:[3,5,4,5]}
+        
+        self.subject.on_win(player1, player2, bid)
+
+        self.game.on_win.assert_called_with(player1, player2, bid)
+        player1.get_name.assert_called_with()
+        player2.get_name.assert_called_with()
+        self.game.get_dice_map.assert_called_with()
+        view.on_challenge.assert_called_with(player1name, player2name, ret_map, bid)
 
 def suite() :
     suite = unittest.TestSuite()
