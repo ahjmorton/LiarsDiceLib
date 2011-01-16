@@ -160,6 +160,7 @@ class GameObjectTest(unittest.TestCase) :
         self.subject.start_game(player)
         self.assertTrue(self.subject.get_current_player() is None)
         self.state.on_game_start.assert_called_with(player)
+        self.assertEquals(self.state, self.subject.get_state())
 
     def testSettingAState(self) :
         state1 = Mock(spec=game.GameState)
@@ -173,6 +174,7 @@ class GameObjectTest(unittest.TestCase) :
         self.subject.make_bid(bid)
         self.state.on_bid.assert_called_with(player, bid)
         self.assertTrue(not self.data.set_bid.called)
+        self.assertEquals(self.state, self.subject.get_state())
 
     def testMakingAChallenge(self) :
         player = Mock(spec=game.Player)
@@ -180,6 +182,7 @@ class GameObjectTest(unittest.TestCase) :
         self.subject.set_current_player(player)
         self.subject.make_challenge(challenge)
         self.state.on_challenge.assert_called_with(challenge, player)
+        self.assertEquals(self.state, self.subject.get_state())
     
     def testGettingNextPlayer(self) :
         players = [Mock(spec=game.Player) for x in xrange(0, 5)]
@@ -426,13 +429,10 @@ class FirstBidGameStateTest(GameStateTest) :
         return game.FirstBidState(g, self.next_state, self.first)
 
     def testOnGameStart(self) :
-        mock_state = Mock(spec=game.GameState)
         player = Mock(spec=game.Player)
-        self.first.on_game_start.return_value = mock_state
         ret = self.subject.on_game_start(player)
-        self.assertTrue(ret is not None)
+        self.assertTrue(ret is None)
         self.first.on_game_start.assert_called_with(player)
-        self.assertTrue(ret == mock_state)
 
     def testOnBid(self) :
         bid = (1,2)
@@ -440,7 +440,8 @@ class FirstBidGameStateTest(GameStateTest) :
         player2 = Mock(spec=game.Player)
         self.game.get_next_player.return_value = player2
         ret = self.subject.on_bid(player, bid)
-        self.assertTrue(ret is not None)
+        self.assertTrue(ret is None)
+        self.game.set_state.assert_called_with(self.next_state)
         self.game.set_bid.assert_called_with(player, bid)
         self.game.set_current_player.assert_called_with(player2)
 
@@ -455,9 +456,8 @@ class BidGameStateTest(GameStateTest) :
         player = Mock(spec=game.Player)
         self.first.on_game_start.return_value = mock_state
         ret = self.subject.on_game_start(player)
-        self.assertTrue(ret is not None)
+        self.assertTrue(ret is None)
         self.first.on_game_start.assert_called_with(player)
-        self.assertTrue(ret == mock_state)
 
     def testOnBid(self) :
         cur_bid = (3, 4)
@@ -467,8 +467,8 @@ class BidGameStateTest(GameStateTest) :
         self.game.get_previous_bid.return_value = prev_bid
         self.game.get_next_player.return_value = player2
         ret = self.subject.on_bid(player, cur_bid)
-        self.assertTrue(ret is not None)
-        self.assertTrue(ret == self.next_state)
+        self.assertTrue(ret is None)
+        self.assertTrue(not self.game.set_state.called)
         self.game.set_bid.assert_called_with(player, cur_bid)
         self.game.set_current_player.assert_called_with(player2)
 
@@ -484,6 +484,7 @@ class BidGameStateTest(GameStateTest) :
         def call() :
             self.subject.on_bid(player, test_bid2)
         self.assertRaises(game.IllegalBidError, call)
+        self.assertTrue(not self.game.set_state.called)
     
     def testOnChallenge(self) :
         player1 = Mock(spec=game.Player)
@@ -493,8 +494,8 @@ class BidGameStateTest(GameStateTest) :
         self.game.get_previous_bid.return_value = cur_bid
         self.game.finished.return_value = False
         ret = self.subject.on_challenge(player1, player2)
-        self.assertTrue(ret is not None)
-        self.assertTrue(ret == self.subject)
+        self.assertTrue(ret is None)
+        self.assertTrue(not self.game.set_state.called)
         self.game.true_bid.assert_called_with(cur_bid)
         self.game.on_win.assert_called_with(player2, player1, cur_bid)
 
@@ -506,8 +507,8 @@ class BidGameStateTest(GameStateTest) :
         self.game.get_previous_bid.return_value = cur_bid
         self.game.finished.return_value = False
         ret = self.subject.on_challenge(player1, player2)
-        self.assertTrue(ret is not None)
-        self.assertTrue(ret == self.subject)
+        self.assertTrue(ret is None)
+        self.assertTrue(not self.game.set_state.called)
         self.game.true_bid.assert_called_with(cur_bid)
         self.game.on_win.assert_called_with(player1, player2, cur_bid)
 
@@ -520,8 +521,8 @@ class BidGameStateTest(GameStateTest) :
         self.game.get_winning_player.return_value = player1
         self.game.finished.return_value = True
         ret = self.subject.on_challenge(player1, player2)
-        self.assertTrue(ret is not None)
-        self.assertTrue(ret == self.next_state)
+        self.assertTrue(ret is None)
+        self.game.set_state.assert_called_with(self.next_state)
         self.game.true_bid.assert_called_with(cur_bid)
         self.game.on_win.assert_called_with(player2, player1, cur_bid)
         self.game.get_winning_player.assert_called_with()
@@ -536,8 +537,8 @@ class BidGameStateTest(GameStateTest) :
         self.game.finished.return_value = True
         self.game.get_winning_player.return_value = player2
         ret = self.subject.on_challenge(player1, player2)
-        self.assertTrue(ret is not None)
-        self.assertTrue(ret == self.next_state)
+        self.assertTrue(ret is None)
+        self.game.set_state.assert_called_with(self.next_state)
         self.game.true_bid.assert_called_with(cur_bid)
         self.game.on_win.assert_called_with(player1, player2, cur_bid)
         self.game.get_winning_player.assert_called_with()
@@ -558,8 +559,8 @@ class GameStartStateTest(GameStateTest) :
         self.game.get_players.return_value = []
         self.game.get_face_values.return_value = face
         res = self.subject.on_game_start(player)
-        self.assertTrue(res is not None)
-        self.assertTrue(res is self.next_state)
+        self.assertTrue(res is None)
+        self.game.set_state.assert_called_with(self.next_state)
         self.assertTrue(self.game.has_player.called)
         self.game.activate_players.assert_called_with()
         self.game.set_current_player.assert_called_with(player)
@@ -576,8 +577,8 @@ class GameStartStateTest(GameStateTest) :
         self.game.get_face_values.return_value = face
         self.dice_roll.roll_set_of_dice.return_value = ret_dice
         res = self.subject.on_game_start(player)
-        self.assertTrue(res is not None)
-        self.assertTrue(res is self.next_state)
+        self.assertTrue(res is None)
+        self.game.set_state.assert_called_with(self.next_state)
         self.assertTrue(self.game.has_player.called) 
         self.assertTrue(self.game.number_of_starting_dice.called)
         self.assertTrue(self.dice_roll.roll_set_of_dice.called)
@@ -599,9 +600,8 @@ class FinalGameStateTest(GameStateTest) :
         player = Mock(spec=game.Player)
         self.first.on_game_start.return_value = mock_state
         ret = self.subject.on_game_start(player)
-        self.assertTrue(ret is not None)
+        self.assertTrue(ret is None)
         self.first.on_game_start.assert_called_with(player)
-        self.assertTrue(ret == mock_state)
 
 class ProxyDispatcherTest(unittest.TestCase) :
     

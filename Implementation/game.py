@@ -274,7 +274,7 @@ Also performs shuffling of dice """
             face = self.game.get_face_values()
             for x in self.game.get_players() :
                 self.game.set_dice(x, self.dice_roll.roll_set_of_dice(max_dice, face))
-            return self.first
+            self.game.set_state(self.first)
 
 class FirstBidState(GameState) :
     def __init__(self, game, bid_state, new_game_state) :
@@ -283,12 +283,12 @@ class FirstBidState(GameState) :
         self.restart = new_game_state
 
     def on_game_start(self, human_player) :
-        return self.restart.on_game_start(human_player)
+        self.restart.on_game_start(human_player)
 
     def on_bid(self, player, bid) :
         self.game.set_bid(player, bid)
         self.game.set_current_player(self.game.get_next_player())
-        return self.next
+        self.game.set_state(self.next)
 
 class BidState(GameState) :
 
@@ -298,14 +298,13 @@ class BidState(GameState) :
         self.restart = new_game_state
 
     def on_game_start(self, human_player) :
-        return self.restart.on_game_start(human_player)
+        self.restart.on_game_start(human_player)
 
     def on_bid(self, player, bid) :
         cur_bid = self.game.get_previous_bid()
         if bid[0] >= cur_bid[0] and bid[1] > cur_bid[1] :
             self.game.set_bid(player, bid)
             self.game.set_current_player(self.game.get_next_player())
-            return self.next
         else :
             raise IllegalBidError((bid, cur_bid))
     
@@ -317,9 +316,7 @@ class BidState(GameState) :
             self.game.on_win(challenger, challenged, bid)
         if self.game.finished() :
             self.game.end_game(self.game.get_winning_player())
-            return self.next
-        else :
-            return self
+            self.game.set_state(self.next)
         
 class FinishedState(GameState) : 
     def __init__(self, game, end) :
@@ -327,7 +324,7 @@ class FinishedState(GameState) :
         self.end = end
 
     def on_game_start(self, human_player) :
-        return self.end.on_game_start(human_player)
+        self.end.on_game_start(human_player)
 
 
 class Game(object) :
@@ -348,7 +345,7 @@ class Game(object) :
         return self.state
 
     def start_game(self, first_player) :
-        self.state = self.state.on_game_start(first_player)
+        self.state.on_game_start(first_player)
 
     def activate_players(self) :
         self.plays.make_all_active()
@@ -437,11 +434,11 @@ class Game(object) :
 
     def make_bid(self, bid) :
         """Make a bid for the current player in a tuple format"""
-        self.state = self.state.on_bid(self.cur_player, bid)
+        self.state.on_bid(self.cur_player, bid)
 
     def make_challenge(self, challenger) :
         """Register a challange against the current player"""
-        self.state = self.state.on_challenge(challenger, self.cur_player)
+        self.state.on_challenge(challenger, self.cur_player)
 
     def get_face_values(self) :
         """Return the highest and lowest faces on the dice"""
