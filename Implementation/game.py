@@ -53,7 +53,7 @@ class GameView(object) :
         """This method is called when a player bids with the players name and a bid"""
         pass
 
-    def on_challenge(self, challaneger, challenged, winner, dice_map) :
+    def on_challenge(self, winner, loser, dice_map, bid) :
         """This method is called at the end of a challenge with the challenger, challenged, the winner and dice of each player"""
         pass
 
@@ -513,7 +513,9 @@ class ProxyGame(object) :
         self._burst_dice_amounts(player)
 
     def on_win(self, winner, loser, bid) :
-        pass
+        self.game.on_win(winner, loser, bid)
+        dice_map = self.game.get_dice_map()
+        self._burst_to_game_views(lambda view : view.on_challenge(winner, loser, dice_map, bid))
 
     def deactivate_player(self, player) :
         self.game.deactivate_player(player)
