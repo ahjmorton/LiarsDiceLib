@@ -767,6 +767,40 @@ class ProxyGameTest(unittest.TestCase) :
         self.game.set_bid.assert_called_with(player1, cur_bid)
         view.on_bid.assert_called_with(playername, cur_bid)
 
+    def testSettingCurrentPlayer(self) :
+        view = Mock(spec=game.GameView)
+        self.subject.add_game_view(view)
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
+        player1name = "Player1"
+        player2name = "Player2"
+        player1.get_name.return_value = player1name
+        player2.get_name.return_value = player2name
+        self.game.get_current_player.return_value = player1
+        self.subject.set_current_player(player2)
+        self.game.get_current_player.assert_called_with()
+        self.game.set_current_player.assert_called_with(player2)
+        player1.get_name.assert_called_with()
+        player2.get_name.assert_called_with()
+        player1.on_end_turn.assert_called_with()
+        player2.on_start_turn.assert_called_with()
+        view.on_player_end_turn.assert_called_with(player1name)
+        view.on_player_start_turn.assert_called_with(player2name)
+    
+    def testSettingCurrentWhenCurrentPlayerIsNone(self) :
+        view = Mock(spec=game.GameView)
+        self.subject.add_game_view(view)
+        player1 = Mock(spec=game.Player)
+        player = Mock(spec=game.Player)
+        playername = "Player1"
+        player.get_name.return_value = playername
+        self.game.get_current_player.return_value = None
+        self.subject.set_current_player(player)
+        self.game.set_current_player.assert_called_with(player)
+        self.game.get_current_player.assert_called_with()
+        player.get_name.assert_called_with()
+        player.on_start_turn.assert_called_with()
+        view.on_player_start_turn.assert_called_with(playername)
 
 def suite() :
     suite = unittest.TestSuite()

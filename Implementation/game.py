@@ -17,7 +17,7 @@ class Player(object) :
         """This method is called when the dice are set for the player"""
         pass
 
-    def on_start_turn(self, bid) :
+    def on_start_turn(self) :
         """This method is called when the player is made the current player"""
         pass
 
@@ -65,10 +65,10 @@ class GameView(object) :
         """This method is called when a number of players are made active"""
         pass
 
-    def on_player_start_turn(self, player_name, bid) :
+    def on_player_start_turn(self, player_name) :
         """This method is called when a player is made the current player"""
         pass
-
+    
     def on_player_end_turn(self, player_name) :
         """This methodi s called when a player's turns ends"""
         pass
@@ -481,7 +481,16 @@ class ProxyGame(object) :
         self._burst_to_players(lambda player : player.on_game_end())
 
     def set_current_player(self, player) :
-        pass
+        cur = self.game.get_current_player()
+        self.game.set_current_player(player)
+        if cur is not None :
+            # Avoid this section if setting the first player
+            curname = cur.get_name()
+            cur.on_end_turn()
+            self._burst_to_game_views(lambda view : view.on_player_end_turn(curname))
+        playername = player.get_name()
+        player.on_start_turn()
+        self._burst_to_game_views(lambda view : view.on_player_start_turn(playername))
 
     def add_player(self, player) :
         self.game.add_player(player)
