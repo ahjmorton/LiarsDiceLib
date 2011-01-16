@@ -59,6 +59,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.player2.on_game_start.assert_called_with()
         self.assertTrue(self.player1.on_set_dice.called)
         self.assertTrue(self.player2.on_set_dice.called)
+        self.player1.on_new_dice_amount.assert_called_with(self.starting_dice)
         self.player1.on_start_turn.assert_called_with()
         dice_map = self.data_store.get_dice_map()
         self.assertEquals(2, len(dice_map))
@@ -68,6 +69,26 @@ class GameIntegrationTest(unittest.TestCase) :
             dice = dice_map[player]
             self.assertEquals(self.starting_dice, len(dice))
             self.assertTrue(all(map(lambda x : self.lowest_face <= x <= self.highest_face, dice)))
+            player.on_set_dice.assert_called_with(dice)
+        player_names = map(lambda player : player.get_name(), dice_map)
+        self.view.on_game_start.assert_called_with(player_names)
+        self.view.on_multi_activations.assert_called_with(player_names)
+        self.assertEquals(2, self.view.on_new_dice_amount.call_count)
+        self.assertEquals(self.first_bid_state, self.game.get_state())
+
+    def testFirstBid(self) :
+        pass
+
+    def testSingleBid(self) :
+        pass
+
+    def testMultipleBids(self) :
+        pass
+
+    def testChallange(self) :
+        pass
+
+    def test
         
 
 def suite() :
