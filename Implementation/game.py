@@ -341,6 +341,12 @@ class Game(object) :
         self.win_checker = win_checker
         self.win_handler = win_handler
 
+    def set_state(self, state) :
+        self.state = state
+
+    def get_state(self, state) :
+        return self.state
+
     def start_game(self, first_player) :
         self.state = self.state.on_game_start(first_player)
 
