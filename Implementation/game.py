@@ -120,6 +120,10 @@ class GameData(object) :
         """Remove player from the game"""
         del self.dice[player]
         self.inactive.discard(player)
+
+    def is_active(self, player) :
+        """Return if a player is active"""
+        return player not in self.inactive
     
     def get_players(self) :
         """Return the players currently marked active"""
@@ -341,6 +345,8 @@ class Game(object) :
     def set_state(self, state) :
         self.state = state
 
+    def is_player_active(self, player) :
+        return self.plays.is_active(player)
 
     def get_state(self) :
         return self.state

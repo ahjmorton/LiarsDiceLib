@@ -106,6 +106,20 @@ class GameDataTest(unittest.TestCase) :
         self.subject.set_bid(player, bid)
         self.assertTrue(bid == self.subject.get_bid(player))
 
+    def testCheckingForActive(self) :
+        player = Mock(spec=game.Player)
+        self.subject.add_player(player)
+        self.subject.make_all_active()
+
+        ret = self.subject.is_active(player)
+
+        self.assertTrue(ret)
+        self.subject.mark_inactive(player)
+
+        ret = self.subject.is_active(player)
+
+        self.assertTrue(not ret)
+
     def testAddingDiceWithNoPlayerThorwsException(self) :
         player = Mock(spec=game.Player)
         bid = (1,2)
@@ -139,6 +153,17 @@ class GameObjectTest(unittest.TestCase) :
         self.data.get_dice_map.assert_called_with()
         self.win_check.get_winner.assert_called_with(dice_map)
     
+    def testCheckingForActive(self) :
+        player1 = Mock(spec=game.Player)
+        self.data.is_active.return_value = True
+
+        self.assertTrue(self.subject.is_player_active(player1))
+        
+        self.data.is_active.assert_Called_with(player1)
+        self.data.is_active.return_value = False
+
+        self.assertTrue(not self.subject.is_player_active(player1))
+           
     def testCheckingForFinishedNegative(self) :
         self.win_check.get_winner.return_value = None
         dice_map = dict()
