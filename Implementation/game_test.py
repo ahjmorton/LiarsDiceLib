@@ -355,6 +355,7 @@ class WinCheckerTest(unittest.TestCase) :
         dice_map = {"a":[1,2,3], "b":[1], "c":[1,4,2]}
         self.assertTrue(self.subject.get_winner(dice_map) is None)
 
+
     def testCheckingBidOneWin(self) :
         winner = "a"
         dice_map = {winner:[1,2,3], "b":[], "c":[]}
@@ -373,6 +374,7 @@ class WinHandlerTest(unittest.TestCase) :
         bid = (1,2)
         game_obj = Mock(game.Game)
         game_obj.get_dice.return_value = 1
+        game_obj.is_active.return_value = True
         self.subject.on_win(player1, player2, bid, game_obj)
         game_obj.remove_dice.assert_called_with(player2)
         game_obj.get_dice.assert_called_with(player2)
