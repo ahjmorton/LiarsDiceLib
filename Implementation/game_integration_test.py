@@ -96,6 +96,15 @@ class GameIntegrationTest(unittest.TestCase) :
         self.assertEquals(0, len(players))
         self.assertEquals(self.first_bid_state, self.game.get_state())
 
+    def testBiddingWithoutStartingGameThrowsException(self) :
+        cur_bid = (1,2)
+        def call() :
+            self.proxy_dispatcher.make_bid(cur_bid)
+        self.assertRaises(game.IllegalStateChangeError, call)
+        self.assertTrue(self.game.get_current_player() is None)
+        self.assertTrue(self.game.get_state() is not None)
+        self.assertEquals(self.game_start_state, self.game.get_state())
+
     def testFirstBid(self) :
         self.proxy_dispatcher.start_game(self.player1)
         self.reset_and_setup_mocks()
@@ -151,7 +160,19 @@ class GameIntegrationTest(unittest.TestCase) :
         self.assertTrue(not self.view.on_player_start_turn.called)
         self.assertTrue(not self.view.on_player_end_turn.called)
 
-    def testChallange(self) :
+    def testChallangeWithRandomWinner(self) :
+        self.proxy_dispatcher.start_game(self.player1)
+        first_bid = (2, 5)
+        self.proxy_dispatcher.make_bid(first_bid)
+
+
+    def testChallengeWithFirstPlayerWin(self) :
+        pass
+
+    def testChallengeWithFirstPlayerLoss(self) :
+        pass
+
+    def testChallengeResultingInAWin(self) :
         pass
 
 def suite() :
