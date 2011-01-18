@@ -56,7 +56,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.game_start_state = game.GameStartState(self.proxy_dispatcher, self.first_bid_state, self.dice_roller)
         self.game_end_state.restart = self.game_start_state
         self.first_bid_state.restart = self.game_start_state
-        self.bid_state = self.game_start_state
+        self.bid_state.restart = self.game_start_state
 
         #Create the game object
         self.game = game.Game(self.data_store, self.game_start_state, self.bid_checker, self.win_checker, self.win_handler)
@@ -65,6 +65,9 @@ class GameIntegrationTest(unittest.TestCase) :
 
     def testStartingAGame(self) :
         self.proxy_dispatcher.start_game(self.player1)
+
+        self.assertTrue(self.game.get_current_player() is not None)
+        self.assertEquals(self.player1, self.game.get_current_player())
         self.player1.on_made_active.assert_called_with()
         self.player2.on_made_active.assert_called_with()
         self.player1.on_game_start.assert_called_with()
@@ -96,8 +99,19 @@ class GameIntegrationTest(unittest.TestCase) :
     def testFirstBid(self) :
         self.proxy_dispatcher.start_game(self.player1)
         self.reset_and_setup_mocks()
-        cur_bid = (3, 5)
-        self.proxy_dispatcher.on_bid(cur_bid)
+        cur_bid = (2, 5)
+
+        self.proxy_dispatcher.make_bid(cur_bid)
+
+        self.assertTrue(self.game.get_current_player() is not None)
+        self.assertEquals(self.player2, self.game.get_current_player())
+        player_names = map(lambda player : player.get_name(), (self.player1, self.player2))
+        self.player1.on_end_turn.assert_called_with()
+        self.player2.on_start_turn.assert_called_with()
+        self.view.on_bid.assert_called_with(self.player1name, cur_bid)
+        self.view.on_player_end_turn(self.player1name)
+        self.view.on_player_start_turn(self.player2name)
+        self.assertEquals(self.bid_state, self.game.get_state())
 
     def testSingleBid(self) :
         pass
