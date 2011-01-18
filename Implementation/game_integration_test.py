@@ -5,7 +5,20 @@ import game
 import prng
 
 class GameIntegrationTest(unittest.TestCase) :
-    
+
+    def set_mocks_up(self) : 
+        self.player1.get_name.return_value = self.player1name
+        self.player2.get_name.return_value = self.player2name
+
+    def reset_mocks(self) :
+        self.player1.reset_mock()
+        self.player2.reset_mock()
+        self.view.reset_mock()
+
+    def reset_and_setup_mocks(self) :
+        self.reset_mocks()
+        self.set_mocks_up()
+
     def setUp(self) :
         
         #Initialise players
@@ -13,8 +26,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.player2 = Mock(spec=game.Player)
         self.player1name = "Player1"
         self.player2name = "Player2"
-        self.player1.get_name.return_value = self.player1name
-        self.player2.get_name.return_value = self.player2name
+        self.set_mocks_up()
 
         #Initialise game data store and add players
         self.starting_dice = 3
@@ -57,8 +69,6 @@ class GameIntegrationTest(unittest.TestCase) :
         self.player2.on_made_active.assert_called_with()
         self.player1.on_game_start.assert_called_with()
         self.player2.on_game_start.assert_called_with()
-        self.assertTrue(self.player1.on_set_dice.called)
-        self.assertTrue(self.player2.on_set_dice.called)
         self.player1.on_new_dice_amount.assert_called_with(self.starting_dice)
         self.player1.on_start_turn.assert_called_with()
         dice_map = self.data_store.get_dice_map()
@@ -72,12 +82,22 @@ class GameIntegrationTest(unittest.TestCase) :
             player.on_set_dice.assert_called_with(dice)
         player_names = map(lambda player : player.get_name(), dice_map)
         self.view.on_game_start.assert_called_with(player_names)
-        self.view.on_multi_activations.assert_called_with(player_names)
+        self.view.on_multi_activation.assert_called_with(player_names)
         self.assertEquals(2, self.view.on_new_dice_amount.call_count)
+        players = set(player_names)
+        for args in self.view.on_new_dice_amount.call_args_list :
+            self.assertEquals(self.starting_dice, args[0][1])
+            player = args[0][0]
+            self.assertTrue(player in players)
+            players.remove(player)
+        self.assertEquals(0, len(players))
         self.assertEquals(self.first_bid_state, self.game.get_state())
 
     def testFirstBid(self) :
-        pass
+        self.proxy_dispatcher.start_game(self.player1)
+        self.reset_and_setup_mocks()
+        cur_bid = (3, 5)
+        self.proxy_dispatcher.on_bid(cur_bid)
 
     def testSingleBid(self) :
         pass
