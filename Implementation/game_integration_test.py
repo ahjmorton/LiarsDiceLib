@@ -139,16 +139,17 @@ class GameIntegrationTest(unittest.TestCase) :
         self.reset_and_setup_mocks()
         cur_bid = (2, 3)
 
-        self.proxy_dispatcher.make_bid(cur_bid)
+        def call() :
+            self.proxy_dispatcher.make_bid(cur_bid)
+        self.assertRaises(game.IllegalBidError, call)
 
         self.assertTrue(self.game.get_current_player() is not None)
         self.assertEquals(self.player2, self.game.get_current_player())
         self.assertEquals(self.bid_state, self.game.get_state())
-        self.assertself.player1.on_start_turn.assert_called_with()
-        self.player2.on_end_turn.assert_called_with()
-        self.view.on_bid.assert_called_with(self.player2name, cur_bid)
-        self.view.on_player_start_turn(self.player1name)
-        self.view.on_player_end_turn(self.player2name)
+        self.assertTrue(not self.player2.on_end_turn.called)
+        self.assertTrue(not self.view.on_bid.called)
+        self.assertTrue(not self.view.on_player_start_turn.called)
+        self.assertTrue(not self.view.on_player_end_turn.called)
 
     def testChallange(self) :
         pass
