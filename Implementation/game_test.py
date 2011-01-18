@@ -489,6 +489,8 @@ class BidGameStateTest(GameStateTest) :
             self.subject.on_bid(player, test_bid3)
         self.assertRaises(game.IllegalBidError, call)
         self.assertTrue(not self.game.set_state.called)
+        self.assertTrue(not self.game.set_bid.called)
+        self.assertTrue(not self.game.set_current_player.called)
     
     def testOnChallenge(self) :
         player1 = Mock(spec=game.Player)
