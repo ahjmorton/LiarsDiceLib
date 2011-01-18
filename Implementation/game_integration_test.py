@@ -88,9 +88,6 @@ class GameIntegrationTest(unittest.TestCase) :
     def testChallange(self) :
         pass
 
-    def test
-        
-
 def suite() :
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
