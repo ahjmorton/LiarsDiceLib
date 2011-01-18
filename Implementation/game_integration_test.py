@@ -164,6 +164,9 @@ class GameIntegrationTest(unittest.TestCase) :
         self.proxy_dispatcher.start_game(self.player1)
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
+        self.reset_and_setup_mocks()
+
+        self.proxy_dispatcher.make_challenge(self.player2)
 
 
     def testChallengeWithFirstPlayerWin(self) :
