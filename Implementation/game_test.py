@@ -476,6 +476,7 @@ class BidGameStateTest(GameStateTest) :
         test_bid1 = (4, 3)
         test_bid2 = (3, 6)
         prev_bid = (4, 4)
+        test_bid3 = (4, 4)
         player = Mock(spec=game.Player)
         self.game.get_previous_bid.return_value = prev_bid
         def call() :
@@ -483,6 +484,9 @@ class BidGameStateTest(GameStateTest) :
         self.assertRaises(game.IllegalBidError, call)
         def call() :
             self.subject.on_bid(player, test_bid2)
+        self.assertRaises(game.IllegalBidError, call)        
+        def call() :
+            self.subject.on_bid(player, test_bid3)
         self.assertRaises(game.IllegalBidError, call)
         self.assertTrue(not self.game.set_state.called)
     
