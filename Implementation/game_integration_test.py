@@ -160,17 +160,17 @@ class GameIntegrationTest(unittest.TestCase) :
         self.assertTrue(not self.view.on_player_start_turn.called)
         self.assertTrue(not self.view.on_player_end_turn.called)
 
-    def testChallangeWithRandomWinner(self) :
+    def testChallengeWithFirstPlayerWin(self) :
         self.proxy_dispatcher.start_game(self.player1)
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
+        self.data_store.set_dice(self.player1, [2, 5])
+        self.data_store.set_dice(self.player2, [6, 5])
         self.reset_and_setup_mocks()
 
         self.proxy_dispatcher.make_challenge(self.player2)
 
 
-    def testChallengeWithFirstPlayerWin(self) :
-        pass
 
     def testChallengeWithFirstPlayerLoss(self) :
         pass

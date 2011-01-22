@@ -374,10 +374,10 @@ class WinHandlerTest(unittest.TestCase) :
         bid = (1,2)
         game_obj = Mock(game.Game)
         game_obj.get_dice.return_value = 1
-        game_obj.is_active.return_value = True
         self.subject.on_win(player1, player2, bid, game_obj)
         game_obj.remove_dice.assert_called_with(player2)
         game_obj.get_dice.assert_called_with(player2)
+        game_obj.set_current_player.assert_called_with(player2)
 
     def testHandlingWinWithMakingPlayerInactive(self) :
         player1 = Mock(game.Player)
@@ -389,6 +389,7 @@ class WinHandlerTest(unittest.TestCase) :
         game_obj.remove_dice.assert_called_with(player2)
         game_obj.get_dice.assert_called_with(player2)
         game_obj.deactivate_player.assert_called_with(player2)
+        game_obj.set_current_player.assert_called_with(player1)
 
 class DiceRollerTest(unittest.TestCase) :
     

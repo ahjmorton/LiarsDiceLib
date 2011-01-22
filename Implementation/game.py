@@ -241,6 +241,10 @@ class WinHandler(object) :
         game.remove_dice(loser)
         if game.get_dice(loser) <= 0 :
             game.deactivate_player(loser)
+            game.set_current_player(winner)
+        else :
+            game.set_current_player(loser)
+
 
 class GameState(object) :
     """The game state object controls the games reaction to certain events based on the current event. Default implementations of all state methods thrown illegal state change error"""
