@@ -47,7 +47,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.dice_roller = game.DiceRoller(self.random)
         self.win_checker = game.WinChecker()
         self.bid_checker = game.BidChecker()
-        self.win_handler = game.WinHandler()
+        self.win_handler = game.WinHandler(self.proxy_dispatcher)
         
         #Create the game states from last to first
         self.game_end_state = game.FinishedState(self.proxy_dispatcher, None)
