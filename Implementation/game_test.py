@@ -11,9 +11,15 @@ class GameDataTest(unittest.TestCase) :
         self.starting = 3
         self.subject = game.GameData(self.starting)
 
+    def testSettingPlayer(self) :
+        player1 = Mock(spec=game.Player)
+        self.subject.set_current_player(player1)
+        self.assertEquals(player1, self.subject.get_current_player())
+
     def testStartingState(self) : 
         players = self.subject.get_players()
         self.assertTrue(players is not None)
+        self.assertEquals(None, self.subject.get_current_player())
         self.assertEquals(0, len(players))
         self.assertEquals(self.subject.get_num_of_starting_dice(), self.starting)
 
