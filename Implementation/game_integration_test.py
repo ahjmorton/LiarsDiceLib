@@ -118,8 +118,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.player1.on_end_turn.assert_called_with()
         self.player2.on_start_turn.assert_called_with()
         self.view.on_bid.assert_called_with(self.player1name, cur_bid)
-        self.view.on_player_end_turn(self.player1name)
-        self.view.on_player_start_turn(self.player2name)
+        self.view.on_player_end_turn.assert_called_with(self.player1name)
+        self.view.on_player_start_turn.assert_called_with(self.player2name)
         self.assertEquals(self.bid_state, self.game.get_state())
 
     def testTwoBidsWithBidAfterwards(self) :
@@ -137,8 +137,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.player1.on_start_turn.assert_called_with()
         self.player2.on_end_turn.assert_called_with()
         self.view.on_bid.assert_called_with(self.player2name, cur_bid)
-        self.view.on_player_start_turn(self.player1name)
-        self.view.on_player_end_turn(self.player2name)
+        self.view.on_player_start_turn.assert_called_with(self.player1name)
+        self.view.on_player_end_turn.assert_called_with(self.player2name)
         self.assertEquals(self.bid_state, self.game.get_state())
 
     def testTwoBidsWithBadBid(self) :
@@ -164,8 +164,10 @@ class GameIntegrationTest(unittest.TestCase) :
         self.proxy_dispatcher.start_game(self.player1)
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
-        self.data_store.set_dice(self.player1, [2, 5])
-        self.data_store.set_dice(self.player2, [6, 5])
+        player1dice = [2,5]
+        player2dice = [6,5]
+        self.data_store.set_dice(self.player1, player1dice)
+        self.data_store.set_dice(self.player2, player2dice)
         self.reset_and_setup_mocks()
 
         self.proxy_dispatcher.make_challenge()
@@ -175,7 +177,9 @@ class GameIntegrationTest(unittest.TestCase) :
         self.player2.on_start_turn.assert_called_with()
         self.assertEquals(1, len(self.data_store.get_dice(self.player2)))
         self.player2.on_new_dice_amount.assert_called_with(1)
-
+        self.view.on_player_start_turn.assert_called_with(self.player2name)
+        self.view.on_player_end_turn.assert_called_with(self.player2name)
+        self.view.on_challenge.assert_called_with(self.player1name, self.player2name,{self.player1name:player1dice, self.player2name:player2dice}, first_bid)
 
     def testChallengeWithFirstPlayerLoss(self) :
         pass

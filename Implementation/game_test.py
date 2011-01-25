@@ -880,6 +880,31 @@ class ProxyGameTest(unittest.TestCase) :
         player2.get_name.assert_called_with()
         self.game.get_dice_map.assert_called_with()
         view.on_challenge.assert_called_with(player1name, player2name, ret_map, bid)
+    
+    def testOnWinningCallsGetDiceMapBeforeOnWin(self) :
+        view = Mock(spec=game.GameView)
+        self.subject.add_game_view(view)
+        bid = (6, 5)
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
+        player1name = "Player1"
+        player2name = "Player2"
+        player1.get_name.return_value = player1name
+        player2.get_name.return_value = player2name
+        dice_map = {player1:[1,5,4,2], player2:[3,5,4,5]}
+        self.game.get_dice_map.return_value = dice_map
+        ret_map = {player1name:[1,5,4,2], player2name:[3,5,4,5]}
+        
+        self.subject.on_win(player1, player2, bid)
+
+        self.game.on_win.assert_called_with(player1, player2, bid)
+        player1.get_name.assert_called_with()
+        player2.get_name.assert_called_with()
+        self.game.get_dice_map.assert_called_with()
+        onWinIndex = map(lambda args : args[0] , filter(lambda meth_call : meth_call[1][0] == "on_win", enumerate(self.game.method_calls)))[0]
+        getDiceMapIndex = map(lambda args : args[0] , filter(lambda meth_call : meth_call[1][0] == "get_dice_map", enumerate(self.game.method_calls)))[0]
+        self.assertTrue(getDiceMapIndex < onWinIndex)
+        view.on_challenge.assert_called_with(player1name, player2name, ret_map, bid)
 
 def suite() :
     suite = unittest.TestSuite()

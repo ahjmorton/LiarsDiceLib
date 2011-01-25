@@ -53,7 +53,7 @@ class GameView(object) :
         """This method is called when a player bids with the players name and a bid"""
         pass
 
-    def on_challenge(self, winner, loser, dice_map, bid) :
+    def on_challenge(self, winner, loser, old_dice_map, bid) :
         """This method is called at the end of a challenge with the challenger, challenged, the winner and dice of each player"""
         pass
 
@@ -537,8 +537,8 @@ class ProxyGame(object) :
         self._burst_dice_amounts(player)
 
     def on_win(self, winner, loser, bid) :
-        self.game.on_win(winner, loser, bid)
         dice_map = self.game.get_dice_map()
+        self.game.on_win(winner, loser, bid)
         ret_map = dict()
         for player in dice_map :
             ret_map[player.get_name()] = dice_map[player]
