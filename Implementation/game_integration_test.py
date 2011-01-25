@@ -182,9 +182,60 @@ class GameIntegrationTest(unittest.TestCase) :
         self.view.on_challenge.assert_called_with(self.player1name, self.player2name,{self.player1name:player1dice, self.player2name:player2dice}, first_bid)
 
     def testChallengeWithFirstPlayerLoss(self) :
+        self.proxy_dispatcher.start_game(self.player1)
+        first_bid = (2, 5)
+        self.proxy_dispatcher.make_bid(first_bid)
+        player1dice = [2,5]
+        player2dice = [6,4]
+        self.data_store.set_dice(self.player1, player1dice)
+        self.data_store.set_dice(self.player2, player2dice)
+        self.reset_and_setup_mocks()
+
+        self.proxy_dispatcher.make_challenge()
+
+        self.assertEquals(self.player1, self.game.get_current_player())
+        self.player2.on_end_turn.assert_called_with()
+        self.player1.on_start_turn.assert_called_with()
+        self.assertEquals(1, len(self.data_store.get_dice(self.player1)))
+        self.player1.on_new_dice_amount.assert_called_with(1)
+        self.view.on_player_start_turn.assert_called_with(self.player1name)
+        self.view.on_player_end_turn.assert_called_with(self.player2name)
+        self.view.on_challenge.assert_called_with(self.player2name, self.player1name,{self.player1name:player1dice, self.player2name:player2dice}, first_bid)     
+
+    def testChallengeResultingInFirstPlayerGettingDeactivated(self) :
         pass
 
-    def testChallengeResultingInAWin(self) :
+    def testChallengeResultingInLoserGettingDeactivated(self) :
+        pass
+
+    def testChallengeResultingInFirstPlayerWinning(self) :
+        pass
+
+    def testChallengeResultingInFirstPlayerLoosing(self) :
+        pass
+
+    def testRestartingGameFromFirstBid(self) :
+        pass
+
+    def testRestartingGameFromSecondBid(self) :
+        pass
+
+    def testRestartingGameFromWinState(self) :
+        pass
+
+    def testAddingNewPlayer(self) :
+        pass
+
+    def testRemovingAPlayer(self) :
+        pass
+
+    def testRemovingAPlayerResultingInAWin(self) :
+        pass
+
+    def testRemovingCurrentPlayer(self) :
+        pass
+
+    def testAddingAPlayerInCurrentTurnThatResultsInNextTurnBeingTheAddedPlayer(self) :
         pass
 
 def suite() :
