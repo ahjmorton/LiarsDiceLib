@@ -15,11 +15,17 @@ class GameDataTest(unittest.TestCase) :
         player1 = Mock(spec=game.Player)
         self.subject.set_current_player(player1)
         self.assertEquals(player1, self.subject.get_current_player())
+    
+    def testSettingState(self) :
+        state = Mock(spec=game.GameState)
+        self.subject.set_current_state(state)
+        self.assertEquals(state, self.subject.get_current_state())
 
     def testStartingState(self) : 
         players = self.subject.get_players()
         self.assertTrue(players is not None)
         self.assertEquals(None, self.subject.get_current_player())
+        self.assertEquals(None, self.subject.get_current_state())
         self.assertEquals(0, len(players))
         self.assertEquals(self.subject.get_num_of_starting_dice(), self.starting)
 
@@ -141,7 +147,7 @@ class GameObjectTest(unittest.TestCase) :
         self.dice_check = Mock(spec=game.BidChecker)
         self.win_check = Mock(spec=game.WinChecker)
         self.win_hand = Mock(spec=game.WinHandler)
-        self.subject = game.Game(self.data, self.state, self.dice_check, self.win_check, self.win_hand)
+        self.subject = game.Game(self.data, self.dice_check, self.win_check, self.win_hand)
 
     def testDeactivatePlayer(self) :
         player1 = Mock(spec=game.Player)
@@ -188,12 +194,15 @@ class GameObjectTest(unittest.TestCase) :
     def testStartupStateOfGameObject(self) :
         self.data.get_current_player.return_value = None
         self.assertTrue(self.subject.get_current_player() is None)
+        self.data.get_current_state.return_value = self.state
         self.assertTrue(self.subject.get_state() == self.state)
+        self.data.get_current_state.assert_called_with()
         self.assertTrue(not self.state.on_game_start.called)
         self.assertTrue(not self.data.add_player.called)
 
     def testStartingAGame(self) :
         player = Mock(spec=game.Player)
+        self.data.get_current_state.return_value = self.state
         self.subject.start_game(player)
         self.data.get_current_player.return_value = None
         self.assertTrue(self.subject.get_current_player() is None)
@@ -203,14 +212,16 @@ class GameObjectTest(unittest.TestCase) :
     def testSettingAState(self) :
         state1 = Mock(spec=game.GameState)
         self.subject.set_state(state1)
-        self.assertEquals(state1, self.subject.get_state())
+        self.data.set_current_state.assert_called_with(state1)
 
     def testMakingABid(self) :
         player = Mock(spec=game.Player)
         self.data.get_current_player.return_value = player
+        self.data.get_current_state.return_value = self.state
         bid = (1,2)
         self.subject.make_bid(bid)
 
+        self.data.get_current_state.assert_called_with()
         self.data.get_current_player.assert_called_with()
         self.state.on_bid.assert_called_with(player, bid)
         self.assertTrue(not self.data.set_bid.called)
@@ -221,8 +232,10 @@ class GameObjectTest(unittest.TestCase) :
         player2 = Mock(spec=game.Player)
         self.data.get_players.return_value = [player1, player2]
         self.data.get_current_player.return_value = player2
+        self.data.get_current_state.return_value = self.state
 
         self.subject.make_challenge()
+        self.data.get_current_state.assert_called_with()
         self.data.get_players.assert_called_with()
         self.state.on_challenge.assert_called_with(player2, player1)
         self.assertEquals(self.state, self.subject.get_state())
@@ -231,8 +244,10 @@ class GameObjectTest(unittest.TestCase) :
         player1 = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
         self.data.get_current_player.return_value = player2
+        self.data.get_current_state.return_value = self.state
 
         self.subject.make_challenge(challenged=player1)
+        self.data.get_current_state.assert_called_with()
         self.data.get_current_player.assert_called_with()
         self.assertTrue(not self.data.get_players.called)
         self.state.on_challenge.assert_called_with(player2, player1)

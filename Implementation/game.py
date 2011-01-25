@@ -112,6 +112,13 @@ class GameData(object) :
         self.low = lowest_face
         self.high = highest_face
         self.cur_player = None
+        self.cur_state = None
+
+    def set_current_state(self, state) :
+        self.cur_state = state
+
+    def get_current_state(self) :
+        return self.cur_state
 
     def get_current_player(self) :
         return self.cur_player
@@ -348,24 +355,23 @@ class FinishedState(GameState) :
 class Game(object) :
     """The game object provides the application logic for the game and enforcing the game rules."""
 
-    def __init__(self, data, start_state, bid_checker, win_checker, win_handler) :
+    def __init__(self, data, bid_checker, win_checker, win_handler) :
         self.plays = data
-        self.state = start_state
         self.bid_checker = bid_checker
         self.win_checker = win_checker
         self.win_handler = win_handler
 
     def set_state(self, state) :
-        self.state = state
+        self.plays.set_current_state(state)
 
     def is_player_active(self, player) :
         return self.plays.is_active(player)
 
     def get_state(self) :
-        return self.state
+        return self.plays.get_current_state()
 
     def start_game(self, first_player) :
-        self.state.on_game_start(first_player)
+        self.get_state().on_game_start(first_player)
 
     def activate_players(self) :
         self.plays.make_all_active()
@@ -454,7 +460,7 @@ class Game(object) :
 
     def make_bid(self, bid) :
         """Make a bid for the current player in a tuple format"""
-        self.state.on_bid(self.get_current_player(), bid)
+        self.get_state().on_bid(self.get_current_player(), bid)
 
     def make_challenge(self, challenged=None, challenger=None) :
         """Register a challange against a certain player. 
@@ -464,7 +470,7 @@ class Game(object) :
             challenged = self.get_previous_player()
         if challenger is None :
             challenger = self.get_current_player()
-        self.state.on_challenge(challenger, challenged)
+        self.get_state().on_challenge(challenger, challenged)
 
     def get_face_values(self) :
         """Return the highest and lowest faces on the dice"""

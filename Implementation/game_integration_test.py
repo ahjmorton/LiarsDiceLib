@@ -59,7 +59,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.bid_state.restart = self.game_start_state
 
         #Create the game object
-        self.game = game.Game(self.data_store, self.game_start_state, self.bid_checker, self.win_checker, self.win_handler)
+        self.game = game.Game(self.data_store, self.bid_checker, self.win_checker, self.win_handler)
+        self.game.set_state(self.game_start_state)
         self.proxy.game = self.game
         self.proxy_dispatcher.game = self.game
 
