@@ -111,6 +111,13 @@ class GameData(object) :
         self.starting = starting_dice
         self.low = lowest_face
         self.high = highest_face
+        self.cur_player = None
+
+    def get_current_player(self) :
+        return self.cur_player
+
+    def set_current_player(self, player) :
+        self.cur_player = player
 
     def add_player(self, player) :
         """Add a player to the list of players in the round. If this method is not called then any call to add dice will fail. The player is added and is considered active on adding"""
@@ -344,7 +351,6 @@ class Game(object) :
     def __init__(self, data, start_state, bid_checker, win_checker, win_handler) :
         self.plays = data
         self.state = start_state
-        self.cur_player = None
         self.bid_checker = bid_checker
         self.win_checker = win_checker
         self.win_handler = win_handler
@@ -371,14 +377,14 @@ class Game(object) :
         pass
 
     def set_current_player(self, player) :
-        self.cur_player = player
+        self.plays.set_current_player(player)
 
     def get_current_player(self) :
-        return self.cur_player
+        return self.plays.get_current_player()
 
     def get_next_player(self) :
         players = self.plays.get_players()
-        index = players.index(self.cur_player) + 1
+        index = players.index(self.get_current_player()) + 1
         if index >= len(players) :
             index = 0
         return players[index]
@@ -426,7 +432,7 @@ class Game(object) :
 
     def get_previous_player(self) :
         players = self.plays.get_players()
-        index = players.index(self.cur_player) - 1
+        index = players.index(self.get_current_player()) - 1
         if index < 0 :
             index = len(players) - 1
         return players[index]
@@ -444,11 +450,11 @@ class Game(object) :
         return self.plays.get_bid(self.get_previous_player())
 
     def get_current_bid(self) :
-        return self.plays.get_bid(self.cur_player)
+        return self.plays.get_bid(self.get_current_player())
 
     def make_bid(self, bid) :
         """Make a bid for the current player in a tuple format"""
-        self.state.on_bid(self.cur_player, bid)
+        self.state.on_bid(self.get_current_player(), bid)
 
     def make_challenge(self, challenged=None, challenger=None) :
         """Register a challange against a certain player. 

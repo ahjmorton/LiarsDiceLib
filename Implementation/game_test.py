@@ -142,6 +142,11 @@ class GameObjectTest(unittest.TestCase) :
         self.subject.deactivate_player(player1)
         self.data.mark_inactive.assert_called_with(player1)
 
+    def testSettingAPlayer(self) :
+        player1 = Mock(spec=game.Player)
+        self.subject.set_current_player(player1)
+        self.data.set_current_player.assert_called_with(player1)
+
     def testCheckingForFinished(self) :
         player1 = Mock(spec=game.Player)
         dice_map = dict()
@@ -175,6 +180,7 @@ class GameObjectTest(unittest.TestCase) :
         self.win_check.get_winner.assert_called_with(dice_map)
 
     def testStartupStateOfGameObject(self) :
+        self.data.get_current_player.return_value = None
         self.assertTrue(self.subject.get_current_player() is None)
         self.assertTrue(self.subject.get_state() == self.state)
         self.assertTrue(not self.state.on_game_start.called)
@@ -183,6 +189,7 @@ class GameObjectTest(unittest.TestCase) :
     def testStartingAGame(self) :
         player = Mock(spec=game.Player)
         self.subject.start_game(player)
+        self.data.get_current_player.return_value = None
         self.assertTrue(self.subject.get_current_player() is None)
         self.state.on_game_start.assert_called_with(player)
         self.assertEquals(self.state, self.subject.get_state())
@@ -194,9 +201,11 @@ class GameObjectTest(unittest.TestCase) :
 
     def testMakingABid(self) :
         player = Mock(spec=game.Player)
-        self.subject.set_current_player(player)
+        self.data.get_current_player.return_value = player
         bid = (1,2)
         self.subject.make_bid(bid)
+
+        self.data.get_current_player.assert_called_with()
         self.state.on_bid.assert_called_with(player, bid)
         self.assertTrue(not self.data.set_bid.called)
         self.assertEquals(self.state, self.subject.get_state())
@@ -205,8 +214,7 @@ class GameObjectTest(unittest.TestCase) :
         player1 = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
         self.data.get_players.return_value = [player1, player2]
-
-        self.subject.set_current_player(player2)
+        self.data.get_current_player.return_value = player2
 
         self.subject.make_challenge()
         self.data.get_players.assert_called_with()
@@ -216,10 +224,10 @@ class GameObjectTest(unittest.TestCase) :
     def testMakingAChallengeWithChallengedParametersDoesNotCallGetPreviousPlayer(self) :
         player1 = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
-        
-        self.subject.set_current_player(player2)
+        self.data.get_current_player.return_value = player2
 
         self.subject.make_challenge(challenged=player1)
+        self.data.get_current_player.assert_called_with()
         self.assertTrue(not self.data.get_players.called)
         self.state.on_challenge.assert_called_with(player2, player1)
         self.assertEquals(self.state, self.subject.get_state())
@@ -227,17 +235,22 @@ class GameObjectTest(unittest.TestCase) :
     def testGettingNextPlayer(self) :
         players = [Mock(spec=game.Player) for x in xrange(0, 5)]
         self.data.get_players.return_value = players
-        self.subject.set_current_player(players[0])
+        self.data.get_current_player.return_value = players[0]
+
         ret = self.subject.get_next_player()
+
         self.assertTrue(ret is not None)
         self.assertEquals(players[1], ret)
-        self.assertTrue(self.data.get_players.called)
+        self.data.get_players.assert_called_with()
+        self.data.get_current_player.assert_called_with()
 
     def testGettingNextPlayerOnLastPlayer(self) :
         players = [Mock(spec=game.Player) for x in xrange(0, 5)]
         self.data.get_players.return_value = players
-        self.subject.set_current_player(players[4])
+        self.data.get_current_player.return_value = players[4]
+
         ret = self.subject.get_next_player()
+
         self.assertTrue(ret is not None)
         self.assertEquals(players[0], ret)
         self.assertTrue(self.data.get_players.called)
@@ -245,8 +258,10 @@ class GameObjectTest(unittest.TestCase) :
     def testGettingPreviousPlayer(self) :
         players = [Mock(spec=game.Player) for x in xrange(0, 5)]
         self.data.get_players.return_value = players
-        self.subject.set_current_player(players[4])
+        self.data.get_current_player.return_value = players[4]
+
         ret = self.subject.get_previous_player()
+
         self.assertTrue(ret is not None)
         self.assertEquals(players[3], ret)
         self.assertTrue(self.data.get_players.called)
@@ -254,8 +269,10 @@ class GameObjectTest(unittest.TestCase) :
     def testGettingPreviousPlayerOnFirstPlayer(self) :
         players = [Mock(spec=game.Player) for x in xrange(0, 5)]
         self.data.get_players.return_value = players
-        self.subject.set_current_player(players[0])
+        self.data.get_current_player.return_value = players[0]
+
         ret = self.subject.get_previous_player()
+
         self.assertTrue(ret is not None)
         self.assertEquals(players[4], ret)
         self.assertTrue(self.data.get_players.called)
@@ -263,7 +280,8 @@ class GameObjectTest(unittest.TestCase) :
     def testGettingNextPlayerWithOnePlayer(self) :
         players = [Mock(spec=game.Player)]
         self.data.get_players.return_value = players
-        self.subject.set_current_player(players[0])
+        self.data.get_current_player.return_value = players[0]
+
         ret = self.subject.get_next_player()
         self.assertTrue(ret is not None)
         self.assertEquals(players[0], ret)
@@ -272,8 +290,10 @@ class GameObjectTest(unittest.TestCase) :
     def testGettingPreviousPlayerWithOnePlayer(self) :
         players = [Mock(spec=game.Player)]
         self.data.get_players.return_value = players
-        self.subject.set_current_player(players[0])
+        self.data.get_current_player.return_value = players[0]
+
         ret = self.subject.get_previous_player()
+
         self.assertTrue(ret is not None)
         self.assertEquals(players[0], ret)
         self.assertTrue(self.data.get_players.called)
@@ -283,7 +303,8 @@ class GameObjectTest(unittest.TestCase) :
         bid = (1,2)
         self.data.get_players.return_value = players
         self.data.get_bid.return_value = bid
-        self.subject.set_current_player(players[1])
+        self.data.get_current_player.return_value = players[1]
+
         ret = self.subject.get_previous_bid()
         self.assertTrue(ret is not None)
         self.assertEquals(bid, ret)
