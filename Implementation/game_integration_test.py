@@ -270,10 +270,62 @@ class GameIntegrationTest(unittest.TestCase) :
         self.view.on_deactivate.assert_called_with(self.player2name)
 
     def testChallengeResultingInFirstPlayerWinning(self) :
-        pass
+        self.proxy_dispatcher.start_game(self.player1)
+
+        first_bid = (2, 5)
+        self.proxy_dispatcher.make_bid(first_bid)
+        player1dice = [2,5]
+        player2dice = [5]
+        self.data_store.set_dice(self.player1, player1dice)
+        self.data_store.set_dice(self.player2, player2dice)
+        self.reset_and_setup_mocks()
+
+        self.proxy_dispatcher.make_challenge()
+
+        self.assertEquals(self.player1, self.game.get_current_player())
+        
+        self.player2.on_end_turn.assert_called_with()
+        self.player1.on_start_turn.assert_called_with()
+        self.player2.on_made_inactive.assert_called_with()
+        self.player1.on_game_end.assert_called_with()
+        self.player1.on_game_end.assert_called_with()
+        self.assertEquals(0, len(self.data_store.get_dice(self.player2)))
+        self.assertTrue(not self.data_store.is_active(self.player2))
+        self.player2.on_new_dice_amount.assert_called_with(0)
+        self.view.on_player_start_turn.assert_called_with(self.player1name)
+        self.view.on_player_end_turn.assert_called_with(self.player2name)
+        self.view.on_deactivate.assert_called_with(self.player2name)
+        self.view.on_game_end(self.player1name)
+        self.assertEquals(self.game_end_state, self.game.get_state())
+        self.view.on_challenge.assert_called_with(self.player1name, self.player2name,{self.player1name:player1dice, self.player2name:player2dice}, first_bid)     
 
     def testChallengeResultingInFirstPlayerLoosing(self) :
-        pass
+        self.proxy_dispatcher.start_game(self.player1)
+
+        first_bid = (2, 5)
+        self.proxy_dispatcher.make_bid(first_bid)
+        player1dice = [5]
+        player2dice = [2,3]
+        self.data_store.set_dice(self.player1, player1dice)
+        self.data_store.set_dice(self.player2, player2dice)
+        self.reset_and_setup_mocks()
+
+        self.proxy_dispatcher.make_challenge()
+
+        self.assertEquals(self.player2, self.game.get_current_player())
+        self.player2.on_end_turn.assert_called_with()
+        self.player1.on_made_inactive.assert_called_with()
+        self.player1.on_game_end.assert_called_with()
+        self.player1.on_game_end.assert_called_with()
+        self.assertEquals(0, len(self.data_store.get_dice(self.player1)))
+        self.assertTrue(not self.data_store.is_active(self.player1))
+        self.player1.on_new_dice_amount.assert_called_with(0)
+        self.view.on_player_start_turn.assert_called_with(self.player2name)
+        self.view.on_player_end_turn.assert_called_with(self.player2name)
+        self.view.on_deactivate.assert_called_with(self.player1name)
+        self.view.on_game_end(self.player2name)
+        self.assertEquals(self.game_end_state, self.game.get_state())
+        self.view.on_challenge.assert_called_with(self.player2name, self.player1name,{self.player1name:player1dice, self.player2name:player2dice}, first_bid)
 
     def testRestartingGameFromFirstBid(self) :
         pass
