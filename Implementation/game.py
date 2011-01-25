@@ -237,13 +237,16 @@ class DiceRoller(object) :
 
 class WinHandler(object) :
 
-    def on_win(self, winner, loser, bid, game) :
-        game.remove_dice(loser)
-        if game.get_dice(loser) <= 0 :
-            game.deactivate_player(loser)
-            game.set_current_player(winner)
+    def __init__(self, game) :
+        self.game = game
+
+    def on_win(self, winner, loser, bid) :
+        self.game.remove_dice(loser)
+        if self.game.get_dice(loser) <= 0 :
+            self.game.deactivate_player(loser)
+            self.game.set_current_player(winner)
         else :
-            game.set_current_player(loser)
+            self.game.set_current_player(loser)
 
 
 class GameState(object) :
@@ -432,7 +435,7 @@ class Game(object) :
         return self.win_checker.get_winner(self.plays.get_dice_map()) is not None
 
     def on_win(self, winner, loser, bid) :
-        self.win_handler.on_win(winner, loser, bid, self)
+        self.win_handler.on_win(winner, loser, bid)
 
     def deactivate_player(self, player) :
         self.plays.mark_inactive(player)
@@ -447,9 +450,15 @@ class Game(object) :
         """Make a bid for the current player in a tuple format"""
         self.state.on_bid(self.cur_player, bid)
 
-    def make_challenge(self, challenger) :
-        """Register a challange against the current player"""
-        self.state.on_challenge(challenger, self.cur_player)
+    def make_challenge(self, challenged=None, challenger=None) :
+        """Register a challange against a certain player. 
+        If Challenged is set to None then the previous player is used.
+        If the challenger is none then the current player is used"""
+        if challenged is None :
+            challenged = self.get_previous_player()
+        if challenger is None :
+            challenger = self.get_current_player()
+        self.state.on_challenge(challenger, challenged)
 
     def get_face_values(self) :
         """Return the highest and lowest faces on the dice"""

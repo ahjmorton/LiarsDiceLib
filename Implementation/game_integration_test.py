@@ -168,8 +168,13 @@ class GameIntegrationTest(unittest.TestCase) :
         self.data_store.set_dice(self.player2, [6, 5])
         self.reset_and_setup_mocks()
 
-        self.proxy_dispatcher.make_challenge(self.player2)
+        self.proxy_dispatcher.make_challenge()
 
+        self.assertEquals(self.player2, self.game.get_current_player())
+        self.player2.on_end_turn.assert_called_with()
+        self.player2.on_start_turn.assert_called_with()
+        self.assertEquals(1, len(self.data_store.get_dice(self.player2)))
+        self.player2.on_new_dice_amount.assert_called_with(1)
 
 
     def testChallengeWithFirstPlayerLoss(self) :

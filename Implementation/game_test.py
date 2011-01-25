@@ -201,12 +201,27 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(not self.data.set_bid.called)
         self.assertEquals(self.state, self.subject.get_state())
 
-    def testMakingAChallenge(self) :
-        player = Mock(spec=game.Player)
-        challenge = Mock(spec=game.Player)
-        self.subject.set_current_player(player)
-        self.subject.make_challenge(challenge)
-        self.state.on_challenge.assert_called_with(challenge, player)
+    def testMakingAChallengeWithNoneAndNoneGrabsFromGame(self) :
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
+        self.data.get_players.return_value = [player1, player2]
+
+        self.subject.set_current_player(player2)
+
+        self.subject.make_challenge()
+        self.data.get_players.assert_called_with()
+        self.state.on_challenge.assert_called_with(player2, player1)
+        self.assertEquals(self.state, self.subject.get_state())
+ 
+    def testMakingAChallengeWithChallengedParametersDoesNotCallGetPreviousPlayer(self) :
+        player1 = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
+        
+        self.subject.set_current_player(player2)
+
+        self.subject.make_challenge(challenged=player1)
+        self.assertTrue(not self.data.get_players.called)
+        self.state.on_challenge.assert_called_with(player2, player1)
         self.assertEquals(self.state, self.subject.get_state())
     
     def testGettingNextPlayer(self) :
@@ -301,7 +316,7 @@ class GameObjectTest(unittest.TestCase) :
         player2 = Mock(spec=game.Player)
         cur_bid = (1,2)
         self.subject.on_win(player1, player2, cur_bid)
-        self.win_hand.on_win.assert_called_with(player1, player2, cur_bid, self.subject)
+        self.win_hand.on_win.assert_called_with(player1, player2, cur_bid)
 
     def testGettingWinningPlayer(self) :
         player1 = Mock(spec=game.Player)
@@ -366,30 +381,29 @@ class WinCheckerTest(unittest.TestCase) :
 class WinHandlerTest(unittest.TestCase) :
     
     def setUp(self) :
-        self.subject = game.WinHandler()
+        self.game_obj = Mock(game.Game)
+        self.subject = game.WinHandler(self.game_obj)
 
     def testHandlingWinWithoutMakingPlayerInactive(self) :
         player1 = Mock(game.Player)
         player2 = Mock(game.Player)
         bid = (1,2)
-        game_obj = Mock(game.Game)
-        game_obj.get_dice.return_value = 1
-        self.subject.on_win(player1, player2, bid, game_obj)
-        game_obj.remove_dice.assert_called_with(player2)
-        game_obj.get_dice.assert_called_with(player2)
-        game_obj.set_current_player.assert_called_with(player2)
+        self.game_obj.get_dice.return_value = 1
+        self.subject.on_win(player1, player2, bid)
+        self.game_obj.remove_dice.assert_called_with(player2)
+        self.game_obj.get_dice.assert_called_with(player2)
+        self.game_obj.set_current_player.assert_called_with(player2)
 
     def testHandlingWinWithMakingPlayerInactive(self) :
         player1 = Mock(game.Player)
         player2 = Mock(game.Player)
         bid = (1,2)
-        game_obj = Mock(game.Game)
-        game_obj.get_dice.return_value = 0
-        self.subject.on_win(player1, player2, bid, game_obj)
-        game_obj.remove_dice.assert_called_with(player2)
-        game_obj.get_dice.assert_called_with(player2)
-        game_obj.deactivate_player.assert_called_with(player2)
-        game_obj.set_current_player.assert_called_with(player1)
+        self.game_obj.get_dice.return_value = 0
+        self.subject.on_win(player1, player2, bid)
+        self.game_obj.remove_dice.assert_called_with(player2)
+        self.game_obj.get_dice.assert_called_with(player2)
+        self.game_obj.deactivate_player.assert_called_with(player2)
+        self.game_obj.set_current_player.assert_called_with(player1)
 
 class DiceRollerTest(unittest.TestCase) :
     
