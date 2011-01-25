@@ -388,7 +388,7 @@ class WinHandlerTest(unittest.TestCase) :
         player1 = Mock(game.Player)
         player2 = Mock(game.Player)
         bid = (1,2)
-        self.game_obj.get_dice.return_value = 1
+        self.game_obj.get_dice.return_value = [1,2]
         self.subject.on_win(player1, player2, bid)
         self.game_obj.remove_dice.assert_called_with(player2)
         self.game_obj.get_dice.assert_called_with(player2)
@@ -398,7 +398,7 @@ class WinHandlerTest(unittest.TestCase) :
         player1 = Mock(game.Player)
         player2 = Mock(game.Player)
         bid = (1,2)
-        self.game_obj.get_dice.return_value = 0
+        self.game_obj.get_dice.return_value = []
         self.subject.on_win(player1, player2, bid)
         self.game_obj.remove_dice.assert_called_with(player2)
         self.game_obj.get_dice.assert_called_with(player2)

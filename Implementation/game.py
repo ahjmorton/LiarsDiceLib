@@ -242,7 +242,7 @@ class WinHandler(object) :
 
     def on_win(self, winner, loser, bid) :
         self.game.remove_dice(loser)
-        if self.game.get_dice(loser) <= 0 :
+        if len(self.game.get_dice(loser)) <= 0 :
             self.game.deactivate_player(loser)
             self.game.set_current_player(winner)
         else :
