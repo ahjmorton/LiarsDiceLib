@@ -1,12 +1,21 @@
+"""The game module provides a number of primitive and implementations for
+playing liars dice. Included are objects to represent players, a datastore
+interface with in-memory implemenation, game views, game state and condition
+checkers.
+
+The module also provides objects to have messages sent out to all players
+and views based on certain events in the game through the Proxy classes"""
 import prng
 
 class Player(object) :
     """This game object represents a game player with event based methods"""
     
     def __init__(self, name) :
+        """Create a player with a given name"""
         self.name = name
 
     def get_name(self) :
+        """Return the name of the player passed in at creation"""
         return self.name
 
     def on_game_start(self) :
@@ -123,20 +132,25 @@ ch player
         self.cur_state = None
 
     def set_current_state(self, state) :
+        """Set the current state of the game"""
         self.cur_state = state
 
     def get_current_state(self) :
+        """Return the current state of the game"""
         return self.cur_state
 
     def get_current_player(self) :
+        """Return the player whose turn it currently is"""
         return self.cur_player
 
     def set_current_player(self, player) :
+        """Set the player whose current turn it is"""
         self.cur_player = player
 
     def add_player(self, player) :
-        """Add a player to the list of players in the round. If this method is n
-ot called then any call to add dice will fail. The player is added and is considered active on adding"""
+        """Add a player to the list of players in the round. 
+If this method is not called then any call to add dice will fail. 
+The player is added and is considered active on adding"""
         self.dice[player] = [None, None]
 
     def remove_player(self, player) : 
@@ -190,64 +204,90 @@ added to object then raise a value error"""
             self.dice[player][1] = bid
 
     def get_num_of_starting_dice(self) :
+        """Get the number of dice given to each player at the start of the
+game"""
         return self.starting
 
     def get_dice_map(self) :
+        """Create a dictionary with each player and the dice values"""
         ret = dict() 
         for player in self.dice :
             ret[player] = self.get_dice(player)
         return ret
 
     def get_lowest_dice(self) :
+        """Return the lowest possible face on a dice"""
         return self.low
     
     def get_highest_dice(self) :
+        """Return the highest possible face on a dice"""
         return self.high
 
 
 class MissingPlayerError(Exception) :
+    """This exception occurs when a player that has not been added to the
+game attempts to perform some action"""
     
     def __init__(self, value) :
+        Exception.__init__()
         self.val = value
 
     def __str__(self) :
         return repr(self.value)
 
 class IllegalStateChangeError(Exception) :
+    """This exception occurs when a state method is called that would 
+transition the game to an illegal state, for example bidding when the game
+is over"""
     
     def __init__(self, value) :
+        Exception.__init__(self)
         self.val = value
 
     def __str__(self) :
         return repr(self.value)
 
 class IllegalBidError(Exception) :
-
+    """This exception occurs when a bid attempt is made that is illegal
+given the current state of the game.
+For example if the previous bid of the game was two dice showing a five 
+then a bid is attempted with one six then this exception is thrown"""
     def __init__(self, value) :
+        Exception.__init__(self)
         self.val = value
 
     def __str__(self) :
         return repr(self.value)
 
 class BidChecker(object) :
-    
-    def check_bids(self, bid, dice) :
+    """The bid checker has a single method to determine if a given bid
+is correct in the sense that the person that made that bid would win a 
+round based on it"""
+
+    def check_bids(self, bid, dice_map) :
+        """Determine if the bid provided is correct, for example in the
+commen hand version of liars dice
+The bid object should be a sequence with the first entry being the number
+of dice associated with the bid and the second being the face value.
+The dice should be a dictionary type with the value of the dictionary
+being a list of dice values.
+Returns true if the bid is correct, false otherwise"""
         die = bid[1]
         count = 0
-        for x in dice :
-            count = count + dice[x].count(die)
+        for player in dice_map :
+            count = count + dice_map[player].count(die)
         return count >= bid[0]
 
 class WinChecker(object) :
     
     def get_winner(self, dice_map) :
         cur_win = None
-        for x in dice_map :
-            if len(dice_map[x]) > 0 :
+        for player in dice_map :
+            if len(dice_map[player]) > 0 :
                 if cur_win is not None :
                     return None
                 else :
-                    cur_win = x
+                    cur_win = player
         return cur_win
 
 class DiceRoller(object) :
@@ -255,11 +295,9 @@ class DiceRoller(object) :
     def __init__(self, random=prng.get_random()) :
         self.rand = random
 
-    def roll_dice(self, face_vals) :
-        return self.rand.randint(face_vals[0], face_vals[1])
-
     def roll_set_of_dice(self, num, face_vals) :
-        return [self.roll_dice(face_vals) for x in xrange(num)]
+        return [self.rand.randint(face_vals[0], face_vals[1]) 
+               for i in xrange(num)]
 
 class WinHandler(object) :
 
@@ -276,8 +314,9 @@ class WinHandler(object) :
 
 
 class GameState(object) :
-    """The game state object controls the games reaction to certain events based
- on the current event. Default implementations of all state methods thrown illegal state change error"""
+    """The game state object controls the games reaction to certain 
+events based on the current event. Default implementations of all 
+state methods thrown illegal state change error"""
 
     def __init__(self, game) :
         self.game = game
@@ -292,8 +331,10 @@ class GameState(object) :
         raise IllegalStateChangeError("Cannot call on_challenge")
 
 class GameStartState(GameState) :
-    """This state is the state the game first enters in after the players have b
-een added to the game. At this point the dice are shuffled and the first player for the round is chosen"""
+    """This state is the state the game first enters in after the players 
+have been added to the game. 
+At this point the dice are shuffled and the first player for 
+the round is chosen"""
     
     def __init__(self, game, enter_state, dice_roller) :
         GameState.__init__(self, game)

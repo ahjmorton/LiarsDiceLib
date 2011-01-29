@@ -455,16 +455,6 @@ class DiceRollerTest(unittest.TestCase) :
         self.random = Mock(spec=random.Random)
         self.subject = game.DiceRoller(self.random)
 
-    def testRollingDice(self) :
-        ret = 3
-        face = (1, 6)
-        self.random.randint.return_value = ret
-        val = self.subject.roll_dice(face)
-        self.assertTrue(val is not None)
-        self.assertTrue(ret == val)
-        self.assertTrue(self.random.randint.called)
-        self.assertTrue(self.random.randint.call_count == 1)
-    
     def testRollingSetOfDice(self) :
         ret = 3
         amount = 6
