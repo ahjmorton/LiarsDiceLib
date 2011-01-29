@@ -280,6 +280,7 @@ Returns true if the bid is correct, false otherwise"""
 
 class WinChecker(object) :
     
+    
     def get_winner(self, dice_map) :
         cur_win = None
         for player in dice_map :
@@ -549,10 +550,15 @@ class ProxyGame(object) :
         return self.game_views
 
     def _burst_to_game_views(self, func) :
-        map(func, self.game_views)
+        for view in self.game_views :
+            func(view)
 
     def _burst_to_players(self, func) :
-        map(func, self.game.get_all_players())
+        for player in self.game.get_all_players() :
+            func(player)
+
+    def __get_all_player_names(self) :
+        return [player.get_name() for player in self.game.get_all_players()]
 
     def _burst_dice_amounts(self, player) :
         new_dice = len(self.game.get_dice(player))
@@ -562,8 +568,7 @@ class ProxyGame(object) :
     
     def start_game(self, first_player) :
         self.game.start_game(first_player)
-        player_names = map(lambda player: player.get_name(), 
-             self.game.get_all_players())
+        player_names = self.__get_all_player_names()
         self._burst_to_game_views(lambda view : 
             view.on_game_start(player_names))
         self._burst_to_players(lambda player : player.on_game_start())
@@ -571,8 +576,7 @@ class ProxyGame(object) :
     def activate_players(self) :
         self.game.activate_players()
         self._burst_to_game_views(lambda view : 
-            view.on_multi_activation(map(lambda player : 
-                player.get_name(), self.game.get_all_players())))
+            view.on_multi_activation(self.__get_all_player_names()))
         self._burst_to_players(lambda player : player.on_made_active())
 
     def end_game(self, winner) :
