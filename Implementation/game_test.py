@@ -27,7 +27,8 @@ class GameDataTest(unittest.TestCase) :
         self.assertEquals(None, self.subject.get_current_player())
         self.assertEquals(None, self.subject.get_current_state())
         self.assertEquals(0, len(players))
-        self.assertEquals(self.subject.get_num_of_starting_dice(), self.starting)
+        self.assertEquals(self.subject.get_num_of_starting_dice(), self.starting
+)
 
     def testAddingPlayer(self) :
         player = Mock(spec=game.Player)
@@ -147,7 +148,8 @@ class GameObjectTest(unittest.TestCase) :
         self.dice_check = Mock(spec=game.BidChecker)
         self.win_check = Mock(spec=game.WinChecker)
         self.win_hand = Mock(spec=game.WinHandler)
-        self.subject = game.Game(self.data, self.dice_check, self.win_check, self.win_hand)
+        self.subject = game.Game(self.data, self.dice_check, 
+        self.win_check, self.win_hand)
 
     def testDeactivatePlayer(self) :
         player1 = Mock(spec=game.Player)
@@ -240,7 +242,7 @@ class GameObjectTest(unittest.TestCase) :
         self.state.on_challenge.assert_called_with(player2, player1)
         self.assertEquals(self.state, self.subject.get_state())
  
-    def testMakingAChallengeWithChallengedParametersDoesNotCallGetPreviousPlayer(self) :
+    def testMakingAChallengeWithChallengedParametersDoesNotCall(self) :
         player1 = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
         self.data.get_current_player.return_value = player2
@@ -672,7 +674,8 @@ class GameStartStateTest(GameStateTest) :
         self.assertTrue(self.game.has_player.called) 
         self.assertTrue(self.game.number_of_starting_dice.called)
         self.assertTrue(self.dice_roll.roll_set_of_dice.called)
-        self.assertEquals(len(players), self.dice_roll.roll_set_of_dice.call_count)
+        self.assertEquals(len(players), 
+            self.dice_roll.roll_set_of_dice.call_count)
         self.dice_roll.roll_set_of_dice.assert_called_with(max_dice, face)
         self.assertTrue(self.game.set_dice.called)
         self.assertEquals(len(players), self.game.set_dice.call_count)
@@ -921,7 +924,8 @@ class ProxyGameTest(unittest.TestCase) :
         player1.get_name.assert_called_with()
         player2.get_name.assert_called_with()
         self.game.get_dice_map.assert_called_with()
-        view.on_challenge.assert_called_with(player1name, player2name, ret_map, bid)
+        view.on_challenge.assert_called_with(player1name, player2name, ret_map, 
+bid)
     
     def testOnWinningCallsGetDiceMapBeforeOnWin(self) :
         view = Mock(spec=game.GameView)
@@ -943,10 +947,15 @@ class ProxyGameTest(unittest.TestCase) :
         player1.get_name.assert_called_with()
         player2.get_name.assert_called_with()
         self.game.get_dice_map.assert_called_with()
-        onWinIndex = map(lambda args : args[0] , filter(lambda meth_call : meth_call[1][0] == "on_win", enumerate(self.game.method_calls)))[0]
-        getDiceMapIndex = map(lambda args : args[0] , filter(lambda meth_call : meth_call[1][0] == "get_dice_map", enumerate(self.game.method_calls)))[0]
+        onWinIndex = map(lambda args : args[0] , 
+            filter(lambda meth_call : meth_call[1][0] == "on_win", 
+               enumerate(self.game.method_calls)))[0]
+        getDiceMapIndex = map(lambda args : args[0] , 
+            filter(lambda meth_call : meth_call[1][0] == "get_dice_map", 
+               enumerate(self.game.method_calls)))[0]
         self.assertTrue(getDiceMapIndex < onWinIndex)
-        view.on_challenge.assert_called_with(player1name, player2name, ret_map, bid)
+        view.on_challenge.assert_called_with(player1name, player2name, 
+            ret_map, bid)
 
 def suite() :
     suite = unittest.TestSuite()

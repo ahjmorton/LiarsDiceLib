@@ -10,7 +10,8 @@ class Player(object) :
         return self.name
 
     def on_game_start(self) :
-        """This method is called when the game is started and the dice the player has are given"""
+        """This method is called when the game is started and the dice the playe
+r has are given"""
         pass
 
     def on_set_dice(self, dice) :
@@ -26,7 +27,8 @@ class Player(object) :
         pass
 
     def on_made_active(self) :
-        """This method is called when a player is set as active, at the start of a round"""
+        """This method is called when a player is set as active, at the start of
+ a round"""
         pass
 
     def on_made_inactive(self) :
@@ -38,23 +40,28 @@ class Player(object) :
         pass
 
     def on_new_dice_amount(self, amount) :
-        """This method is called when the dice amount changes, possibly due to a loss of dice"""
+        """This method is called when the dice amount changes, possibly due to a
+ loss of dice"""
         pass
 
 class GameView(object) :
-    """This object represents an observer on the game object for updating a user interface"""
+    """This object represents an observer on the game object for updating a user
+ interface"""
 
     
     def on_game_start(self, player_list) :
-        """This method is called when the game begins. It contains a list of players who are in the game"""
+        """This method is called when the game begins. It contains a list of pla
+yers who are in the game"""
         pass
 
     def on_bid(self, player_name, bid) :
-        """This method is called when a player bids with the players name and a bid"""
+        """This method is called when a player bids with the players name and a 
+bid"""
         pass
 
     def on_challenge(self, winner, loser, old_dice_map, bid) :
-        """This method is called at the end of a challenge with the challenger, challenged, the winner and dice of each player"""
+        """This method is called at the end of a challenge with the challenger, 
+challenged, the winner and dice of each player"""
         pass
 
     def on_activation(self, player_name) :
@@ -86,7 +93,8 @@ class GameView(object) :
         pass
 
     def on_game_end(self, winner_name) : 
-        """This method is called when the game ends and gives the players name"""
+        """This method is called when the game ends and gives the 
+        players name"""
         pass
 
     def on_new_dice_amount(self, player_name, amount) :
@@ -98,10 +106,10 @@ class GameView(object) :
         pass
 
 class GameData(object) :
-    """The game object is responsible for maintaining state about the game in progresss.
-
-    It maintains a list of players in the game as well as the dice values for each player
-    
+    """The game object is responsible for maintaining state about the game in pr
+ogresss.
+    It maintains a list of players in the game as well as the dice values for ea
+ch player
     Additionally it holds the number of starting dice """
     
     def __init__(self, starting_dice=5, lowest_face=1, highest_face=6) :
@@ -127,7 +135,8 @@ class GameData(object) :
         self.cur_player = player
 
     def add_player(self, player) :
-        """Add a player to the list of players in the round. If this method is not called then any call to add dice will fail. The player is added and is considered active on adding"""
+        """Add a player to the list of players in the round. If this method is n
+ot called then any call to add dice will fail. The player is added and is considered active on adding"""
         self.dice[player] = [None, None]
 
     def remove_player(self, player) : 
@@ -152,7 +161,8 @@ class GameData(object) :
         self.inactive.clear()
 
     def mark_inactive(self, player) :
-        """Mark a player as being inactive, an inactive player is not included in a call to get_players"""
+        """Mark a player as being inactive, an inactive player is not included i
+n a call to get_players"""
         self.inactive.add(player)
 
     def get_dice(self, player) :
@@ -164,14 +174,16 @@ class GameData(object) :
         return self.dice[player][1]
 
     def set_dice(self, player, dice) :
-        """Set the dice a particular player has in their hand. If player has not had players added to it then raise a ValueError"""
+        """Set the dice a particular player has in their hand. If player has not
+ had players added to it then raise a ValueError"""
         if player not in self.dice :
             raise ValueError
         else :
             self.dice[player][0] = dice
      
     def set_bid(self, player, bid) :
-        """Set the bid for a particular player has made. If player has not been added to object then raise a value error"""
+        """Set the bid for a particular player has made. If player has not been 
+added to object then raise a value error"""
         if player not in self.dice :
             raise ValueError
         else :
@@ -264,7 +276,8 @@ class WinHandler(object) :
 
 
 class GameState(object) :
-    """The game state object controls the games reaction to certain events based on the current event. Default implementations of all state methods thrown illegal state change error"""
+    """The game state object controls the games reaction to certain events based
+ on the current event. Default implementations of all state methods thrown illegal state change error"""
 
     def __init__(self, game) :
         self.game = game
@@ -279,7 +292,8 @@ class GameState(object) :
         raise IllegalStateChangeError("Cannot call on_challenge")
 
 class GameStartState(GameState) :
-    """This state is the state the game first enters in after the players have been added to the game. At this point the dice are shuffled and the first player for the round is chosen"""
+    """This state is the state the game first enters in after the players have b
+een added to the game. At this point the dice are shuffled and the first player for the round is chosen"""
     
     def __init__(self, game, enter_state, dice_roller) :
         GameState.__init__(self, game)
@@ -287,18 +301,21 @@ class GameStartState(GameState) :
         self.dice_roll = dice_roller
 
     def on_game_start(self, human_player) : 
-        """Game start should check the player provided is in the game data, if not thrown an error.
-Also performs shuffling of dice """
+        """Game start should check the player provided is in the game data, 
+        if not thrown an error. Also performs shuffling of dice """
         if not self.game.has_player(human_player) :
-            raise MissingPlayerError("Player provided for starting of game not in list of players")
+            raise MissingPlayerError("""Player 
+                provided for starting of game not in list of players""")
         else : 
-            #Could also add logic to do random number generation to work out who goes first
+            #Could also add logic to do random number generation 
+            # to work out who  goes first
             self.game.activate_players()
             self.game.set_current_player(human_player)
             max_dice = self.game.number_of_starting_dice()
             face = self.game.get_face_values()
             for x in self.game.get_players() :
-                self.game.set_dice(x, self.dice_roll.roll_set_of_dice(max_dice, face))
+                self.game.set_dice(x, self.dice_roll.roll_set_of_dice(max_dice, 
+face))
             self.game.set_state(self.first)
 
 class FirstBidState(GameState) :
@@ -353,7 +370,8 @@ class FinishedState(GameState) :
 
 
 class Game(object) :
-    """The game object provides the application logic for the game and enforcing the game rules."""
+    """The game object provides the application logic for the game and enforcing
+ the game rules."""
 
     def __init__(self, data, bid_checker, win_checker, win_handler) :
         self.plays = data
@@ -444,7 +462,8 @@ class Game(object) :
         return players[index]
 
     def finished(self) :
-        return self.win_checker.get_winner(self.plays.get_dice_map()) is not None
+        return self.win_checker.get_winner(
+              self.plays.get_dice_map()) is not None
 
     def on_win(self, winner, loser, bid) :
         self.win_handler.on_win(winner, loser, bid)
@@ -497,22 +516,28 @@ class ProxyGame(object) :
     def _burst_dice_amounts(self, player) :
         new_dice = len(self.game.get_dice(player))
         player.on_new_dice_amount(new_dice)
-        self._burst_to_game_views(lambda view : view.on_new_dice_amount(player.get_name(), new_dice))
+        self._burst_to_game_views(lambda view : 
+              view.on_new_dice_amount(player.get_name(), new_dice))
     
     def start_game(self, first_player) :
         self.game.start_game(first_player)
-        player_names = map(lambda player: player.get_name(), self.game.get_all_players())
-        self._burst_to_game_views(lambda view : view.on_game_start(player_names))
+        player_names = map(lambda player: player.get_name(), 
+             self.game.get_all_players())
+        self._burst_to_game_views(lambda view : 
+            view.on_game_start(player_names))
         self._burst_to_players(lambda player : player.on_game_start())
 
     def activate_players(self) :
         self.game.activate_players()
-        self._burst_to_game_views(lambda view : view.on_multi_activation(map(lambda player : player.get_name(), self.game.get_all_players())))
+        self._burst_to_game_views(lambda view : 
+            view.on_multi_activation(map(lambda player : 
+                player.get_name(), self.game.get_all_players())))
         self._burst_to_players(lambda player : player.on_made_active())
 
     def end_game(self, winner) :
         self.game.end_game(winner)
-        self._burst_to_game_views(lambda view : view.on_game_end(winner.get_name()))
+        self._burst_to_game_views(lambda view : view.on_game_end(winner.get_name
+()))
         self._burst_to_players(lambda player : player.on_game_end())
 
     def set_current_player(self, player) :
@@ -522,18 +547,22 @@ class ProxyGame(object) :
             # Avoid this section if setting the first player
             curname = cur.get_name()
             cur.on_end_turn()
-            self._burst_to_game_views(lambda view : view.on_player_end_turn(curname))
+            self._burst_to_game_views(lambda view : 
+                view.on_player_end_turn(curname))
         playername = player.get_name()
         player.on_start_turn()
-        self._burst_to_game_views(lambda view : view.on_player_start_turn(playername))
+        self._burst_to_game_views(lambda view : 
+             view.on_player_start_turn(playername))
 
     def add_player(self, player) :
         self.game.add_player(player)
-        self._burst_to_game_views(lambda view : view.on_player_addition(player.get_name()))
+        self._burst_to_game_views(lambda view : 
+             view.on_player_addition(player.get_name()))
 
     def remove_player(self, player) :
         self.game.remove_player(player)
-        self._burst_to_game_views(lambda view : view.on_player_remove(player.get_name()))
+        self._burst_to_game_views(lambda view : 
+            view.on_player_remove(player.get_name()))
 
     def set_dice(self, player, dice) :
         self.game.set_dice(player, dice)
@@ -542,7 +571,8 @@ class ProxyGame(object) :
     
     def set_bid(self, player, bid) :
         self.game.set_bid(player, bid) 
-        self._burst_to_game_views(lambda view : view.on_bid(player.get_name(), bid))
+        self._burst_to_game_views(lambda view : 
+            view.on_bid(player.get_name(), bid))
 
     def remove_dice(self, player) :
         self.game.remove_dice(player)
@@ -556,12 +586,14 @@ class ProxyGame(object) :
             ret_map[player.get_name()] = dice_map[player]
         winner = winner.get_name()
         loser = loser.get_name()
-        self._burst_to_game_views(lambda view : view.on_challenge(winner, loser, ret_map, bid))
+        self._burst_to_game_views(lambda view : 
+            view.on_challenge(winner, loser, ret_map, bid))
 
     def deactivate_player(self, player) :
         self.game.deactivate_player(player)
         player.on_made_inactive()
-        self._burst_to_game_views(lambda view : view.on_deactivate(player.get_name()))
+        self._burst_to_game_views(lambda view : 
+            view.on_deactivate(player.get_name()))
 
 class ProxyDispatcher(object) :
     
