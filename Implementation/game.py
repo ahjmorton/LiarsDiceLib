@@ -7,6 +7,33 @@ The module also provides objects to have messages sent out to all players
 and views based on certain events in the game through the Proxy classes"""
 import prng
 
+
+def check_bids(bid, dice_map) :
+    """Determine if the bid provided is correct, for example in the
+commen hand version of liars dice
+The bid object should be a sequence with the first entry being the number
+of dice associated with the bid and the second being the face value.
+The dice should be a dictionary type with the value of the dictionary
+being a list of dice values.
+Returns true if the bid is correct, false otherwise"""
+    die = bid[1]
+    count = 0
+    for player in dice_map :
+        count = count + dice_map[player].count(die)
+    return count >= bid[0]
+
+def get_winner(dice_map) :
+    """Determine the winner of a round based on a dice map.
+If there is no clear winner of the dicemap then return None"""
+    cur_win = None
+    for player in dice_map :
+        if len(dice_map[player]) > 0 :
+            if cur_win is not None :
+                return None
+            else :
+                cur_win = player
+    return cur_win
+
 class Player(object) :
     """This game object represents a game player with event based methods"""
     
@@ -259,37 +286,6 @@ then a bid is attempted with one six then this exception is thrown"""
     def __str__(self) :
         return repr(self.value)
 
-class BidChecker(object) :
-    """The bid checker has a single method to determine if a given bid
-is correct in the sense that the person that made that bid would win a 
-round based on it"""
-
-    def check_bids(self, bid, dice_map) :
-        """Determine if the bid provided is correct, for example in the
-commen hand version of liars dice
-The bid object should be a sequence with the first entry being the number
-of dice associated with the bid and the second being the face value.
-The dice should be a dictionary type with the value of the dictionary
-being a list of dice values.
-Returns true if the bid is correct, false otherwise"""
-        die = bid[1]
-        count = 0
-        for player in dice_map :
-            count = count + dice_map[player].count(die)
-        return count >= bid[0]
-
-class WinChecker(object) :
-    
-    
-    def get_winner(self, dice_map) :
-        cur_win = None
-        for player in dice_map :
-            if len(dice_map[player]) > 0 :
-                if cur_win is not None :
-                    return None
-                else :
-                    cur_win = player
-        return cur_win
 
 class DiceRoller(object) :
     
@@ -415,7 +411,7 @@ class Game(object) :
     """The game object provides the application logic for the game and enforcing
  the game rules."""
 
-    def __init__(self, data, bid_checker, win_checker, win_handler) :
+    def __init__(self, data, win_handler, bid_checker=check_bids, win_checker=get_winner) :
         self.plays = data
         self.bid_checker = bid_checker
         self.win_checker = win_checker
@@ -437,7 +433,7 @@ class Game(object) :
         self.plays.make_all_active()
 
     def get_winning_player(self) :
-        return self.win_checker.get_winner(self.plays.get_dice_map())
+        return self.win_checker(self.plays.get_dice_map())
 
     def end_game(self, winner) :
         pass
@@ -486,7 +482,7 @@ class Game(object) :
         return player in self.plays.get_players()
 
     def true_bid(self, bid) :
-        return self.bid_checker.check_bids(bid, self.plays.get_dice_map())
+        return self.bid_checker(bid, self.plays.get_dice_map())
 
     def get_dice_map(self) :
         return self.plays.get_dice_map()
@@ -504,7 +500,7 @@ class Game(object) :
         return players[index]
 
     def finished(self) :
-        return self.win_checker.get_winner(
+        return self.win_checker(
               self.plays.get_dice_map()) is not None
 
     def on_win(self, winner, loser, bid) :
@@ -651,7 +647,6 @@ class ProxyDispatcher(object) :
             return getattr(self.game, attrib)
         else :
             return getattr(self.proxy, attrib)
-
 
 
 if __name__ == "__main__" :

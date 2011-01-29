@@ -145,11 +145,11 @@ class GameObjectTest(unittest.TestCase) :
     def setUp(self) :
         self.data = Mock(spec=game.GameData)
         self.state = Mock(spec=game.GameState)
-        self.dice_check = Mock(spec=game.BidChecker)
-        self.win_check = Mock(spec=game.WinChecker)
+        self.dice_check = Mock(spec=game.check_bids)
+        self.win_check = Mock(spec=game.get_winner)
         self.win_hand = Mock(spec=game.WinHandler)
-        self.subject = game.Game(self.data, self.dice_check, 
-        self.win_check, self.win_hand)
+        self.subject = game.Game(self.data, self.win_hand, self.dice_check, 
+        self.win_check)
 
     def testDeactivatePlayer(self) :
         player1 = Mock(spec=game.Player)
@@ -164,13 +164,13 @@ class GameObjectTest(unittest.TestCase) :
     def testCheckingForFinished(self) :
         player1 = Mock(spec=game.Player)
         dice_map = dict()
-        self.win_check.get_winner.return_value = player1
+        self.win_check.return_value = player1
         self.data.get_dice_map.return_value = dice_map
         ret = self.subject.finished()
         self.assertTrue(ret is not None)
         self.assertTrue(ret)
         self.data.get_dice_map.assert_called_with()
-        self.win_check.get_winner.assert_called_with(dice_map)
+        self.win_check.assert_called_with(dice_map)
     
     def testCheckingForActive(self) :
         player1 = Mock(spec=game.Player)
@@ -184,14 +184,14 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(not self.subject.is_player_active(player1))
            
     def testCheckingForFinishedNegative(self) :
-        self.win_check.get_winner.return_value = None
+        self.win_check.return_value = None
         dice_map = dict()
         self.data.get_dice_map.return_value = dice_map
         ret = self.subject.finished()
         self.assertTrue(ret is not None)
         self.assertTrue(not ret)
         self.data.get_dice_map.assert_called_with()
-        self.win_check.get_winner.assert_called_with(dice_map)
+        self.win_check.assert_called_with(dice_map)
 
     def testStartupStateOfGameObject(self) :
         self.data.get_current_player.return_value = None
@@ -337,13 +337,13 @@ class GameObjectTest(unittest.TestCase) :
         dice_dict = dict()
         exp = True
         self.data.get_dice_map.return_value = dice_dict
-        self.dice_check.check_bids.return_value = exp
+        self.dice_check.return_value = exp
         bid = (1, 2)
         ret = self.subject.true_bid(bid)
         self.assertTrue(ret is not None)
         self.assertTrue(exp == ret)
         self.assertTrue(self.data.get_dice_map.called)
-        self.dice_check.check_bids.assert_called_with(bid, dice_dict)
+        self.dice_check.assert_called_with(bid, dice_dict)
 
     def testRemovingDice(self) :
         length = 4
@@ -366,11 +366,11 @@ class GameObjectTest(unittest.TestCase) :
         player1 = Mock(spec=game.Player)
         ret_map = {player1:[1]}
         self.data.get_dice_map.return_value = ret_map
-        self.win_check.get_winner.return_value = player1
+        self.win_check.return_value = player1
         ret = self.subject.get_winning_player()
         self.assertTrue(ret is not None)
         self.assertTrue(ret == player1)
-        self.win_check.get_winner.assert_called_with(ret_map)
+        self.win_check.assert_called_with(ret_map)
         self.data.get_dice_map.assert_called_with()
 
     def testActivatingAllPlayers(self) :
@@ -386,14 +386,11 @@ class GameObjectTest(unittest.TestCase) :
 
 class BidCheckerTest(unittest.TestCase) :
     
-    def setUp(self) :
-        self.subject = game.BidChecker()
-
     def testCheckingBidSimple(self) :
         player = Mock(spec=game.Player)
         bid = (2,4)
         dice_map = {player:[2,4,4]}
-        ret = self.subject.check_bids(bid, dice_map)
+        ret = game.check_bids(bid, dice_map)
         self.assertTrue(ret is not None)
         self.assertTrue(ret)
     
@@ -401,24 +398,21 @@ class BidCheckerTest(unittest.TestCase) :
         player = Mock(spec=game.Player)
         bid = (2,4)
         dice_map = {player:[2,4]}
-        ret = self.subject.check_bids(bid, dice_map)
+        ret = game.check_bids(bid, dice_map)
         self.assertTrue(ret is not None)
         self.assertTrue(not ret) 
 
 class WinCheckerTest(unittest.TestCase) :
     
-    def setUp(self) :
-        self.subject = game.WinChecker()
-
     def testCheckingBidAllNone(self) :
         dice_map = {"a":[1,2,3], "b":[1], "c":[1,4,2]}
-        self.assertTrue(self.subject.get_winner(dice_map) is None)
+        self.assertTrue(game.get_winner(dice_map) is None)
 
 
     def testCheckingBidOneWin(self) :
         winner = "a"
         dice_map = {winner:[1,2,3], "b":[], "c":[]}
-        ret = self.subject.get_winner(dice_map)
+        ret = game.get_winner(dice_map)
         self.assertTrue(ret is not None)
         self.assertTrue(winner == ret)
 

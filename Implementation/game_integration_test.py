@@ -46,8 +46,8 @@ class GameIntegrationTest(unittest.TestCase) :
         #Create the utility objects
         self.random = prng.get_random()
         self.dice_roller = game.DiceRoller(self.random)
-        self.win_checker = game.WinChecker()
-        self.bid_checker = game.BidChecker()
+        self.win_checker = game.get_winner
+        self.bid_checker = game.check_bids
         self.win_handler = game.WinHandler(self.proxy_dispatcher)
         
         #Create the game states from last to first
@@ -63,8 +63,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.bid_state.restart = self.game_start_state
 
         #Create the game object
-        self.game = game.Game(self.data_store, self.bid_checker, 
-            self.win_checker, self.win_handler)
+        self.game = game.Game(self.data_store, self.win_handler, self.bid_checker, 
+            self.win_checker)
         self.game.set_state(self.game_start_state)
         self.proxy.game = self.game
         self.proxy_dispatcher.game = self.game
