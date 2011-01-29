@@ -147,7 +147,7 @@ class GameObjectTest(unittest.TestCase) :
         self.state = Mock(spec=game.GameState)
         self.dice_check = Mock(spec=game.check_bids)
         self.win_check = Mock(spec=game.get_winner)
-        self.win_hand = Mock(spec=game.WinHandler)
+        self.win_hand = Mock(spec=game.on_win)
         self.subject = game.Game(self.data, self.win_hand, self.dice_check, 
         self.win_check)
 
@@ -360,7 +360,7 @@ class GameObjectTest(unittest.TestCase) :
         player2 = Mock(spec=game.Player)
         cur_bid = (1,2)
         self.subject.on_win(player1, player2, cur_bid)
-        self.win_hand.on_win.assert_called_with(player1, player2, cur_bid)
+        self.win_hand.assert_called_with(player1, player2, cur_bid)
 
     def testGettingWinningPlayer(self) :
         player1 = Mock(spec=game.Player)
@@ -420,14 +420,14 @@ class WinHandlerTest(unittest.TestCase) :
     
     def setUp(self) :
         self.game_obj = Mock(game.Game)
-        self.subject = game.WinHandler(self.game_obj)
-
+        self.subject = game.on_win
+   
     def testHandlingWinWithoutMakingPlayerInactive(self) :
         player1 = Mock(game.Player)
         player2 = Mock(game.Player)
         bid = (1,2)
         self.game_obj.get_dice.return_value = [1,2]
-        self.subject.on_win(player1, player2, bid)
+        self.subject(player1, player2, bid, self.game_obj)
         self.game_obj.remove_dice.assert_called_with(player2)
         self.game_obj.get_dice.assert_called_with(player2)
         self.game_obj.set_current_player.assert_called_with(player2)
@@ -437,7 +437,7 @@ class WinHandlerTest(unittest.TestCase) :
         player2 = Mock(game.Player)
         bid = (1,2)
         self.game_obj.get_dice.return_value = []
-        self.subject.on_win(player1, player2, bid)
+        self.subject(player1, player2, bid, self.game_obj)
         self.game_obj.remove_dice.assert_called_with(player2)
         self.game_obj.get_dice.assert_called_with(player2)
         self.game_obj.deactivate_player.assert_called_with(player2)

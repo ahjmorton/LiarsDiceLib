@@ -1,4 +1,6 @@
 import unittest
+from functools import partial
+
 from mock import Mock
 
 import game
@@ -46,7 +48,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.dice_roller = game.roll_set_of_dice
         self.win_checker = game.get_winner
         self.bid_checker = game.check_bids
-        self.win_handler = game.WinHandler(self.proxy_dispatcher)
+        self.win_handler = game.on_win
+        self.win_handler = partial(self.win_handler, game=self.proxy_dispatcher)
         
         #Create the game states from last to first
         self.game_end_state = game.FinishedState(self.proxy_dispatcher, None)

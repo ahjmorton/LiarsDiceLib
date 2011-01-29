@@ -44,6 +44,15 @@ Source of randomness comes from prng module"""
     return [rand.randint(face_vals[0], face_vals[1]) 
            for i in xrange(num)]
 
+def on_win(winner, loser, bid, game) :
+    """Called at the end of a round to determine the effects for both
+the winner and the loser based on the bid"""
+    game.remove_dice(loser)
+    if len(game.get_dice(loser)) <= 0 :
+        game.deactivate_player(loser)
+        game.set_current_player(winner)
+    else :
+        game.set_current_player(loser)
 
 class Player(object) :
     """This game object represents a game player with event based methods"""
@@ -302,20 +311,6 @@ then a bid is attempted with one six then this exception is thrown"""
         return repr(self.value)
 
 
-class WinHandler(object) :
-
-    def __init__(self, game) :
-        self.game = game
-
-    def on_win(self, winner, loser, bid) :
-        self.game.remove_dice(loser)
-        if len(self.game.get_dice(loser)) <= 0 :
-            self.game.deactivate_player(loser)
-            self.game.set_current_player(winner)
-        else :
-            self.game.set_current_player(loser)
-
-
 class GameState(object) :
     """The game state object controls the games reaction to certain 
 events based on the current event. Default implementations of all 
@@ -417,7 +412,7 @@ class Game(object) :
     """The game object provides the application logic for the game and enforcing
  the game rules."""
 
-    def __init__(self, data, win_handler, bid_checker=check_bids, win_checker=get_winner) :
+    def __init__(self, data, win_handler=on_win, bid_checker=check_bids, win_checker=get_winner) :
         self.plays = data
         self.bid_checker = bid_checker
         self.win_checker = win_checker
@@ -510,7 +505,7 @@ class Game(object) :
               self.plays.get_dice_map()) is not None
 
     def on_win(self, winner, loser, bid) :
-        self.win_handler.on_win(winner, loser, bid)
+        self.win_handler(winner, loser, bid)
 
     def deactivate_player(self, player) :
         self.plays.mark_inactive(player)
