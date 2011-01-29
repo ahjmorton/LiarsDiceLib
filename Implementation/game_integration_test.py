@@ -45,7 +45,7 @@ class GameIntegrationTest(unittest.TestCase) :
 
         #Create the utility objects
         self.random = prng.get_random()
-        self.dice_roller = game.DiceRoller(self.random)
+        self.dice_roller = game.roll_set_of_dice
         self.win_checker = game.get_winner
         self.bid_checker = game.check_bids
         self.win_handler = game.WinHandler(self.proxy_dispatcher)

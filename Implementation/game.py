@@ -22,6 +22,7 @@ Returns true if the bid is correct, false otherwise"""
         count = count + dice_map[player].count(die)
     return count >= bid[0]
 
+
 def get_winner(dice_map) :
     """Determine the winner of a round based on a dice map.
 If there is no clear winner of the dicemap then return None"""
@@ -33,6 +34,15 @@ If there is no clear winner of the dicemap then return None"""
             else :
                 cur_win = player
     return cur_win
+
+
+def roll_set_of_dice(num, face_vals, rand=prng.get_random()) :
+    """Roll a set of dice with values that are 
+face_vals[0] <= n <= face_valls[1].
+Source of randomness comes from prng module"""
+    return [rand.randint(face_vals[0], face_vals[1]) 
+           for i in xrange(num)]
+
 
 class Player(object) :
     """This game object represents a game player with event based methods"""
@@ -79,6 +89,7 @@ r has are given"""
         """This method is called when the dice amount changes, possibly due to a
  loss of dice"""
         pass
+
 
 class GameView(object) :
     """This object represents an observer on the game object for updating a user
@@ -140,6 +151,7 @@ challenged, the winner and dice of each player"""
     def on_error(self, value) :
         """This method is called when there is an error with the remote"""
         pass
+
 
 class GameData(object) :
     """The game object is responsible for maintaining state about the game in pr
@@ -262,6 +274,7 @@ game attempts to perform some action"""
     def __str__(self) :
         return repr(self.value)
 
+
 class IllegalStateChangeError(Exception) :
     """This exception occurs when a state method is called that would 
 transition the game to an illegal state, for example bidding when the game
@@ -273,6 +286,7 @@ is over"""
 
     def __str__(self) :
         return repr(self.value)
+
 
 class IllegalBidError(Exception) :
     """This exception occurs when a bid attempt is made that is illegal
@@ -286,15 +300,6 @@ then a bid is attempted with one six then this exception is thrown"""
     def __str__(self) :
         return repr(self.value)
 
-
-class DiceRoller(object) :
-    
-    def __init__(self, random=prng.get_random()) :
-        self.rand = random
-
-    def roll_set_of_dice(self, num, face_vals) :
-        return [self.rand.randint(face_vals[0], face_vals[1]) 
-               for i in xrange(num)]
 
 class WinHandler(object) :
 
@@ -327,13 +332,14 @@ state methods thrown illegal state change error"""
     def on_challenge(self, challanger, challenged) :
         raise IllegalStateChangeError("Cannot call on_challenge")
 
+
 class GameStartState(GameState) :
     """This state is the state the game first enters in after the players 
 have been added to the game. 
 At this point the dice are shuffled and the first player for 
 the round is chosen"""
     
-    def __init__(self, game, enter_state, dice_roller) :
+    def __init__(self, game, enter_state, dice_roller=roll_set_of_dice) :
         GameState.__init__(self, game)
         self.first = enter_state
         self.dice_roll = dice_roller
@@ -352,8 +358,7 @@ the round is chosen"""
             max_dice = self.game.number_of_starting_dice()
             face = self.game.get_face_values()
             for x in self.game.get_players() :
-                self.game.set_dice(x, self.dice_roll.roll_set_of_dice(max_dice, 
-face))
+                self.game.set_dice(x, self.dice_roll(max_dice, face))
             self.game.set_state(self.first)
 
 class FirstBidState(GameState) :

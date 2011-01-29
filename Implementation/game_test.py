@@ -447,14 +447,14 @@ class DiceRollerTest(unittest.TestCase) :
     
     def setUp(self) :
         self.random = Mock(spec=random.Random)
-        self.subject = game.DiceRoller(self.random)
+        self.subject = game.roll_set_of_dice
 
     def testRollingSetOfDice(self) :
         ret = 3
         amount = 6
         face = (1, 6)
         self.random.randint.return_value = ret
-        val = self.subject.roll_set_of_dice(amount, face)
+        val = self.subject(amount, face, self.random)
         self.assertTrue(val is not None)
         self.assertTrue(len(val) == amount)
         self.assertTrue(reduce(lambda x, y: x and (y == ret), val, True))
@@ -624,7 +624,7 @@ class BidGameStateTest(GameStateTest) :
 class GameStartStateTest(GameStateTest) :
     
     def get_subject(self, g) :
-        self.dice_roll = Mock(spec=game.DiceRoller)
+        self.dice_roll = Mock(spec=game.roll_set_of_dice)
         self.next_state = Mock(spec=game.GameState)
         return game.GameStartState(g, self.next_state, self.dice_roll)
 
@@ -651,16 +651,16 @@ class GameStartStateTest(GameStateTest) :
         self.game.has_player.return_value = True
         self.game.number_of_starting_dice.return_value = max_dice
         self.game.get_face_values.return_value = face
-        self.dice_roll.roll_set_of_dice.return_value = ret_dice
+        self.dice_roll.return_value = ret_dice
         res = self.subject.on_game_start(player)
         self.assertTrue(res is None)
         self.game.set_state.assert_called_with(self.next_state)
         self.assertTrue(self.game.has_player.called) 
         self.assertTrue(self.game.number_of_starting_dice.called)
-        self.assertTrue(self.dice_roll.roll_set_of_dice.called)
+        self.assertTrue(self.dice_roll.called)
         self.assertEquals(len(players), 
-            self.dice_roll.roll_set_of_dice.call_count)
-        self.dice_roll.roll_set_of_dice.assert_called_with(max_dice, face)
+            self.dice_roll.call_count)
+        self.dice_roll.assert_called_with(max_dice, face)
         self.assertTrue(self.game.set_dice.called)
         self.assertEquals(len(players), self.game.set_dice.call_count)
         full_call_args = self.game.set_dice.call_args_list
