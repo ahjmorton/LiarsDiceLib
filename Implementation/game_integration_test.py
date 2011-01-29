@@ -2,7 +2,6 @@ import unittest
 from mock import Mock
 
 import game
-import prng
 
 class GameIntegrationTest(unittest.TestCase) :
 
@@ -44,7 +43,6 @@ class GameIntegrationTest(unittest.TestCase) :
         self.proxy.add_game_view(self.view)
 
         #Create the utility objects
-        self.random = prng.get_random()
         self.dice_roller = game.roll_set_of_dice
         self.win_checker = game.get_winner
         self.bid_checker = game.check_bids

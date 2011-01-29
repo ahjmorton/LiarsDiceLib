@@ -5,8 +5,8 @@ checkers.
 
 The module also provides objects to have messages sent out to all players
 and views based on certain events in the game through the Proxy classes"""
-import prng
 
+import random
 
 def check_bids(bid, dice_map) :
     """Determine if the bid provided is correct, for example in the
@@ -36,10 +36,11 @@ If there is no clear winner of the dicemap then return None"""
     return cur_win
 
 
-def roll_set_of_dice(num, face_vals, rand=prng.get_random()) :
+def roll_set_of_dice(num, face_vals, rand=random) :
     """Roll a set of dice with values that are 
 face_vals[0] <= n <= face_valls[1].
 Source of randomness comes from prng module"""
+    random.seed()
     return [rand.randint(face_vals[0], face_vals[1]) 
            for i in xrange(num)]
 
