@@ -35,6 +35,7 @@ from functools import partial
 from mock import Mock
 
 import game
+import game_data
 import game_proxy
 
 class GameIntegrationTest(unittest.TestCase) :
@@ -65,8 +66,10 @@ class GameIntegrationTest(unittest.TestCase) :
         self.starting_dice = 3
         self.lowest_face = 1
         self.highest_face = 6
-        self.data_store = game.GameData(self.starting_dice, 
-            self.lowest_face, self.highest_face)
+        self.data_store = game_data.GameData(
+            self.starting_dice, 
+            self.lowest_face, 
+            self.highest_face)
         self.data_store.add_player(self.player1)
         self.data_store.add_player(self.player2)
  

@@ -30,6 +30,7 @@ import unittest
 from mock import Mock
 
 import game
+import game_data
 import game_proxy
 
 class ProxyDispatcherTest(unittest.TestCase) :
@@ -64,7 +65,7 @@ class ProxyGameTest(unittest.TestCase) :
     
     def setUp(self) :
         self.game = Mock(spec=game.Game)
-        self.data = Mock(spec=game.GameData)
+        self.data = Mock(spec=game_data.GameData)
         self.subject = game_proxy.ProxyGame(self.game, self.data)
 
     def testAddingGameView(self) :
