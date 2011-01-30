@@ -35,6 +35,7 @@ from functools import partial
 from mock import Mock
 
 import game
+import game_views
 import game_data
 import game_proxy
 
@@ -56,8 +57,8 @@ class GameIntegrationTest(unittest.TestCase) :
     def setUp(self) :
         
         #Initialise players
-        self.player1 = Mock(spec=game.Player)
-        self.player2 = Mock(spec=game.Player)
+        self.player1 = Mock(spec=game_views.Player)
+        self.player2 = Mock(spec=game_views.Player)
         self.player1name = "Player1"
         self.player2name = "Player2"
         self.set_mocks_up()
@@ -74,7 +75,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.data_store.add_player(self.player2)
  
         #Create the proxy game objects with game views
-        self.view = Mock(spec=game.GameView)
+        self.view = Mock(spec=game_views.GameView)
         self.proxy = game_proxy.ProxyGame(None, self.data_store)
         self.proxy_dispatcher = game_proxy.ProxyDispatcher(None, self.proxy)
         self.data_store.add_game_view(self.view)
@@ -251,7 +252,7 @@ class GameIntegrationTest(unittest.TestCase) :
 
     def testChallengeResultingInFirstPlayerGettingDeactivated(self) :
         # Add a new player, don't want deactivation to end in a win
-        player3 = Mock(spec=game.Player)
+        player3 = Mock(spec=game_views.Player)
         player3name = "player 3"
         player3.get_name.return_value = player3name
         self.data_store.add_player(player3)
@@ -290,7 +291,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.view.on_deactivate.assert_called_with(self.player1name)
 
     def testChallengeResultingInLoserGettingDeactivated(self) :        
-        player3 = Mock(spec=game.Player)
+        player3 = Mock(spec=game_views.Player)
         player3name = "player 3"
         player3.get_name.return_value = player3name
         self.data_store.add_player(player3)

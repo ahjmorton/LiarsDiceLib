@@ -31,6 +31,7 @@ import unittest
 from mock import Mock
 
 import game
+import game_views
 import game_data
 
 class GameDataTest(unittest.TestCase) :
@@ -40,7 +41,7 @@ class GameDataTest(unittest.TestCase) :
         self.subject = game_data.GameData(self.starting)
 
     def testSettingPlayer(self) :
-        player1 = Mock(spec=game.Player)
+        player1 = Mock(spec=game_views.Player)
         self.subject.set_current_player(player1)
         self.assertEquals(player1, self.subject.get_current_player())
     
@@ -59,7 +60,7 @@ class GameDataTest(unittest.TestCase) :
                           self.starting)
 
     def testAddingPlayer(self) :
-        player = Mock(spec=game.Player)
+        player = Mock(spec=game_views.Player)
         self.subject.add_player(player)
         players = self.subject.get_players()
         self.assertTrue(players is not None)
@@ -75,7 +76,7 @@ class GameDataTest(unittest.TestCase) :
         self.assertTrue(player in players)
     
     def testRemovingPlayer(self) :
-        player = Mock(spec=game.Player)
+        player = Mock(spec=game_views.Player)
         self.subject.add_player(player)
         players = self.subject.get_players()
         self.assertTrue(players is not None)
@@ -94,14 +95,14 @@ class GameDataTest(unittest.TestCase) :
         self.assertEquals(0, len(players))
 
     def testAddingDice(self) :
-        player = Mock(spec=game.Player)
+        player = Mock(spec=game_views.Player)
         self.subject.add_player(player)
         dice = [1, 2, 3, 4]
         self.subject.set_dice(player, dice)
         self.assertTrue(dice == self.subject.get_dice(player))
 
     def testMakingPlayerInactive(self) :
-        player = Mock(spec=game.Player)
+        player = Mock(spec=game_views.Player)
         self.subject.add_player(player)
         self.subject.mark_inactive(player)
         players = self.subject.get_players()
@@ -113,7 +114,7 @@ class GameDataTest(unittest.TestCase) :
         self.assertTrue(player in players)
 
     def testMakingPlayerInactiveThenReactivating(self) :
-        player = Mock(spec=game.Player)
+        player = Mock(spec=game_views.Player)
         self.subject.add_player(player)
         self.subject.mark_inactive(player)
         players = self.subject.get_players()
@@ -134,21 +135,21 @@ class GameDataTest(unittest.TestCase) :
         self.assertTrue(player in players)
 
     def testAddingDiceWithNoPlayerThrowsException(self) :
-        player = Mock(spec=game.Player)
+        player = Mock(spec=game_views.Player)
         dice = [1, 2, 3, 4]
         def caller() :
             self.subject.set_dice(player, dice)
         self.assertRaises(ValueError, caller)
     
     def testAddingBids(self) :
-        player = Mock(spec=game.Player)
+        player = Mock(spec=game_views.Player)
         self.subject.add_player(player)
         bid = (2, 4)
         self.subject.set_bid(player, bid)
         self.assertTrue(bid == self.subject.get_bid(player))
 
     def testCheckingForActive(self) :
-        player = Mock(spec=game.Player)
+        player = Mock(spec=game_views.Player)
         self.subject.add_player(player)
         self.subject.make_all_active()
 
@@ -162,7 +163,7 @@ class GameDataTest(unittest.TestCase) :
         self.assertTrue(not ret)
 
     def testSettingBidWithNoPlayerThrowsException(self) :
-        player = Mock(spec=game.Player)
+        player = Mock(spec=game_views.Player)
         bid = (1, 2)
         def caller() :
             self.subject.set_bid(player, bid)
