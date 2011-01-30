@@ -32,7 +32,6 @@ from mock import Mock
 
 import game
 import game_views
-import game_data
 import game_state
 from game_common import IllegalBidError, IllegalStateChangeError
 

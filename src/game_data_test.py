@@ -30,7 +30,6 @@ import unittest
 
 from mock import Mock
 
-import game
 import game_views
 import game_data
 
