@@ -1,0 +1,17 @@
+LiarsDiceLib 
+============
+
+A Python library for the implementation of the game Liars Dice with no user
+interface components.
+
+The doc folder contains a bunch of basic design documentation such as the
+projects goal and basic architecture.
+
+The src folder contains a single python module called game.py that
+does all the cool stuff, a unit test module (game_test.py) and an integration
+test module (game_integration_test.py).
+The run_all_tests.py module is a convience function to run both the unit tests
+and integration tests in a single action.
+
+To perform tests you will need Michael Foord python mock library available
+at http://www.voidspace.org.uk/python/mock/ in your module space.
