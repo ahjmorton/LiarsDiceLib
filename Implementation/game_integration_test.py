@@ -52,16 +52,13 @@ class GameIntegrationTest(unittest.TestCase) :
         self.win_handler = partial(self.win_handler, game=self.proxy_dispatcher)
         
         #Create the game states from last to first
-        self.game_end_state = game.FinishedState(self.proxy_dispatcher, None)
         self.bid_state = game.BidState(self.proxy_dispatcher, 
-            self.game_end_state, None)
+            None)
         self.first_bid_state = game.FirstBidState(self.proxy_dispatcher, 
-            self.bid_state, None)
+            self.bid_state)
         self.game_start_state = game.GameStartState(self.proxy_dispatcher, 
             self.first_bid_state, self.dice_roller)
-        self.game_end_state.restart = self.game_start_state
-        self.first_bid_state.restart = self.game_start_state
-        self.bid_state.restart = self.game_start_state
+        self.bid_state.next = self.game_start_state
 
         #Create the game object
         self.game = game.Game(self.data_store, self.win_handler, self.bid_checker, 
@@ -71,7 +68,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.proxy_dispatcher.game = self.game
 
     def testStartingAGame(self) :
-        self.proxy_dispatcher.start_game(self.player1)
+        self.proxy_dispatcher.start_game()
 
         self.assertTrue(self.game.get_current_player() is not None)
         self.assertEquals(self.player1, self.game.get_current_player())
@@ -114,7 +111,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.assertEquals(self.game_start_state, self.game.get_state())
 
     def testFirstBid(self) :
-        self.proxy_dispatcher.start_game(self.player1)
+        self.proxy_dispatcher.start_game()
         self.reset_and_setup_mocks()
         cur_bid = (2, 5)
 
@@ -132,7 +129,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.assertEquals(self.bid_state, self.game.get_state())
 
     def testTwoBidsWithBidAfterwards(self) :
-        self.proxy_dispatcher.start_game(self.player1)
+        self.proxy_dispatcher.start_game()
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
         self.reset_and_setup_mocks()
@@ -152,7 +149,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.assertEquals(self.bid_state, self.game.get_state())
 
     def testTwoBidsWithBadBid(self) :
-        self.proxy_dispatcher.start_game(self.player1)
+        self.proxy_dispatcher.start_game()
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
         self.reset_and_setup_mocks()
@@ -171,7 +168,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.assertTrue(not self.view.on_player_end_turn.called)
 
     def testChallengeWithFirstPlayerWin(self) :
-        self.proxy_dispatcher.start_game(self.player1)
+        self.proxy_dispatcher.start_game()
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
         player1dice = [2,5]
@@ -196,7 +193,7 @@ class GameIntegrationTest(unittest.TestCase) :
               first_bid)
 
     def testChallengeWithFirstPlayerLoss(self) :
-        self.proxy_dispatcher.start_game(self.player1)
+        self.proxy_dispatcher.start_game()
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
         player1dice = [2,5]
@@ -227,7 +224,7 @@ class GameIntegrationTest(unittest.TestCase) :
         player3.get_name.return_value = player3name
         self.data_store.add_player(player3)
 
-        self.proxy_dispatcher.start_game(self.player1)
+        self.proxy_dispatcher.start_game()
 
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
@@ -266,7 +263,7 @@ class GameIntegrationTest(unittest.TestCase) :
         player3.get_name.return_value = player3name
         self.data_store.add_player(player3)
 
-        self.proxy_dispatcher.start_game(self.player1)
+        self.proxy_dispatcher.start_game()
 
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
@@ -300,7 +297,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.view.on_deactivate.assert_called_with(self.player2name)
 
     def testChallengeResultingInFirstPlayerWinning(self) :
-        self.proxy_dispatcher.start_game(self.player1)
+        self.proxy_dispatcher.start_game()
 
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
@@ -326,7 +323,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.view.on_player_end_turn.assert_called_with(self.player2name)
         self.view.on_deactivate.assert_called_with(self.player2name)
         self.view.on_game_end(self.player1name)
-        self.assertEquals(self.game_end_state, self.game.get_state())
+        self.assertEquals(self.game_start_state, self.game.get_state())
         self.view.on_challenge.assert_called_with(
             self.player1name, 
             self.player2name,
@@ -334,7 +331,7 @@ class GameIntegrationTest(unittest.TestCase) :
             first_bid)     
 
     def testChallengeResultingInFirstPlayerLoosing(self) :
-        self.proxy_dispatcher.start_game(self.player1)
+        self.proxy_dispatcher.start_game()
 
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
@@ -358,7 +355,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.view.on_player_end_turn.assert_called_with(self.player2name)
         self.view.on_deactivate.assert_called_with(self.player1name)
         self.view.on_game_end(self.player2name)
-        self.assertEquals(self.game_end_state, self.game.get_state())
+        self.assertEquals(self.game_start_state, self.game.get_state())
         self.view.on_challenge.assert_called_with(
             self.player2name, 
             self.player1name,

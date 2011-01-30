@@ -285,19 +285,6 @@ game attempts to perform some action"""
         return repr(self.value)
 
 
-class IllegalStateChangeError(Exception) :
-    """This exception occurs when a state method is called that would 
-transition the game to an illegal state, for example bidding when the game
-is over"""
-    
-    def __init__(self, value) :
-        Exception.__init__(self)
-        self.val = value
-
-    def __str__(self) :
-        return repr(self.value)
-
-
 class IllegalBidError(Exception) :
     """This exception occurs when a bid attempt is made that is illegal
 given the current state of the game.
@@ -310,78 +297,88 @@ then a bid is attempted with one six then this exception is thrown"""
     def __str__(self) :
         return repr(self.value)
 
+class IllegalStateChangeError(Exception) :
+    """This exception occurs when an attempt is made to perform an illegal
+state transition"""
+    def __init__(self, value) :
+        Exception.__init__(self)
+        self.val = value
 
-class GameState(object) :
-    """The game state object controls the games reaction to certain 
-events based on the current event. Default implementations of all 
-state methods thrown illegal state change error"""
+    def __str__(self) :
+        return repr(self.value)  
 
-    def __init__(self, game) :
-        self.game = game
-
-    def on_game_start(self, human_player) :
-        raise IllegalStateChangeError("Cannot call on_game_start")
-        
-    def on_bid(self, player, bid) :
-        raise IllegalStateChangeError("Cannot call on_bid")
-
-    def on_challenge(self, challanger, challenged) :
-        raise IllegalStateChangeError("Cannot call on_challenge")
-
-
-class GameStartState(GameState) :
+class GameStartState(object) :
     """This state is the state the game first enters in after the players 
 have been added to the game. 
 At this point the dice are shuffled and the first player for 
 the round is chosen"""
     
     def __init__(self, game, enter_state, dice_roller=roll_set_of_dice) :
-        GameState.__init__(self, game)
+        self.game = game
         self.first = enter_state
         self.dice_roll = dice_roller
 
-    def on_game_start(self, human_player) : 
+    def on_game_start(self) : 
         """Game start should check the player provided is in the game data, 
-        if not thrown an error. Also performs shuffling of dice """
-        if not self.game.has_player(human_player) :
-            raise MissingPlayerError("""Player 
-                provided for starting of game not in list of players""")
-        else : 
-            #Could also add logic to do random number generation 
-            # to work out who  goes first
-            self.game.activate_players()
-            self.game.set_current_player(human_player)
-            max_dice = self.game.number_of_starting_dice()
-            face = self.game.get_face_values()
-            for x in self.game.get_players() :
-                self.game.set_dice(x, self.dice_roll(max_dice, face))
-            self.game.set_state(self.first)
+if not thrown an error. Also performs shuffling of dice.
+Currently the game starts with the first active player taking the current
+player position"""
+        #Could also add logic to do random number generation 
+        # to work out who  goes first
+        self.game.activate_players()
+        self.game.set_current_player(self.game.get_players()[0])
+        max_dice = self.game.number_of_starting_dice()
+        face = self.game.get_face_values()
+        for x in self.game.get_players() :
+            self.game.set_dice(x, self.dice_roll(max_dice, face))
+        self.game.set_state(self.first)
+    
+    def on_bid(self, player, bid) :
+        """Illegal state transition, throw an exception"""
+        raise IllegalStateChangeError("Attempt to bid before game started")
+   
+    def on_challenge(self, challenger, challenged) :
+        """Illegal state transition, throw an exception"""
+        raise IllegalStateChangeError("Attempt to challenge before game started")
 
-class FirstBidState(GameState) :
-    def __init__(self, game, bid_state, new_game_state) :
-        GameState.__init__(self, game)
+
+class FirstBidState(object) :
+    """This state is the state the game assumes once the game has started.
+It's job is to accept the bid from the player (without checking it for
+validity) then setting the next player"""
+    def __init__(self, game, bid_state) :
+        self.game = game
         self.next = bid_state
-        self.restart = new_game_state
 
-    def on_game_start(self, human_player) :
-        self.restart.on_game_start(human_player)
+    def on_game_start(self) :
+        """Illegal state transition, throw an exception"""
+        raise IllegalStateChangeError("Attempt to start an already started game")
 
     def on_bid(self, player, bid) :
+        """Accept the bid from the player without validation"""
         self.game.set_bid(player, bid)
         self.game.set_current_player(self.game.get_next_player())
         self.game.set_state(self.next)
 
-class BidState(GameState) :
+    def on_challenge(self, challenger, challenged) :
+        """Illegal state transition, throw an exception"""
+        raise IllegalStateChangeError("Attempt to challenge on first bid")
 
-    def __init__(self, game, bid_state, new_game_state) :
-        GameState.__init__(self, game)
+
+class BidState(object) :
+    """The bid state is the state the game is for the majority of the game.
+It accepts bids and challenge and modifies game state accordingly"""
+    def __init__(self, game, bid_state) :
+        self.game = game
         self.next = bid_state
-        self.restart = new_game_state
-
-    def on_game_start(self, human_player) :
-        self.restart.on_game_start(human_player)
+    
+    def on_game_start(self) :
+        """Illegal state transition, throw an exception"""
+        raise IllegalStateChangeError("Attempt to start an already started game")
 
     def on_bid(self, player, bid) :
+        """Take a bid, validate it against the previous bid then set the
+bid as the current bid and set the next player"""
         cur_bid = self.game.get_previous_bid()
         if bid[0] >= cur_bid[0] and bid[1] > cur_bid[1] :
             self.game.set_bid(player, bid)
@@ -390,6 +387,7 @@ class BidState(GameState) :
             raise IllegalBidError((bid, cur_bid))
     
     def on_challenge(self, challenger, challenged) :
+        """Handle a challenge, and end the game if finished"""
         bid = self.game.get_previous_bid()
         if self.game.true_bid(bid) :
             self.game.on_win(challenged, challenger, bid)
@@ -399,14 +397,6 @@ class BidState(GameState) :
             self.game.end_game(self.game.get_winning_player())
             self.game.set_state(self.next)
         
-class FinishedState(GameState) : 
-    def __init__(self, game, end) :
-        GameState.__init__(self, game)
-        self.restart = end
-
-    def on_game_start(self, human_player) :
-        self.restart.on_game_start(human_player)
-
 
 class Game(object) :
     """The game object provides the application logic for the game and enforcing
@@ -427,8 +417,8 @@ class Game(object) :
     def get_state(self) :
         return self.plays.get_current_state()
 
-    def start_game(self, first_player) :
-        self.get_state().on_game_start(first_player)
+    def start_game(self) :
+        self.get_state().on_game_start()
 
     def activate_players(self) :
         self.plays.make_all_active()
@@ -563,8 +553,8 @@ class ProxyGame(object) :
         self._burst_to_game_views(lambda view : 
               view.on_new_dice_amount(player.get_name(), new_dice))
     
-    def start_game(self, first_player) :
-        self.game.start_game(first_player)
+    def start_game(self) :
+        self.game.start_game()
         player_names = self.__get_all_player_names()
         self._burst_to_game_views(lambda view : 
             view.on_game_start(player_names))
