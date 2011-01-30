@@ -35,9 +35,11 @@ from functools import partial
 from mock import Mock
 
 import game
+import game_state
 import game_views
 import game_data
 import game_proxy
+from game_common import IllegalBidError, IllegalStateChangeError
 
 class GameIntegrationTest(unittest.TestCase) :
 
@@ -81,18 +83,18 @@ class GameIntegrationTest(unittest.TestCase) :
         self.data_store.add_game_view(self.view)
 
         #Create the utility objects
-        self.dice_roller = game.roll_set_of_dice
+        self.dice_roller = game_state.roll_set_of_dice
         self.win_checker = game.get_winner
         self.bid_checker = game.check_bids
         self.win_handler = game.on_win
         self.win_handler = partial(self.win_handler, game=self.proxy_dispatcher)
         
         #Create the game states from last to first
-        self.bid_state = game.BidState(self.proxy_dispatcher, 
+        self.bid_state = game_state.BidState(self.proxy_dispatcher, 
             None)
-        self.first_bid_state = game.FirstBidState(self.proxy_dispatcher, 
+        self.first_bid_state = game_state.FirstBidState(self.proxy_dispatcher, 
             self.bid_state)
-        self.game_start_state = game.GameStartState(self.proxy_dispatcher, 
+        self.game_start_state = game_state.GameStartState(self.proxy_dispatcher, 
             self.first_bid_state, self.dice_roller)
         self.bid_state.next = self.game_start_state
 
@@ -142,7 +144,7 @@ class GameIntegrationTest(unittest.TestCase) :
         cur_bid = (1, 2)
         def call() :
             self.proxy_dispatcher.make_bid(cur_bid)
-        self.assertRaises(game.IllegalStateChangeError, call)
+        self.assertRaises(IllegalStateChangeError, call)
         self.assertTrue(self.game.get_current_player() is None)
         self.assertTrue(self.game.get_state() is not None)
         self.assertEquals(self.game_start_state, self.game.get_state())
@@ -190,7 +192,7 @@ class GameIntegrationTest(unittest.TestCase) :
 
         def call() :
             self.proxy_dispatcher.make_bid(cur_bid)
-        self.assertRaises(game.IllegalBidError, call)
+        self.assertRaises(IllegalBidError, call)
 
         self.assertTrue(self.game.get_current_player() is not None)
         self.assertEquals(self.player2, self.game.get_current_player())

@@ -22,23 +22,30 @@ the Initial Developer. All Rights Reserved.
 Contributor(s):
      
 ***** END LICENSE BLOCK *****
-Convience script to run all tests.
-"""
-import unittest
 
-import game_test
-import game_data_test
-import game_proxy_test
-import game_state_test
-import game_integration_test
+This module defines common classes such as exceptions"""
 
-def suite() :
-    """Return all tests known about"""
-    return unittest.TestSuite([game_test.suite(), 
-           game_integration_test.suite(),
-           game_proxy_test.suite(),
-           game_data_test.suite(),
-           game_state_test.suite()])
+class IllegalBidError(Exception) :
+    """This exception occurs when a bid attempt is made that is illegal
+given the current state of the game.
+For example if the previous bid of the game was two dice showing a five 
+then a bid is attempted with one six then this exception is thrown"""
+    def __init__(self, value) :
+        Exception.__init__(self)
+        self.val = value
+
+    def __str__(self) :
+        return repr(self.value)
+
+class IllegalStateChangeError(Exception) :
+    """This exception occurs when an attempt is made to perform an illegal
+state transition"""
+    def __init__(self, value) :
+        Exception.__init__(self)
+        self.val = value
+
+    def __str__(self) :
+        return repr(self.value)  
 
 if __name__ == "__main__" :
-    unittest.TextTestRunner().run(suite())
+    pass
