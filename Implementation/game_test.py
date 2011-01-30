@@ -1,3 +1,6 @@
+"""Game test tests the objects in the game module using unit tests.
+This module relies on the mock library for mocking of dependencies."""
+
 import unittest
 import random
 
@@ -27,8 +30,8 @@ class GameDataTest(unittest.TestCase) :
         self.assertEquals(None, self.subject.get_current_player())
         self.assertEquals(None, self.subject.get_current_state())
         self.assertEquals(0, len(players))
-        self.assertEquals(self.subject.get_num_of_starting_dice(), self.starting
-)
+        self.assertEquals(self.subject.get_num_of_starting_dice(), 
+                          self.starting)
 
     def testAddingPlayer(self) :
         player = Mock(spec=game.Player)
@@ -415,6 +418,7 @@ class WinCheckerTest(unittest.TestCase) :
         self.assertTrue(ret is not None)
         self.assertTrue(winner == ret)
 
+
 class WinHandlerTest(unittest.TestCase) :
     
     def setUp(self) :
@@ -441,6 +445,7 @@ class WinHandlerTest(unittest.TestCase) :
         self.game_obj.get_dice.assert_called_with(player2)
         self.game_obj.deactivate_player.assert_called_with(player2)
         self.game_obj.set_current_player.assert_called_with(player1)
+
 
 class DiceRollerTest(unittest.TestCase) :
     
@@ -518,6 +523,7 @@ class GameStartStateTest(unittest.TestCase) :
             self.subject.on_bid(player, bid)
         self.assertRaises(game.IllegalStateChangeError, call)
 
+
 class FirstBidGameStateTest(unittest.TestCase) :
     
     def setUp(self) :
@@ -547,6 +553,7 @@ class FirstBidGameStateTest(unittest.TestCase) :
         def call() :
             self.subject.on_challenge(player, player2)
         self.assertRaises(game.IllegalStateChangeError, call)
+
 
 class BidGameStateTest(unittest.TestCase) :
 
@@ -651,6 +658,7 @@ class BidGameStateTest(unittest.TestCase) :
         self.game.get_winning_player.assert_called_with()
         self.game.end_game.assert_called_with(player2)
 
+
 class ProxyDispatcherTest(unittest.TestCase) :
     
     def setUp(self) :
@@ -677,6 +685,7 @@ class ProxyDispatcherTest(unittest.TestCase) :
         self.prox.mock_method = fake2
         ret = self.subject.mock_method
         self.assertTrue(ret == fake2)
+
 
 class ProxyGameTest(unittest.TestCase) :
     
@@ -909,7 +918,9 @@ class ProxyGameTest(unittest.TestCase) :
         view.on_challenge.assert_called_with(player1name, player2name, 
             ret_map, bid)
 
+
 def suite() :
+    """Return a test suite of all tests defined in this module"""
     test_suite = unittest.TestSuite()
     loader = unittest.TestLoader()
     test_suite.addTests(loader.loadTestsFromTestCase(GameDataTest))
@@ -924,6 +935,7 @@ def suite() :
     test_suite.addTests(loader.loadTestsFromTestCase(ProxyDispatcherTest))
     test_suite.addTests(loader.loadTestsFromTestCase(ProxyGameTest))
     return test_suite
+
 
 if __name__ == "__main__" :
     unittest.TextTestRunner().run(suite())
