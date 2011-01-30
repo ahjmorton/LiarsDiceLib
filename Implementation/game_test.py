@@ -68,7 +68,7 @@ class GameDataTest(unittest.TestCase) :
     def testAddingDice(self) :
         player = Mock(spec=game.Player)
         self.subject.add_player(player)
-        dice = [1,2,3,4]
+        dice = [1, 2, 3, 4]
         self.subject.set_dice(player, dice)
         self.assertTrue(dice == self.subject.get_dice(player))
 
@@ -105,9 +105,9 @@ class GameDataTest(unittest.TestCase) :
         self.assertEquals(1, len(players))
         self.assertTrue(player in players)
 
-    def testAddingDiceWithNoPlayerThorwsException(self) :
+    def testAddingDiceWithNoPlayerThrowsException(self) :
         player = Mock(spec=game.Player)
-        dice = [1,2,3,4]
+        dice = [1, 2, 3, 4]
         def caller() :
             self.subject.set_dice(player, dice)
         self.assertRaises(ValueError, caller)
@@ -133,9 +133,9 @@ class GameDataTest(unittest.TestCase) :
 
         self.assertTrue(not ret)
 
-    def testAddingDiceWithNoPlayerThorwsException(self) :
+    def testSettingBidWithNoPlayerThrowsException(self) :
         player = Mock(spec=game.Player)
-        bid = (1,2)
+        bid = (1, 2)
         def caller() :
             self.subject.set_bid(player, bid)
         self.assertRaises(ValueError, caller)
@@ -203,7 +203,6 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(not self.data.add_player.called)
 
     def testStartingAGame(self) :
-        player = Mock(spec=game.Player)
         self.data.get_current_state.return_value = self.state
         self.subject.start_game()
         self.data.get_current_player.return_value = None
@@ -220,7 +219,7 @@ class GameObjectTest(unittest.TestCase) :
         player = Mock(spec=game.Player)
         self.data.get_current_player.return_value = player
         self.data.get_current_state.return_value = self.state
-        bid = (1,2)
+        bid = (1, 2)
         self.subject.make_bid(bid)
 
         self.data.get_current_state.assert_called_with()
@@ -323,7 +322,7 @@ class GameObjectTest(unittest.TestCase) :
 
     def testGettingPreviousBid(self) :
         players = [Mock(spec=game.Player) for x in xrange(0, 2)]
-        bid = (1,2)
+        bid = (1, 2)
         self.data.get_players.return_value = players
         self.data.get_bid.return_value = bid
         self.data.get_current_player.return_value = players[1]
@@ -358,7 +357,7 @@ class GameObjectTest(unittest.TestCase) :
     def testWinHandling(self) :
         player1 = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
-        cur_bid = (1,2)
+        cur_bid = (1, 2)
         self.subject.on_win(player1, player2, cur_bid)
         self.win_hand.assert_called_with(player1, player2, cur_bid)
 
@@ -388,16 +387,16 @@ class BidCheckerTest(unittest.TestCase) :
     
     def testCheckingBidSimple(self) :
         player = Mock(spec=game.Player)
-        bid = (2,4)
-        dice_map = {player:[2,4,4]}
+        bid = (2, 4)
+        dice_map = {player:[2, 4, 4]}
         ret = game.check_bids(bid, dice_map)
         self.assertTrue(ret is not None)
         self.assertTrue(ret)
     
     def testCheckingBidNegative(self) :
         player = Mock(spec=game.Player)
-        bid = (2,4)
-        dice_map = {player:[2,4]}
+        bid = (2, 4)
+        dice_map = {player:[2, 4]}
         ret = game.check_bids(bid, dice_map)
         self.assertTrue(ret is not None)
         self.assertTrue(not ret) 
@@ -405,13 +404,13 @@ class BidCheckerTest(unittest.TestCase) :
 class WinCheckerTest(unittest.TestCase) :
     
     def testCheckingBidAllNone(self) :
-        dice_map = {"a":[1,2,3], "b":[1], "c":[1,4,2]}
+        dice_map = {"a":[1, 2, 3], "b":[1], "c":[1, 4, 2]}
         self.assertTrue(game.get_winner(dice_map) is None)
 
 
     def testCheckingBidOneWin(self) :
         winner = "a"
-        dice_map = {winner:[1,2,3], "b":[], "c":[]}
+        dice_map = {winner:[1, 2, 3], "b":[], "c":[]}
         ret = game.get_winner(dice_map)
         self.assertTrue(ret is not None)
         self.assertTrue(winner == ret)
@@ -425,8 +424,8 @@ class WinHandlerTest(unittest.TestCase) :
     def testHandlingWinWithoutMakingPlayerInactive(self) :
         player1 = Mock(game.Player)
         player2 = Mock(game.Player)
-        bid = (1,2)
-        self.game_obj.get_dice.return_value = [1,2]
+        bid = (1, 2)
+        self.game_obj.get_dice.return_value = [1, 2]
         self.subject(player1, player2, bid, self.game_obj)
         self.game_obj.remove_dice.assert_called_with(player2)
         self.game_obj.get_dice.assert_called_with(player2)
@@ -435,7 +434,7 @@ class WinHandlerTest(unittest.TestCase) :
     def testHandlingWinWithMakingPlayerInactive(self) :
         player1 = Mock(game.Player)
         player2 = Mock(game.Player)
-        bid = (1,2)
+        bid = (1, 2)
         self.game_obj.get_dice.return_value = []
         self.subject(player1, player2, bid, self.game_obj)
         self.game_obj.remove_dice.assert_called_with(player2)
@@ -473,7 +472,7 @@ class GameStartStateTest(unittest.TestCase) :
 
     def testOnGameStart(self) :
         player = Mock(spec=game.Player)
-        face = (1,6)
+        face = (1, 6)
         self.game.get_players.return_value = [player]
         self.game.get_face_values.return_value = face
         res = self.subject.on_game_start()
@@ -485,8 +484,8 @@ class GameStartStateTest(unittest.TestCase) :
     def testOnGameStartShufflesDice(self) :
         players = [Mock(spec=game.Player) for i in xrange(1, 4)]
         self.game.get_players.return_value = players
-        ret_dice = [1,2,3,4,5,6]
-        face = (1,6)
+        ret_dice = [1, 2, 3, 4, 5, 6]
+        face = (1, 6)
         max_dice = 6
         self.game.number_of_starting_dice.return_value = max_dice
         self.game.get_face_values.return_value = face
@@ -513,7 +512,7 @@ class GameStartStateTest(unittest.TestCase) :
         self.assertRaises(game.IllegalStateChangeError, call)
     
     def testOnBid(self) :
-        bid = (1,2)
+        bid = (1, 2)
         player = Mock(spec=game.Player)
         def call() :
             self.subject.on_bid(player, bid)
@@ -527,7 +526,7 @@ class FirstBidGameStateTest(unittest.TestCase) :
         self.subject = game.FirstBidState(self.game, self.next_state)
 
     def testOnBid(self) :
-        bid = (1,2)
+        bid = (1, 2)
         player = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
         self.game.get_next_player.return_value = player2
@@ -581,15 +580,15 @@ class BidGameStateTest(unittest.TestCase) :
         test_bid3 = (4, 4)
         player = Mock(spec=game.Player)
         self.game.get_previous_bid.return_value = prev_bid
-        def call() :
+        def call1() :
             self.subject.on_bid(player, test_bid1)
-        self.assertRaises(game.IllegalBidError, call)
-        def call() :
+        self.assertRaises(game.IllegalBidError, call1)
+        def call2() :
             self.subject.on_bid(player, test_bid2)
-        self.assertRaises(game.IllegalBidError, call)        
-        def call() :
+        self.assertRaises(game.IllegalBidError, call2)   
+        def call3() :
             self.subject.on_bid(player, test_bid3)
-        self.assertRaises(game.IllegalBidError, call)
+        self.assertRaises(game.IllegalBidError, call3)
         self.assertTrue(not self.game.set_state.called)
         self.assertTrue(not self.game.set_bid.called)
         self.assertTrue(not self.game.set_current_player.called)
@@ -759,7 +758,6 @@ class ProxyGameTest(unittest.TestCase) :
     def testAddingPlayer(self) :
         view = Mock(spec=game.GameView)
         player1 = Mock(spec=game.Player)
-        players = [player1]
         playername = "Player1"
         player1.get_name.return_value = playername
         self.subject.add_game_view(view)
@@ -771,7 +769,6 @@ class ProxyGameTest(unittest.TestCase) :
     def testRemovingPlayer(self) :
         view = Mock(spec=game.GameView)
         player1 = Mock(spec=game.Player)
-        players = [player1]
         playername = "Player1"
         player1.get_name.return_value = playername
         self.subject.add_game_view(view)
@@ -804,7 +801,6 @@ class ProxyGameTest(unittest.TestCase) :
     def testDeactivatePlayer(self) :
         view = Mock(spec=game.GameView)
         player1 = Mock(spec=game.Player)
-        players = [player1]
         playername = "Player1"
         player1.get_name.return_value = playername
         self.subject.add_game_view(view)
@@ -819,7 +815,7 @@ class ProxyGameTest(unittest.TestCase) :
         player1 = Mock(spec=game.Player)
         playername = "Player1"
         player1.get_name.return_value = playername
-        cur_bid = (1,2)
+        cur_bid = (1, 2)
         self.subject.add_game_view(view)
         self.subject.set_bid(player1, cur_bid)
         player1.get_name.assert_called_with()
@@ -870,9 +866,9 @@ class ProxyGameTest(unittest.TestCase) :
         player2name = "Player2"
         player1.get_name.return_value = player1name
         player2.get_name.return_value = player2name
-        dice_map = {player1:[1,5,4,2], player2:[3,5,4,5]}
+        dice_map = {player1:[1, 5, 4, 2], player2:[3, 5, 4, 5]}
         self.game.get_dice_map.return_value = dice_map
-        ret_map = {player1name:[1,5,4,2], player2name:[3,5,4,5]}
+        ret_map = {player1name:[1, 5, 4, 2], player2name:[3, 5, 4, 5]}
         
         self.subject.on_win(player1, player2, bid)
 
@@ -880,8 +876,8 @@ class ProxyGameTest(unittest.TestCase) :
         player1.get_name.assert_called_with()
         player2.get_name.assert_called_with()
         self.game.get_dice_map.assert_called_with()
-        view.on_challenge.assert_called_with(player1name, player2name, ret_map, 
-bid)
+        view.on_challenge.assert_called_with(player1name, player2name, 
+            ret_map, bid)
     
     def testOnWinningCallsGetDiceMapBeforeOnWin(self) :
         view = Mock(spec=game.GameView)
@@ -893,9 +889,9 @@ bid)
         player2name = "Player2"
         player1.get_name.return_value = player1name
         player2.get_name.return_value = player2name
-        dice_map = {player1:[1,5,4,2], player2:[3,5,4,5]}
+        dice_map = {player1:[1, 5, 4, 2], player2:[3, 5, 4, 5]}
         self.game.get_dice_map.return_value = dice_map
-        ret_map = {player1name:[1,5,4,2], player2name:[3,5,4,5]}
+        ret_map = {player1name:[1, 5, 4, 2], player2name:[3, 5, 4, 5]}
         
         self.subject.on_win(player1, player2, bid)
 
@@ -914,20 +910,20 @@ bid)
             ret_map, bid)
 
 def suite() :
-    suite = unittest.TestSuite()
+    test_suite = unittest.TestSuite()
     loader = unittest.TestLoader()
-    suite.addTests(loader.loadTestsFromTestCase(GameDataTest))
-    suite.addTests(loader.loadTestsFromTestCase(GameObjectTest))
-    suite.addTests(loader.loadTestsFromTestCase(GameStartStateTest))
-    suite.addTests(loader.loadTestsFromTestCase(FirstBidGameStateTest))
-    suite.addTests(loader.loadTestsFromTestCase(BidCheckerTest))
-    suite.addTests(loader.loadTestsFromTestCase(BidGameStateTest))
-    suite.addTests(loader.loadTestsFromTestCase(DiceRollerTest))
-    suite.addTests(loader.loadTestsFromTestCase(WinCheckerTest))
-    suite.addTests(loader.loadTestsFromTestCase(WinHandlerTest))
-    suite.addTests(loader.loadTestsFromTestCase(ProxyDispatcherTest))
-    suite.addTests(loader.loadTestsFromTestCase(ProxyGameTest))
-    return suite
+    test_suite.addTests(loader.loadTestsFromTestCase(GameDataTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(GameObjectTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(GameStartStateTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(FirstBidGameStateTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(BidCheckerTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(BidGameStateTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(DiceRollerTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(WinCheckerTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(WinHandlerTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(ProxyDispatcherTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(ProxyGameTest))
+    return test_suite
 
 if __name__ == "__main__" :
     unittest.TextTestRunner().run(suite())
