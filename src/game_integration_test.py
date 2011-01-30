@@ -35,6 +35,7 @@ from functools import partial
 from mock import Mock
 
 import game
+import game_proxy
 
 class GameIntegrationTest(unittest.TestCase) :
 
@@ -71,8 +72,8 @@ class GameIntegrationTest(unittest.TestCase) :
  
         #Create the proxy game objects with game views
         self.view = Mock(spec=game.GameView)
-        self.proxy = game.ProxyGame(None, self.data_store)
-        self.proxy_dispatcher = game.ProxyDispatcher(None, self.proxy)
+        self.proxy = game_proxy.ProxyGame(None, self.data_store)
+        self.proxy_dispatcher = game_proxy.ProxyDispatcher(None, self.proxy)
         self.data_store.add_game_view(self.view)
 
         #Create the utility objects
