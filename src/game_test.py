@@ -715,44 +715,56 @@ class ProxyGameTest(unittest.TestCase) :
     
     def setUp(self) :
         self.game = Mock(spec=game.Game)
-        self.subject = game.ProxyGame(self.game)
+        self.data = Mock(spec=game.GameData)
+        self.subject = game.ProxyGame(self.game, self.data)
 
     def testAddingGameView(self) :
         view = Mock(spec=game.GameView)
         self.subject.add_game_view(view)
-        self.assertTrue(view in self.subject.get_game_views())
+        self.data.add_game_view.assert_called_with(view)
 
     def testStartingGame(self) :
         view = Mock(spec=game.GameView)
+        views = [view]
+        self.data.get_game_views.return_value = views
         player = Mock(spec=game.Player)
         players = [player]
         playername = "player1"
         player.get_name.return_value = playername
-        self.game.get_all_players.return_value = players
-        self.subject.add_game_view(view)
+        self.data.get_all_players.return_value = players
+
         self.subject.start_game()
+
         self.assertTrue(player.get_name.called)
         self.game.start_game.assert_called_with()
         view.on_game_start.assert_Called_with([playername])
         player.on_game_start.assert_called_with()
+        self.data.get_game_views.assert_called_with()
 
     def testEndingGame(self) :
         view = Mock(spec=game.GameView)
+        views = [view]
+        self.data.get_game_views.return_value = views
         winner = Mock(spec=game.Player)
         player = Mock(spec=game.Player)
         players = [player]
         playername = "Player1"
         winner.get_name.return_value = playername
-        self.game.get_all_players.return_value = players
-        self.subject.add_game_view(view)
+        self.data.get_all_players.return_value = players
+
         self.subject.end_game(winner)
+
         self.assertTrue(winner.get_name.called)
         self.game.end_game.assert_called_with(winner)
         view.on_game_end.assert_called_with(playername)
         player.on_game_end.assert_called_with()
+        self.data.get_game_views.assert_called_with()
+
 
     def testSettingDiceAmount(self) :
         view = Mock(spec=game.GameView)
+        views = [view]
+        self.data.get_game_views.return_value = views
         player1 = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
         players = [player1, player2]
@@ -760,10 +772,11 @@ class ProxyGameTest(unittest.TestCase) :
         amount = 4
         dice = [1] * amount
         player1.get_name.return_value = playername
-        self.game.get_all_players.return_value = players
+        self.data.get_all_players.return_value = players
         self.game.get_dice.return_value = dice
-        self.subject.add_game_view(view)
+
         self.subject.set_dice(player1, dice)
+
         player1.get_name.assert_called_with()
         self.assertTrue(not player2.get_name.called)
         self.game.set_dice.assert_called_with(player1, dice)
@@ -773,45 +786,63 @@ class ProxyGameTest(unittest.TestCase) :
         player1.on_set_dice.assert_called_with(dice)
         self.assertTrue(not player2.on_new_dice_amount.called)
         self.assertTrue(not player2.on_set_dice.called)
+        self.data.get_game_views.assert_called_with()
+
 
     def testActivatingPlayers(self) :
         view = Mock(spec=game.GameView)
+        views = [view]
+        self.data.get_game_views.return_value = views
         player1 = Mock(spec=game.Player)
         players = [player1]
         playername = "Player1"
         player1.get_name.return_value = playername
-        self.game.get_all_players.return_value = players
-        self.subject.add_game_view(view)
+        self.data.get_all_players.return_value = players
+
         self.subject.activate_players()
+
         player1.get_name.assert_called_with()
         self.game.activate_players.assert_called_with()
         view.on_multi_activation.assert_called_with([playername])
         player1.on_made_active.assert_called_with()
+        self.data.get_game_views.assert_called_with()
+
     
     def testAddingPlayer(self) :
         view = Mock(spec=game.GameView)
+        views = [view]
+        self.data.get_game_views.return_value = views
         player1 = Mock(spec=game.Player)
         playername = "Player1"
         player1.get_name.return_value = playername
-        self.subject.add_game_view(view)
+
         self.subject.add_player(player1)
+
         player1.get_name.assert_called_with()
         self.game.add_player.assert_called_with(player1)
         view.on_player_addition.assert_called_with(playername)
+        self.data.get_game_views.assert_called_with()
+
 
     def testRemovingPlayer(self) :
         view = Mock(spec=game.GameView)
+        views = [view]
+        self.data.get_game_views.return_value = views
         player1 = Mock(spec=game.Player)
         playername = "Player1"
         player1.get_name.return_value = playername
-        self.subject.add_game_view(view)
+
         self.subject.remove_player(player1)
+
+        self.data.get_game_views.assert_called_with()
         player1.get_name.assert_called_with()
         self.game.remove_player.assert_called_with(player1)
         view.on_player_remove.assert_called_with(playername)    
  
     def testRemovingDice(self) :
         view = Mock(spec=game.GameView)
+        views = [view]
+        self.data.get_game_views.return_value = views
         player1 = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
         players = [player1, player2]
@@ -819,10 +850,12 @@ class ProxyGameTest(unittest.TestCase) :
         amount = 4
         dice = [1] * amount
         player1.get_name.return_value = playername
-        self.game.get_all_players.return_value = players
+        self.data.get_all_players.return_value = players
         self.game.get_dice.return_value = dice
-        self.subject.add_game_view(view)
+
         self.subject.remove_dice(player1)
+
+        self.data.get_game_views.assert_called_with()
         self.assertTrue(player1.get_name.called)
         self.assertTrue(not player2.get_name.called)
         self.game.remove_dice.assert_called_with(player1)
@@ -833,11 +866,15 @@ class ProxyGameTest(unittest.TestCase) :
     
     def testDeactivatePlayer(self) :
         view = Mock(spec=game.GameView)
+        views = [view]
+        self.data.get_game_views.return_value = views
         player1 = Mock(spec=game.Player)
         playername = "Player1"
         player1.get_name.return_value = playername
-        self.subject.add_game_view(view)
+
         self.subject.deactivate_player(player1)
+
+        self.data.get_game_views.assert_called_with()
         player1.get_name.assert_called_with()
         player1.on_made_inactive.called_with()
         self.game.deactivate_player.assert_called_with(player1)
@@ -845,19 +882,24 @@ class ProxyGameTest(unittest.TestCase) :
 
     def testSettingBid(self) :
         view = Mock(spec=game.GameView)
+        views = [view]
+        self.data.get_game_views.return_value = views
         player1 = Mock(spec=game.Player)
         playername = "Player1"
         player1.get_name.return_value = playername
         cur_bid = (1, 2)
-        self.subject.add_game_view(view)
+
         self.subject.set_bid(player1, cur_bid)
+
+        self.data.get_game_views.assert_called_with()
         player1.get_name.assert_called_with()
         self.game.set_bid.assert_called_with(player1, cur_bid)
         view.on_bid.assert_called_with(playername, cur_bid)
 
     def testSettingCurrentPlayer(self) :
         view = Mock(spec=game.GameView)
-        self.subject.add_game_view(view)
+        views = [view]
+        self.data.get_game_views.return_value = views
         player1 = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
         player1name = "Player1"
@@ -865,7 +907,10 @@ class ProxyGameTest(unittest.TestCase) :
         player1.get_name.return_value = player1name
         player2.get_name.return_value = player2name
         self.game.get_current_player.return_value = player1
+
         self.subject.set_current_player(player2)
+
+        self.data.get_game_views.assert_called_with()
         self.game.get_current_player.assert_called_with()
         self.game.set_current_player.assert_called_with(player2)
         player1.get_name.assert_called_with()
@@ -877,12 +922,16 @@ class ProxyGameTest(unittest.TestCase) :
     
     def testSettingCurrentWhenCurrentPlayerIsNone(self) :
         view = Mock(spec=game.GameView)
-        self.subject.add_game_view(view)
+        views = [view]
+        self.data.get_game_views.return_value = views
         player = Mock(spec=game.Player)
         playername = "Player1"
         player.get_name.return_value = playername
         self.game.get_current_player.return_value = None
+
         self.subject.set_current_player(player)
+
+        self.data.get_game_views.assert_called_with()
         self.game.set_current_player.assert_called_with(player)
         self.game.get_current_player.assert_called_with()
         player.get_name.assert_called_with()
@@ -891,7 +940,8 @@ class ProxyGameTest(unittest.TestCase) :
     
     def testOnWinning(self) :
         view = Mock(spec=game.GameView)
-        self.subject.add_game_view(view)
+        views = [view]
+        self.data.get_game_views.return_value = views
         bid = (6, 5)
         player1 = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
@@ -905,6 +955,7 @@ class ProxyGameTest(unittest.TestCase) :
         
         self.subject.on_win(player1, player2, bid)
 
+        self.data.get_game_views.assert_called_with()
         self.game.on_win.assert_called_with(player1, player2, bid)
         player1.get_name.assert_called_with()
         player2.get_name.assert_called_with()
@@ -914,7 +965,8 @@ class ProxyGameTest(unittest.TestCase) :
     
     def testOnWinningCallsGetDiceMapBeforeOnWin(self) :
         view = Mock(spec=game.GameView)
-        self.subject.add_game_view(view)
+        views = [view]
+        self.data.get_game_views.return_value = views
         bid = (6, 5)
         player1 = Mock(spec=game.Player)
         player2 = Mock(spec=game.Player)
@@ -928,6 +980,7 @@ class ProxyGameTest(unittest.TestCase) :
         
         self.subject.on_win(player1, player2, bid)
 
+        self.data.get_game_views.assert_called_with()
         self.game.on_win.assert_called_with(player1, player2, bid)
         player1.get_name.assert_called_with()
         player2.get_name.assert_called_with()

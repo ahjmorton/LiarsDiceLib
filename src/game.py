@@ -208,6 +208,15 @@ ch player
         self.high = highest_face
         self.cur_player = None
         self.cur_state = None
+        self.game_views = list()
+
+    def add_game_view(self, view) :
+        """Add a game view to the list of game views"""
+        self.game_views.append(view)
+
+    def get_game_views(self) :
+        """Return a list of game views"""
+        return self.game_views
 
     def set_current_state(self, state) :
         """Set the current state of the game"""
@@ -605,33 +614,37 @@ caller and the game object.
 All calls are forwarded to the game object unaltered but events are generated
 and dispatched"""
 
-    def __init__(self, game) :
+    def __init__(self, game, data_store) :
         self.game = game
-        self.game_views = list()
+        self.store = data_store
     
     def add_game_view(self, view) :
         """Add a game view to the list of objects to dispatch to"""
-        self.game_views.append(view)
+        self.store.add_game_view(view)
 
-    def get_game_views(self) :
+    def _get_game_views(self) :
         """Return a list of game views"""
-        return self.game_views
+        return self.store.get_game_views()
+
+    def _get_all_players(self) :
+        """Return a list of all players"""
+        return self.store.get_all_players()
 
     def _burst_to_game_views(self, func) :
         """Burst an event to all game views.
 Function should take one arguement"""
-        for view in self.game_views :
+        for view in self._get_game_views() :
             func(view)
 
     def _burst_to_players(self, func) :
         """Burst an event to all player views.
 Function should take one arguement."""
-        for player in self.game.get_all_players() :
+        for player in self._get_all_players() :
             func(player)
 
     def __get_all_player_names(self) :
         """Returns a list of all player names, including inactive ones"""
-        return [player.get_name() for player in self.game.get_all_players()]
+        return [player.get_name() for player in self._get_all_players()]
 
     def _burst_dice_amounts(self, player) :
         """Burst the number of dice amounts assigned to particular player.

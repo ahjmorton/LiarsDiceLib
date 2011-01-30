@@ -71,9 +71,9 @@ class GameIntegrationTest(unittest.TestCase) :
  
         #Create the proxy game objects with game views
         self.view = Mock(spec=game.GameView)
-        self.proxy = game.ProxyGame(None)
+        self.proxy = game.ProxyGame(None, self.data_store)
         self.proxy_dispatcher = game.ProxyDispatcher(None, self.proxy)
-        self.proxy.add_game_view(self.view)
+        self.data_store.add_game_view(self.view)
 
         #Create the utility objects
         self.dice_roller = game.roll_set_of_dice
