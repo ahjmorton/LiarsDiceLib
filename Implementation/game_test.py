@@ -504,7 +504,20 @@ class GameStartStateTest(unittest.TestCase) :
         full_call_args = self.game.set_dice.call_args_list
         for x in players :
             self.assertTrue(((x, ret_dice), {}) in full_call_args)
-      
+     
+    def testOnChallenge(self) :
+        player = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
+        def call() :
+            self.subject.on_challenge(player, player2)
+        self.assertRaises(game.IllegalStateChangeError, call)
+    
+    def testOnBid(self) :
+        bid = (1,2)
+        player = Mock(spec=game.Player)
+        def call() :
+            self.subject.on_bid(player, bid)
+        self.assertRaises(game.IllegalStateChangeError, call)
 
 class FirstBidGameStateTest(unittest.TestCase) :
     
@@ -524,6 +537,17 @@ class FirstBidGameStateTest(unittest.TestCase) :
         self.game.set_bid.assert_called_with(player, bid)
         self.game.set_current_player.assert_called_with(player2)
 
+    def testOnGameStart(self) :
+        def call() :
+            self.subject.on_game_start()
+        self.assertRaises(game.IllegalStateChangeError, call)
+
+    def testOnChallenge(self) :
+        player = Mock(spec=game.Player)
+        player2 = Mock(spec=game.Player)
+        def call() :
+            self.subject.on_challenge(player, player2)
+        self.assertRaises(game.IllegalStateChangeError, call)
 
 class BidGameStateTest(unittest.TestCase) :
 
@@ -531,6 +555,11 @@ class BidGameStateTest(unittest.TestCase) :
         self.game = Mock(spec=game.Game)
         self.next_state = Mock()
         self.subject = game.BidState(self.game, self.next_state)
+ 
+    def testOnGameStart(self) :
+        def call() :
+            self.subject.on_game_start()
+        self.assertRaises(game.IllegalStateChangeError, call)
 
     def testOnBid(self) :
         cur_bid = (3, 4)
