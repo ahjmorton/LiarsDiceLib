@@ -1,3 +1,9 @@
+"""This module tests the game module functionally, so all dependencies are
+created from actual production objects and tests run on them.
+
+This module uses the mock library to mock out player and game views to
+see the output given from the game"""
+
 import unittest
 from functools import partial
 
@@ -85,10 +91,11 @@ class GameIntegrationTest(unittest.TestCase) :
         for player in dice_map :
             dice = dice_map[player]
             self.assertEquals(self.starting_dice, len(dice))
-            self.assertTrue(all(map(lambda x : 
-                self.lowest_face <= x <= self.highest_face, dice)))
+            self.assertTrue(all(
+                [self.lowest_face <= die <= self.highest_face for die in dice]
+                ))
             player.on_set_dice.assert_called_with(dice)
-        player_names = map(lambda player : player.get_name(), dice_map)
+        player_names = [player.get_name() for player in dice_map]
         self.view.on_game_start.assert_called_with(player_names)
         self.view.on_multi_activation.assert_called_with(player_names)
         self.assertEquals(2, self.view.on_new_dice_amount.call_count)
@@ -102,7 +109,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.assertEquals(self.first_bid_state, self.game.get_state())
 
     def testBiddingWithoutStartingGameThrowsException(self) :
-        cur_bid = (1,2)
+        cur_bid = (1, 2)
         def call() :
             self.proxy_dispatcher.make_bid(cur_bid)
         self.assertRaises(game.IllegalStateChangeError, call)
@@ -119,8 +126,6 @@ class GameIntegrationTest(unittest.TestCase) :
 
         self.assertTrue(self.game.get_current_player() is not None)
         self.assertEquals(self.player2, self.game.get_current_player())
-        player_names = map(lambda player : 
-            player.get_name(), (self.player1, self.player2))
         self.player1.on_end_turn.assert_called_with()
         self.player2.on_start_turn.assert_called_with()
         self.view.on_bid.assert_called_with(self.player1name, cur_bid)
@@ -139,8 +144,6 @@ class GameIntegrationTest(unittest.TestCase) :
 
         self.assertTrue(self.game.get_current_player() is not None)
         self.assertEquals(self.player1, self.game.get_current_player())
-        player_names = map(lambda player : player.get_name(), 
-            (self.player1, self.player2))
         self.player1.on_start_turn.assert_called_with()
         self.player2.on_end_turn.assert_called_with()
         self.view.on_bid.assert_called_with(self.player2name, cur_bid)
@@ -171,8 +174,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.proxy_dispatcher.start_game()
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
-        player1dice = [2,5]
-        player2dice = [6,5]
+        player1dice = [2, 5]
+        player2dice = [6, 5]
         self.data_store.set_dice(self.player1, player1dice)
         self.data_store.set_dice(self.player2, player2dice)
         self.reset_and_setup_mocks()
@@ -196,8 +199,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.proxy_dispatcher.start_game()
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
-        player1dice = [2,5]
-        player2dice = [6,4]
+        player1dice = [2, 5]
+        player2dice = [6, 4]
         self.data_store.set_dice(self.player1, player1dice)
         self.data_store.set_dice(self.player2, player2dice)
         self.reset_and_setup_mocks()
@@ -229,8 +232,8 @@ class GameIntegrationTest(unittest.TestCase) :
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
         player1dice = [5]
-        player2dice = [6,4]
-        player3dice = [2,2]
+        player2dice = [6, 4]
+        player3dice = [2, 2]
         self.data_store.set_dice(self.player1, player1dice)
         self.data_store.set_dice(self.player2, player2dice)
         self.data_store.set_dice(player3, player3dice)
@@ -267,9 +270,9 @@ class GameIntegrationTest(unittest.TestCase) :
 
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
-        player1dice = [2,5]
+        player1dice = [2, 5]
         player2dice = [5]
-        player3dice = [2,2]
+        player3dice = [2, 2]
         self.data_store.set_dice(self.player1, player1dice)
         self.data_store.set_dice(self.player2, player2dice)
         self.data_store.set_dice(player3, player3dice)
@@ -301,7 +304,7 @@ class GameIntegrationTest(unittest.TestCase) :
 
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
-        player1dice = [2,5]
+        player1dice = [2, 5]
         player2dice = [5]
         self.data_store.set_dice(self.player1, player1dice)
         self.data_store.set_dice(self.player2, player2dice)
@@ -336,7 +339,7 @@ class GameIntegrationTest(unittest.TestCase) :
         first_bid = (2, 5)
         self.proxy_dispatcher.make_bid(first_bid)
         player1dice = [5]
-        player2dice = [2,3]
+        player2dice = [2, 3]
         self.data_store.set_dice(self.player1, player1dice)
         self.data_store.set_dice(self.player2, player2dice)
         self.reset_and_setup_mocks()
@@ -384,10 +387,11 @@ class GameIntegrationTest(unittest.TestCase) :
         pass
 
 def suite() :
-    suite = unittest.TestSuite()
+    """Return a test suite of all tests in this module"""
+    test_suite = unittest.TestSuite()
     loader = unittest.TestLoader()
-    suite.addTests(loader.loadTestsFromTestCase(GameIntegrationTest))
-    return suite
+    test_suite.addTests(loader.loadTestsFromTestCase(GameIntegrationTest))
+    return test_suite
 
 if __name__ == "__main__" :
     unittest.TextTestRunner().run(suite())
