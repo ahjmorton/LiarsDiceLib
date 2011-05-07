@@ -35,30 +35,6 @@ import game_views
 import game_data
 import game_proxy
 
-class RobotPlayer(game_views.Player) :
-    def __init__(self, name, game_obj) :
-        game_views.Player.__init__(self, name)
-        self.game = game_obj
-    
-    def on_start_turn(self) :
-        """This method is called when the player is made the current player"""
-        cur_bid = self.game.get_previous_bid()
-        print "Woo"
-        # If random number is greater than 0.75 or the bet has reached 
-        # six dice then challenge
-        if cur_bid is None :
-            self.game.make_bid((random.randint(0, 6), \
-                                random.randint(0, 6)))  
-        elif random.random() > 0.25 or cur_bid[0] >= 6:
-            self.game.make_challenge()
-        else :
-            self.game.make_bid((cur_bid[0] + random.randint(0, 6 - cur_bid[0]), \
-                                cur_bid[1] + random.randint(0, 6 - cur_bid[1])))
-
-            
-
-
-
 class RobotGameView(game_views.GameView) :
     pass
 
@@ -80,7 +56,7 @@ def main() :
     data_store.add_game_view(view)
 
     #Initialise players
-    players = [RobotPlayer("Player %i" % x, proxy_dispatcher) for x in xrange(0, 6)]
+    players = ["Player %i" % x for x in xrange(0, 6)]
     for player in players :
         data_store.add_player(player)
 
