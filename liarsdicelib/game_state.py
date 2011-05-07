@@ -66,8 +66,8 @@ player position"""
         face = self.game.get_face_values()
         for player in self.game.get_players() :
             self.game.set_dice(player, self.dice_roll(max_dice, face))
-        self.game.set_state(self.first)
         self.game.set_current_player(self.game.get_players()[0])
+        self.game.set_state(self.first)
     
     def on_bid(self, player, bid) :
         """Illegal state transition, throw an exception"""
