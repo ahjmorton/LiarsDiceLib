@@ -46,17 +46,17 @@ class GameObjectTest(unittest.TestCase) :
         self.win_check)
 
     def testDeactivatePlayer(self) :
-        player1 = Mock(spec=game_views.Player)
+        player1 = "player"
         self.subject.deactivate_player(player1)
         self.data.mark_inactive.assert_called_with(player1)
 
     def testSettingAPlayer(self) :
-        player1 = Mock(spec=game_views.Player)
+        player1 = "player"
         self.subject.set_current_player(player1)
         self.data.set_current_player.assert_called_with(player1)
 
     def testCheckingForFinished(self) :
-        player1 = Mock(spec=game_views.Player)
+        player1 = "player"
         dice_map = dict()
         self.win_check.return_value = player1
         self.data.get_dice_map.return_value = dice_map
@@ -67,7 +67,7 @@ class GameObjectTest(unittest.TestCase) :
         self.win_check.assert_called_with(dice_map)
     
     def testCheckingForActive(self) :
-        player1 = Mock(spec=game_views.Player)
+        player1 = "player"
         self.data.is_active.return_value = True
 
         self.assertTrue(self.subject.is_player_active(player1))
@@ -110,7 +110,7 @@ class GameObjectTest(unittest.TestCase) :
         self.data.set_current_state.assert_called_with(state1)
 
     def testMakingABid(self) :
-        player = Mock(spec=game_views.Player)
+        player = "player"
         self.data.get_current_player.return_value = player
         self.data.get_current_state.return_value = self.state
         bid = (1, 2)
@@ -123,8 +123,8 @@ class GameObjectTest(unittest.TestCase) :
         self.assertEquals(self.state, self.subject.get_state())
 
     def testMakingAChallengeWithNoneAndNoneGrabsFromGame(self) :
-        player1 = Mock(spec=game_views.Player)
-        player2 = Mock(spec=game_views.Player)
+        player1 = "player"
+        player2 = "player"
         self.data.get_players.return_value = [player1, player2]
         self.data.get_current_player.return_value = player2
         self.data.get_current_state.return_value = self.state
@@ -136,8 +136,8 @@ class GameObjectTest(unittest.TestCase) :
         self.assertEquals(self.state, self.subject.get_state())
  
     def testMakingAChallengeWithChallengedParametersDoesNotCall(self) :
-        player1 = Mock(spec=game_views.Player)
-        player2 = Mock(spec=game_views.Player)
+        player1 = "player"
+        player2 = "player"
         self.data.get_current_player.return_value = player2
         self.data.get_current_state.return_value = self.state
 
@@ -149,7 +149,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertEquals(self.state, self.subject.get_state())
     
     def testGettingNextPlayer(self) :
-        players = [Mock(spec=game_views.Player) for x in xrange(0, 5)]
+        players = ["player" for x in xrange(0, 5)]
         self.data.get_players.return_value = players
         self.data.get_current_player.return_value = players[0]
 
@@ -161,7 +161,7 @@ class GameObjectTest(unittest.TestCase) :
         self.data.get_current_player.assert_called_with()
 
     def testGettingNextPlayerOnLastPlayer(self) :
-        players = [Mock(spec=game_views.Player) for x in xrange(0, 5)]
+        players = ["player" for x in xrange(0, 5)]
         self.data.get_players.return_value = players
         self.data.get_current_player.return_value = players[4]
 
@@ -172,7 +172,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
     
     def testGettingPreviousPlayer(self) :
-        players = [Mock(spec=game_views.Player) for x in xrange(0, 5)]
+        players = ["player" for x in xrange(0, 5)]
         self.data.get_players.return_value = players
         self.data.get_current_player.return_value = players[4]
 
@@ -183,7 +183,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
 
     def testGettingPreviousPlayerOnFirstPlayer(self) :
-        players = [Mock(spec=game_views.Player) for x in xrange(0, 5)]
+        players = ["player" for x in xrange(0, 5)]
         self.data.get_players.return_value = players
         self.data.get_current_player.return_value = players[0]
 
@@ -194,7 +194,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
     
     def testGettingNextPlayerWithOnePlayer(self) :
-        players = [Mock(spec=game_views.Player)]
+        players = ["player"]
         self.data.get_players.return_value = players
         self.data.get_current_player.return_value = players[0]
 
@@ -204,7 +204,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
 
     def testGettingPreviousPlayerWithOnePlayer(self) :
-        players = [Mock(spec=game_views.Player)]
+        players = ["player"]
         self.data.get_players.return_value = players
         self.data.get_current_player.return_value = players[0]
 
@@ -215,7 +215,7 @@ class GameObjectTest(unittest.TestCase) :
         self.assertTrue(self.data.get_players.called)
 
     def testGettingPreviousBid(self) :
-        players = [Mock(spec=game_views.Player) for x in xrange(0, 2)]
+        players = ["player" for x in xrange(0, 2)]
         bid = (1, 2)
         self.data.get_players.return_value = players
         self.data.get_bid.return_value = bid
@@ -241,7 +241,7 @@ class GameObjectTest(unittest.TestCase) :
     def testRemovingDice(self) :
         length = 4
         ret_list = [1 for x in xrange(0, length)]
-        player = Mock(spec=game_views.Player)
+        player = "player"
         self.data.get_dice.return_value = ret_list
         self.subject.remove_dice(player)
         self.data.get_dice.assert_called_with(player)
@@ -249,14 +249,14 @@ class GameObjectTest(unittest.TestCase) :
         self.assertEquals(length - 1, len(self.data.set_dice.call_args[0][1]))
 
     def testWinHandling(self) :
-        player1 = Mock(spec=game_views.Player)
-        player2 = Mock(spec=game_views.Player)
+        player1 = "player"
+        player2 = "player"
         cur_bid = (1, 2)
         self.subject.on_win(player1, player2, cur_bid)
         self.win_hand.assert_called_with(player1, player2, cur_bid)
 
     def testGettingWinningPlayer(self) :
-        player1 = Mock(spec=game_views.Player)
+        player1 = "player"
         ret_map = {player1:[1]}
         self.data.get_dice_map.return_value = ret_map
         self.win_check.return_value = player1
@@ -271,7 +271,7 @@ class GameObjectTest(unittest.TestCase) :
         self.data.make_all_active.assert_called_with()
 
     def testGettingDiceMap(self) :
-        player1 = Mock(spec=game_views.Player)
+        player1 = "player"
         ret_map = {player1:[1]}
         self.data.get_dice_map.return_value = ret_map
         ret = self.subject.get_dice_map()
@@ -280,7 +280,7 @@ class GameObjectTest(unittest.TestCase) :
 class BidCheckerTest(unittest.TestCase) :
     
     def testCheckingBidSimple(self) :
-        player = Mock(spec=game_views.Player)
+        player = "player"
         bid = (2, 4)
         dice_map = {player:[2, 4, 4]}
         ret = game.check_bids(bid, dice_map)
@@ -288,7 +288,7 @@ class BidCheckerTest(unittest.TestCase) :
         self.assertTrue(ret)
     
     def testCheckingBidNegative(self) :
-        player = Mock(spec=game_views.Player)
+        player = "player"
         bid = (2, 4)
         dice_map = {player:[2, 4]}
         ret = game.check_bids(bid, dice_map)
@@ -317,8 +317,8 @@ class WinHandlerTest(unittest.TestCase) :
         self.subject = game.on_win
    
     def testHandlingWinWithoutMakingPlayerInactive(self) :
-        player1 = Mock(spec=game_views.Player)
-        player2 = Mock(spec=game_views.Player)
+        player1 = "player"
+        player2 = "player"
         bid = (1, 2)
         self.game_obj.get_dice.return_value = [1, 2]
         self.subject(player1, player2, bid, self.game_obj)
@@ -327,8 +327,8 @@ class WinHandlerTest(unittest.TestCase) :
         self.game_obj.set_current_player.assert_called_with(player2)
 
     def testHandlingWinWithMakingPlayerInactive(self) :
-        player1 = Mock(spec=game_views.Player)
-        player2 = Mock(spec=game_views.Player)
+        player1 = "player"
+        player2 = "player"
         bid = (1, 2)
         self.game_obj.get_dice.return_value = []
         self.subject(player1, player2, bid, self.game_obj)

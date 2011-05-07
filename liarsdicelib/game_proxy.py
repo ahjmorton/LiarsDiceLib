@@ -56,46 +56,28 @@ Function should take one arguement"""
         for view in self._get_game_views() :
             func(view)
 
-    def _burst_to_players(self, func) :
-        """Burst an event to all player views.
-Function should take one arguement."""
-        for player in self._get_all_players() :
-            func(player)
+    def _burst_activations(self, players) :
+        for player in players :
+            self._burst_to_game_views(lambda view : 
+                view.on_activation(player))
 
-    def __get_all_player_names(self) :
-        """Returns a list of all player names, including inactive ones"""
-        return [player.get_name() for player in self._get_all_players()]
-
-    def _burst_dice_amounts(self, player) :
-        """Burst the number of dice amounts assigned to particular player.
-Only the player whose amount changed is burst to and all game views recieve an
-updated"""
-        new_dice = len(self.game.get_dice(player))
-        player.on_new_dice_amount(new_dice)
-        self._burst_to_game_views(lambda view : 
-              view.on_new_dice_amount(player.get_name(), new_dice))
-    
     def start_game(self) :
         """Start a game then burst to all game and player views"""
         self.game.start_game()
-        player_names = self.__get_all_player_names()
+        player_names = self._get_all_players()
         self._burst_to_game_views(lambda view : 
             view.on_game_start(player_names))
-        self._burst_to_players(lambda player : player.on_game_start())
 
     def activate_players(self) :
         """Activate all players, inform all game views and players"""
         self.game.activate_players()
-        self._burst_to_game_views(lambda view : 
-            view.on_multi_activation(self.__get_all_player_names()))
-        self._burst_to_players(lambda player : player.on_made_active())
+        self._burst_activations(self._get_all_players())
 
     def end_game(self, winner) :
         """End the game then, inform all game views and players"""
         self.game.end_game(winner)
         self._burst_to_game_views(lambda view : 
-             view.on_game_end(winner.get_name()))
-        self._burst_to_players(lambda player : player.on_game_end())
+             view.on_game_end(winner))
 
     def set_current_player(self, player) :
         """Set the current player.
@@ -107,44 +89,45 @@ to game views"""
         self.game.set_current_player(player)
         if cur is not None :
             # Avoid this section if setting the first player
-            curname = cur.get_name()
-            cur.on_end_turn()
             self._burst_to_game_views(lambda view : 
-                view.on_player_end_turn(curname))
-        playername = player.get_name()
-        player.on_start_turn()
+                view.on_player_end_turn(cur))
         self._burst_to_game_views(lambda view : 
-             view.on_player_start_turn(playername))
+             view.on_player_start_turn(player))
 
     def add_player(self, player) :
         """Add a player to the game and inform all game views"""
         self.game.add_player(player)
         self._burst_to_game_views(lambda view : 
-             view.on_player_addition(player.get_name()))
+             view.on_player_addition(player))
 
     def remove_player(self, player) :
         """Remove a player to the game and inform all game views"""
         self.game.remove_player(player)
         self._burst_to_game_views(lambda view : 
-            view.on_player_remove(player.get_name()))
+            view.on_player_remove(player))
 
     def set_dice(self, player, dice) :
         """Set the dice for a player, burst the new amounts and inform
 the player that they have been updated"""
         self.game.set_dice(player, dice)
-        self._burst_dice_amounts(player)
-        player.on_set_dice(dice)
+        new_dice = len(self.game.get_dice(player))
+        self._burst_to_game_views(lambda view : 
+              view.on_new_dice_amount(player, new_dice))
+        self._burst_to_game_views(lambda view : 
+              view.on_set_dice(player, dice))
     
     def set_bid(self, player, bid) :
         """Set the bid assigned to a player, burst the bid to game views"""
         self.game.set_bid(player, bid) 
         self._burst_to_game_views(lambda view : 
-            view.on_bid(player.get_name(), bid))
+            view.on_bid(player, bid))
 
     def remove_dice(self, player) :
         """Remove a dice from a player then burst to player and game views"""
         self.game.remove_dice(player)
-        self._burst_dice_amounts(player)
+        new_dice = len(self.game.get_dice(player))
+        self._burst_to_game_views(lambda view : 
+              view.on_new_dice_amount(player, new_dice))
 
     def on_win(self, winner, loser, bid) :
         """Get the dice map before the lose conditions occur.
@@ -153,20 +136,14 @@ and dice values.
 Burst this out to the game views"""
         dice_map = self.game.get_dice_map()
         self.game.on_win(winner, loser, bid)
-        ret_map = dict()
-        for player in dice_map :
-            ret_map[player.get_name()] = dice_map[player]
-        winner = winner.get_name()
-        loser = loser.get_name()
         self._burst_to_game_views(lambda view : 
-            view.on_challenge(winner, loser, ret_map, bid))
+            view.on_challenge(winner, loser, dice_map, bid))
 
     def deactivate_player(self, player) :
         """Deactivate player, inform them and burst to game views"""
         self.game.deactivate_player(player)
-        player.on_made_inactive()
         self._burst_to_game_views(lambda view : 
-            view.on_deactivate(player.get_name()))
+            view.on_deactivate(player))
 
 class ProxyDispatcher(object) :
     """The proxy dispatcher object dispatches attribute lookups"""

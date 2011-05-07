@@ -23,54 +23,7 @@ Contributor(s):
      
 ***** END LICENSE BLOCK *****
 
-This module defines the player and game view objects"""
-
-
-class Player(object) :
-    """This game object represents a game player with event based methods"""
-    
-    def __init__(self, name) :
-        """Create a player with a given name"""
-        self.name = name
-
-    def get_name(self) :
-        """Return the name of the player passed in at creation"""
-        return self.name
-
-    def on_game_start(self) :
-        """This method is called when the game is started and the dice the playe
-r has are given"""
-        pass
-
-    def on_set_dice(self, dice) :
-        """This method is called when the dice are set for the player"""
-        pass
-
-    def on_start_turn(self) :
-        """This method is called when the player is made the current player"""
-        pass
-
-    def on_end_turn(self) :
-        """This method is called when the player is done with his turn"""
-        pass
-
-    def on_made_active(self) :
-        """This method is called when a player is set as active, at the start of
- a round"""
-        pass
-
-    def on_made_inactive(self) :
-        """This method is called when a plahyer is made inactive"""
-        pass
-
-    def on_game_end(self) :
-        """This method is called when the game ends"""
-        pass
-
-    def on_new_dice_amount(self, amount) :
-        """This method is called when the dice amount changes, possibly due to a
- loss of dice"""
-        pass
+This module defines the game view objects"""
 
 
 class GameView(object) :
@@ -97,10 +50,6 @@ challenged, the winner and dice of each player"""
         """This method is called when a player is made active"""
         pass
     
-    def on_multi_activation(self, player_names) :
-        """This method is called when a number of players are made active"""
-        pass
-
     def on_player_start_turn(self, player_name) :
         """This method is called when a player is made the current player"""
         pass
@@ -124,6 +73,10 @@ challenged, the winner and dice of each player"""
     def on_game_end(self, winner_name) : 
         """This method is called when the game ends and gives the 
         players name"""
+        pass
+    
+    def on_set_dice(self, player_name, dice) :
+        """This method is called when the dice are set for the player"""
         pass
 
     def on_new_dice_amount(self, player_name, amount) :

@@ -34,7 +34,9 @@ ch player
     
     def __init__(self, starting_dice=5, lowest_face=1, highest_face=6) :
         """Create a game object with a random source"""
-        self.dice = dict()
+        self.dice = list()
+        self.bids = list()
+        self.players = list()
         self.inactive = set()
         self.starting = starting_dice
         self.low = lowest_face
@@ -71,11 +73,16 @@ ch player
         """Add a player to the list of players in the round. 
 If this method is not called then any call to add dice will fail. 
 The player is added and is considered active on adding"""
-        self.dice[player] = [None, None]
+        self.players.append(player)
+        self.dice.append(None)
+        self.bids.append(None)
 
     def remove_player(self, player) : 
         """Remove player from the game"""
-        del self.dice[player]
+        index = self.players.index(player)
+        del self.dice[index]
+        del self.bids[index]
+        del self.players[index]
         self.inactive.discard(player)
 
     def is_active(self, player) :
@@ -84,11 +91,15 @@ The player is added and is considered active on adding"""
     
     def get_players(self) :
         """Return the players currently marked active"""
-        return list(set(self.dice) - self.inactive) 
+        retlist = list()
+        for player in self.players :
+            if player not in self.inactive :
+                retlist.append(player)
+        return retlist
 
     def get_all_players(self) :
         """Return all players, including those marked inactive"""
-        return list(self.dice)
+        return self.players
 
     def make_all_active(self) :
         """Mark all players as active"""
@@ -101,27 +112,27 @@ n a call to get_players"""
 
     def get_dice(self, player) :
         """Get the dice for a particular player"""
-        return self.dice[player][0]
+        return self.dice[self.players.index(player)]
 
     def get_bid(self, player) :
         """Get the bid for a particular player"""
-        return self.dice[player][1]
+        return self.bids[self.players.index(player)]
 
     def set_dice(self, player, dice) :
         """Set the dice a particular player has in their hand. If player has not
  had players added to it then raise a ValueError"""
-        if player not in self.dice :
+        if player not in self.players :
             raise ValueError
         else :
-            self.dice[player][0] = dice
+            self.dice[self.players.index(player)] = dice
      
     def set_bid(self, player, bid) :
         """Set the bid for a particular player has made. If player has not been 
 added to object then raise a value error"""
-        if player not in self.dice :
+        if player not in self.players :
             raise ValueError
         else :
-            self.dice[player][1] = bid
+            self.bids[self.players.index(player)] = bid
 
     def get_num_of_starting_dice(self) :
         """Get the number of dice given to each player at the start of the
@@ -131,7 +142,7 @@ game"""
     def get_dice_map(self) :
         """Create a dictionary with each player and the dice values"""
         ret = dict() 
-        for player in self.dice :
+        for player in self.players :
             ret[player] = self.get_dice(player)
         return ret
 

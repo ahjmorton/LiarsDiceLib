@@ -62,12 +62,12 @@ player position"""
         #Could also add logic to do random number generation 
         # to work out who  goes first
         self.game.activate_players()
-        self.game.set_current_player(self.game.get_players()[0])
         max_dice = self.game.number_of_starting_dice()
         face = self.game.get_face_values()
         for player in self.game.get_players() :
             self.game.set_dice(player, self.dice_roll(max_dice, face))
         self.game.set_state(self.first)
+        self.game.set_current_player(self.game.get_players()[0])
     
     def on_bid(self, player, bid) :
         """Illegal state transition, throw an exception"""
