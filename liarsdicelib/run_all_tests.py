@@ -31,6 +31,7 @@ import game_data_test
 import game_proxy_test
 import game_state_test
 import game_integration_test
+import game_common_test
 
 def suite() :
     """Return all tests known about"""
@@ -38,7 +39,8 @@ def suite() :
            game_integration_test.suite(),
            game_proxy_test.suite(),
            game_data_test.suite(),
-           game_state_test.suite()])
+           game_state_test.suite(),
+           game_common_test.suite()])
 
 if __name__ == "__main__" :
     unittest.TextTestRunner().run(suite())

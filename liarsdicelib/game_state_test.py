@@ -33,35 +33,18 @@ from mock import Mock
 import game
 import game_views
 import game_state
+import game_common
 from game_common import IllegalBidError, IllegalStateChangeError
-
-class DiceRollerTest(unittest.TestCase) :
-    
-    def setUp(self) :
-        self.random = Mock(spec=random.Random)
-        self.subject = game_state.roll_set_of_dice
-
-    def testRollingSetOfDice(self) :
-        ret = 3
-        amount = 6
-        face = (1, 6)
-        self.random.randint.return_value = ret
-        val = self.subject(amount, face, self.random)
-        self.assertTrue(val is not None)
-        self.assertTrue(len(val) == amount)
-        self.assertTrue(reduce(lambda x, y: x and (y == ret), val, True))
-        self.assertTrue(self.random.randint.called)
-        self.assertTrue(self.random.randint.call_count == amount)
 
 
 class GameStartStateTest(unittest.TestCase) :
     
     def setUp(self) :
         self.game = Mock(spec=game.Game)
-        self.dice_roll = Mock(spec=game_state.roll_set_of_dice)
+        self.dice_roll = Mock(spec=game_common.roll_set_of_dice)
         self.next_state = Mock()
-        self.subject = game_state.GameStartState(self.game, self.next_state, 
-               self.dice_roll)
+        self.subject = game_state.GameStartState(self.game, 
+            self.next_state, self.dice_roll)
 
     def testOnGameStart(self) :
         player = "player"
@@ -264,7 +247,6 @@ def suite() :
     """Return a test suite of all tests defined in this module"""
     test_suite = unittest.TestSuite()
     loader = unittest.TestLoader()
-    test_suite.addTests(loader.loadTestsFromTestCase(DiceRollerTest))
     test_suite.addTests(loader.loadTestsFromTestCase(GameStartStateTest))
     test_suite.addTests(loader.loadTestsFromTestCase(FirstBidGameStateTest))
     test_suite.addTests(loader.loadTestsFromTestCase(BidGameStateTest))
