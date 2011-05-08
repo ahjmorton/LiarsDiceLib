@@ -42,8 +42,9 @@ class GameObjectTest(unittest.TestCase) :
         self.dice_check = Mock(spec=game.check_bids)
         self.win_check = Mock(spec=game.get_winner)
         self.win_hand = Mock(spec=game.on_win)
+        self.bid_reset = Mock(spec=game.bid_reset)
         self.subject = game.Game(self.data, self.win_hand, self.dice_check, 
-        self.win_check)
+        self.win_check, self.bid_reset)
 
     def testDeactivatePlayer(self) :
         player1 = "player"
@@ -121,6 +122,21 @@ class GameObjectTest(unittest.TestCase) :
         self.state.on_bid.assert_called_with(player, bid)
         self.assertTrue(not self.data.set_bid.called)
         self.assertEquals(self.state, self.subject.get_state())
+
+    def testResettingBid(self) :
+        self.subject.reset_bid() 
+        self.bid_reset.assert_called_with(self.subject)
+            
+    def testGettingNumberOfDiceAPlayerHas(self) :
+        player1 = "player"
+        expected = 4
+        self.data.get_number_of_dice.return_value = expected
+
+        ret = self.subject.num_of_dice(player1)
+
+        self.data.get_number_of_dice.assert_called_with(player1)
+        self.assertEquals(expected, ret)
+
 
     def testMakingAChallengeWithNoneAndNoneGrabsFromGame(self) :
         player1 = "player"
@@ -322,6 +338,7 @@ class WinHandlerTest(unittest.TestCase) :
         bid = (1, 2)
         self.game_obj.get_dice.return_value = [1, 2]
         self.subject(player1, player2, bid, self.game_obj)
+        self.game_obj.reset_bid.assert_called_with()
         self.game_obj.remove_dice.assert_called_with(player2)
         self.game_obj.get_dice.assert_called_with(player2)
         self.game_obj.set_current_player.assert_called_with(player2)
@@ -333,10 +350,25 @@ class WinHandlerTest(unittest.TestCase) :
         self.game_obj.get_dice.return_value = []
         self.subject(player1, player2, bid, self.game_obj)
         self.game_obj.remove_dice.assert_called_with(player2)
+        self.game_obj.reset_bid.assert_called_with()
         self.game_obj.get_dice.assert_called_with(player2)
         self.game_obj.deactivate_player.assert_called_with(player2)
         self.game_obj.set_current_player.assert_called_with(player1)
 
+class BidResetTest(unittest.TestCase) :
+    
+    def setUp(self) :
+        self.game_obj = Mock(spec=game.Game)
+        self.subject = game.bid_reset
+
+    def testResettingABid(self) :
+        player1 = "player1"
+        self.game_obj.get_previous_player.return_value = player1
+        
+        self.subject(self.game_obj)
+
+        self.game_obj.get_previous_player.assert_called_with()
+        self.game_obj.set_bid(player1, None)
 
 def suite() :
     """Return a test suite of all tests defined in this module"""
@@ -346,6 +378,7 @@ def suite() :
     test_suite.addTests(loader.loadTestsFromTestCase(BidCheckerTest))
     test_suite.addTests(loader.loadTestsFromTestCase(WinCheckerTest))
     test_suite.addTests(loader.loadTestsFromTestCase(WinHandlerTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(BidResetTest))
     return test_suite
 
 

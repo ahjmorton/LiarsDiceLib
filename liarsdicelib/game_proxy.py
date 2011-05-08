@@ -146,6 +146,12 @@ Burst this out to the game views"""
         self._burst_to_game_views(lambda view : 
             view.on_deactivate(player))
 
+    def reset_bid(self) :
+        """Reset the bid then pass this message to game views"""
+        self.game.reset_bid()
+        self._burst_to_game_views(lambda view :
+            view.on_bid_reset())
+
 class ProxyDispatcher(object) :
     """The proxy dispatcher object dispatches attribute lookups"""
 

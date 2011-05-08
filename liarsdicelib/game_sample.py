@@ -52,6 +52,10 @@ class RobotGameView(game_views.GameView) :
         self.face_gen = face_val_gen
         self.event_loop = list()
 
+    def on_bid_reset(self) :
+        """This method is called at the start of a round"""
+        print "Bid has been reset"
+
     def on_game_start(self, first_player, player_list) :
         """This method is called when the game begins. It contains a list of pla
 yers who are in the game"""

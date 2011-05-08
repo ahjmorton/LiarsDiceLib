@@ -139,6 +139,10 @@ added to object then raise a value error"""
 game"""
         return self.starting
 
+    def get_number_of_dice(self, player) :
+        """Return the number of dice a player has"""
+        return len(self.get_dice(player))
+
     def get_dice_map(self) :
         """Create a dictionary with each player and the dice values"""
         ret = dict() 

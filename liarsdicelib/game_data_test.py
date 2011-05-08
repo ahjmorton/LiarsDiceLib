@@ -99,6 +99,16 @@ class GameDataTest(unittest.TestCase) :
         dice = [1, 2, 3, 4]
         self.subject.set_dice(player, dice)
         self.assertTrue(dice == self.subject.get_dice(player))
+    
+    def testGettingNumberOfDice(self) :
+        player = "player"
+        self.subject.add_player(player)
+        dice = [1, 2, 3, 4]
+        expected = len(dice)
+        self.subject.set_dice(player, dice)
+
+        self.assertEquals(expected, 
+            self.subject.get_number_of_dice(player))
 
     def testMakingPlayerInactive(self) :
         player = "player"

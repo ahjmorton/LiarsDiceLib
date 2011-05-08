@@ -83,6 +83,11 @@ challenged, the winner and dice of each player"""
         """This method is called when a players dice aomunt changes"""
         pass
 
+    def on_bid_reset(self) :
+        """This method is called when the bid is reset to None after
+a challenge"""
+        pass
+
     def on_error(self, value) :
         """This method is called when there is an error with the remote"""
         pass

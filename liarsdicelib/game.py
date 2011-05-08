@@ -31,6 +31,8 @@ checkers.
 The module also provides objects to have messages sent out to all players
 and views based on certain events in the game through the Proxy classes"""
 
+from game_common import roll_set_of_dice
+
 def check_bids(bid, dice_map) :
     """Determine if the bid provided is correct, for example in the
 commen hand version of liars dice
@@ -58,18 +60,21 @@ If there is no clear winner of the dicemap then return None"""
                 cur_win = player
     return cur_win
 
-
-
 def on_win(winner, loser, bid, game) :
     """Called at the end of a round to determine the effects for both
 the winner and the loser based on the bid"""
+    game.reset_bid()
     game.remove_dice(loser)
-    game.set_bid(game.get_previous_player(), None)
     if len(game.get_dice(loser)) <= 0 :
         game.deactivate_player(loser)
         game.set_current_player(winner)
     else :
         game.set_current_player(loser)
+
+def bid_reset(game) :
+    """Reset the current bid of the game, this occurs at the end
+of a challenge to set the bid to None"""
+    game.set_bid(game.get_previous_player(), None)
 
 
 class Game(object) :
@@ -79,11 +84,13 @@ The game object can best be thought of as glue between the different
 game objects."""
 
     def __init__(self, data, win_handler=on_win, 
-                 bid_checker=check_bids, win_checker=get_winner) :
+                 bid_checker=check_bids, win_checker=get_winner,
+                 bid_reset=bid_reset) :
         self.plays = data
         self.bid_checker = bid_checker
         self.win_checker = win_checker
         self.win_handler = win_handler
+        self.bid_reset = bid_reset
 
     def set_state(self, state) :
         """Set the current game state"""
@@ -168,6 +175,10 @@ If there is more than one possible winner then return None"""
 game"""
         return self.plays.get_num_of_starting_dice()
 
+    def num_of_dice(self, player) :
+        """Return the number of dice a player has"""
+        return self.plays.get_number_of_dice(player)
+
     def true_bid(self, bid) :
         """Return whether a bid is true. A true bid is a bid that will
 result in a win for the bidder"""
@@ -233,6 +244,10 @@ with the current player"""
     def get_face_values(self) :
         """Return the highest and lowest faces on the dice"""
         return (self.plays.get_lowest_dice(), self.plays.get_highest_dice())
+
+    def reset_bid(self) :
+        """Reset the bid at the start of a round"""
+        self.bid_reset(self)
 
 if __name__ == "__main__" :
     pass

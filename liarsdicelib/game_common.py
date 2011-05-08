@@ -23,7 +23,24 @@ Contributor(s):
      
 ***** END LICENSE BLOCK *****
 
-This module defines common classes such as exceptions"""
+This module defines common classes such as exceptions and common
+dice rolling functions"""
+
+import random
+
+def roll_set_of_dice(num, face_vals, rand=random) :
+    """Roll a set of dice with values that are 
+face_vals[0] <= n <= face_valls[1].
+Source of randomness comes from prng module"""
+    random.seed()
+    ret_list = list()
+    count = 0
+    while count < num :
+        ret_list.append(rand.randint(face_vals[0], face_vals[1]))
+        count = count + 1
+    return ret_list
+
+
 
 class IllegalBidError(Exception) :
     """This exception occurs when a bid attempt is made that is illegal

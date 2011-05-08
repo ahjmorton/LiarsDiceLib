@@ -71,6 +71,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.win_checker = game.get_winner
         self.bid_checker = game.check_bids
         self.win_handler = game.on_win
+        self.bid_reset = game.bid_reset
         self.win_handler = partial(self.win_handler, game=self.proxy_dispatcher)
         
         #Create the game states from last to first
@@ -83,8 +84,11 @@ class GameIntegrationTest(unittest.TestCase) :
         self.bid_state.next = self.game_start_state
 
         #Create the game object
-        self.game = game.Game(self.data_store, self.win_handler, self.bid_checker, 
-            self.win_checker)
+        self.game = game.Game(self.data_store, 
+                              self.win_handler, 
+                              self.bid_checker, 
+                              self.win_checker,
+                              self.bid_reset)
         self.game.set_state(self.game_start_state)
         self.proxy.game = self.game
         self.proxy_dispatcher.game = self.game
@@ -207,6 +211,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.proxy_dispatcher.make_challenge()
 
         self.assertEquals(self.player2, self.game.get_current_player())
+        self.view.on_bid_reset.assert_called_with()
         self.view.on_player_end_turn.assert_called_with(self.player2)
         self.view.on_player_start_turn.assert_called_with(self.player2)
         self.assertEquals(1, len(self.data_store.get_dice(self.player2)))
@@ -232,6 +237,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.proxy_dispatcher.make_challenge()
 
         self.assertEquals(self.player1, self.game.get_current_player())
+        self.view.on_bid_reset.assert_called_with()
         self.view.on_player_end_turn.assert_called_with(self.player2)
         self.view.on_player_start_turn.assert_called_with(self.player1)
         self.assertEquals(1, len(self.data_store.get_dice(self.player1)))
@@ -264,6 +270,7 @@ class GameIntegrationTest(unittest.TestCase) :
 
         self.assertEquals(self.player2, self.game.get_current_player())
         
+        self.view.on_bid_reset.assert_called_with()
         self.assertEquals(0, len(self.data_store.get_dice(self.player1)))
         self.assertTrue(not self.data_store.is_active(self.player1))
         self.view.on_new_dice_amount.assert_called_with(self.player1, 0)
@@ -300,6 +307,7 @@ class GameIntegrationTest(unittest.TestCase) :
         
         self.assertEquals(0, len(self.data_store.get_dice(self.player2)))
         self.assertTrue(not self.data_store.is_active(self.player2))
+        self.view.on_bid_reset.assert_called_with()
         self.view.on_player_start_turn.assert_called_with(self.player1)
         self.view.on_player_end_turn.assert_called_with(self.player2)
         self.view.on_challenge.assert_called_with(
@@ -328,6 +336,7 @@ class GameIntegrationTest(unittest.TestCase) :
         
         self.assertEquals(0, len(self.data_store.get_dice(self.player2)))
         self.assertTrue(not self.data_store.is_active(self.player2))
+        self.view.on_bid_reset.assert_called_with()
         self.view.on_player_start_turn.assert_called_with(self.player1)
         self.view.on_player_end_turn.assert_called_with(self.player2)
         self.view.on_deactivate.assert_called_with(self.player2)
@@ -355,6 +364,7 @@ class GameIntegrationTest(unittest.TestCase) :
         self.assertEquals(self.player2, self.game.get_current_player())
         self.assertEquals(0, len(self.data_store.get_dice(self.player1)))
         self.assertTrue(not self.data_store.is_active(self.player1))
+        self.view.on_bid_reset.assert_called_with()
         self.view.on_player_start_turn.assert_called_with(self.player2)
         self.view.on_player_end_turn.assert_called_with(self.player2)
         self.view.on_deactivate.assert_called_with(self.player1)

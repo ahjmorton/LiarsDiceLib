@@ -25,23 +25,10 @@ Contributor(s):
 
 This module holds the states used by the application"""
 
-import random
 
-from game_common import IllegalStateChangeError, IllegalBidError
-
-
-def roll_set_of_dice(num, face_vals, rand=random) :
-    """Roll a set of dice with values that are 
-face_vals[0] <= n <= face_valls[1].
-Source of randomness comes from prng module"""
-    random.seed()
-    ret_list = list()
-    count = 0
-    while count < num :
-        ret_list.append(rand.randint(face_vals[0], face_vals[1]))
-        count = count + 1
-    return ret_list
-
+from game_common import IllegalStateChangeError,  \
+                        IllegalBidError, \
+                        roll_set_of_dice
 
 class GameStartState(object) :
     """This state is the state the game first enters in after the players 

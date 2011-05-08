@@ -89,6 +89,16 @@ class ProxyGameTest(unittest.TestCase) :
         view.on_game_start.assert_called_with(player, players)
         self.data.get_game_views.assert_called_with()
 
+    def testResetingABid(self) :
+        view = Mock(spec=game_views.GameView)
+        views = [view]
+        self.data.get_game_views.return_value = views
+        self.subject.reset_bid()
+
+        self.game.reset_bid.assert_called_with()
+        view.on_bid_reset.assert_called_with()
+        self.data.get_game_views.assert_called_with()
+
     def testEndingGame(self) :
         view = Mock(spec=game_views.GameView)
         views = [view]
