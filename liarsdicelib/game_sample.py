@@ -183,6 +183,7 @@ def main() :
     bid_checker = game.check_bids
     win_handler = game.on_win
     win_handler = partial(win_handler, game=proxy_dispatcher)
+    bid_reset = game.bid_reset
     
     #Create the game states from last to first
     bid_state = game_state.BidState(proxy_dispatcher, 
@@ -195,7 +196,7 @@ def main() :
 
     #Create the game object
     game_obj = game.Game(data_store, win_handler, bid_checker, 
-        win_checker)
+        win_checker, bid_reset)
     game_obj.set_state(game_start_state)
     proxy.game = game_obj
     proxy_dispatcher.game = game_obj
