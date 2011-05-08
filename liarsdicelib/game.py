@@ -65,6 +65,7 @@ def on_win(winner, loser, bid, game) :
 the winner and the loser based on the bid"""
     game.reset_bid()
     game.remove_dice(loser)
+    game.shuffle_dice()
     if len(game.get_dice(loser)) <= 0 :
         game.deactivate_player(loser)
         game.set_current_player(winner)
@@ -76,6 +77,14 @@ def bid_reset(game) :
 of a challenge to set the bid to None"""
     game.set_bid(game.get_previous_player(), None)
 
+def reshuffle_dice(players, face_vals, game, 
+    dice_roller=roll_set_of_dice) :
+    """Reshuffle the dice between rounds, using the game to find out
+the number of dice each player in players currently has"""
+    for player in players :
+        total_dice = game.num_of_dice(player)
+        new_dice = dice_roller(total_dice, face_vals)
+        game.set_dice(player, new_dice)
 
 class Game(object) :
     """The game object provides the application logic for the game and 
@@ -84,13 +93,16 @@ The game object can best be thought of as glue between the different
 game objects."""
 
     def __init__(self, data, win_handler=on_win, 
-                 bid_checker=check_bids, win_checker=get_winner,
-                 bid_reset=bid_reset) :
+                 bid_checker=check_bids, 
+                 win_checker=get_winner,
+                 bid_reset=bid_reset, 
+                 dice_reshuffle=reshuffle_dice) :
         self.plays = data
         self.bid_checker = bid_checker
         self.win_checker = win_checker
         self.win_handler = win_handler
         self.bid_reset = bid_reset
+        self.reshuffle = dice_reshuffle
 
     def set_state(self, state) :
         """Set the current game state"""
@@ -248,6 +260,10 @@ with the current player"""
     def reset_bid(self) :
         """Reset the bid at the start of a round"""
         self.bid_reset(self)
+
+    def shuffle_dice(self) :
+        """Shuffle the dice currently with players"""
+        self.reshuffle(self.get_players() , self.get_face_values())
 
 if __name__ == "__main__" :
     pass

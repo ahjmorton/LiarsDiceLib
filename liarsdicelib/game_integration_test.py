@@ -72,15 +72,22 @@ class GameIntegrationTest(unittest.TestCase) :
         self.bid_checker = game.check_bids
         self.win_handler = game.on_win
         self.bid_reset = game.bid_reset
-        self.win_handler = partial(self.win_handler, game=self.proxy_dispatcher)
+        self.win_handler = partial(self.win_handler, 
+                                   game=self.proxy_dispatcher)
+        self.reshuffle_dice = game.reshuffle_dice
+        self.reshuffle_dice = partial(self.reshuffle_dice, 
+                                      game=self.proxy_dispatcher)
         
         #Create the game states from last to first
         self.bid_state = game_state.BidState(self.proxy_dispatcher, 
             None)
-        self.first_bid_state = game_state.FirstBidState(self.proxy_dispatcher, 
-            self.bid_state)
-        self.game_start_state = game_state.GameStartState(self.proxy_dispatcher, 
-            self.first_bid_state, self.dice_roller)
+        self.first_bid_state = game_state.FirstBidState(
+                               self.proxy_dispatcher, 
+                               self.bid_state)
+        self.game_start_state = game_state.GameStartState(
+                                self.proxy_dispatcher, 
+                                self.first_bid_state, 
+                                self.dice_roller)
         self.bid_state.next = self.game_start_state
 
         #Create the game object
@@ -88,7 +95,8 @@ class GameIntegrationTest(unittest.TestCase) :
                               self.win_handler, 
                               self.bid_checker, 
                               self.win_checker,
-                              self.bid_reset)
+                              self.bid_reset,
+                              self.reshuffle_dice)
         self.game.set_state(self.game_start_state)
         self.proxy.game = self.game
         self.proxy_dispatcher.game = self.game
@@ -232,7 +240,6 @@ class GameIntegrationTest(unittest.TestCase) :
         player2dice = [6, 4]
         self.data_store.set_dice(self.player1, player1dice)
         self.data_store.set_dice(self.player2, player2dice)
-        
 
         self.proxy_dispatcher.make_challenge()
 
@@ -241,7 +248,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.view.on_player_end_turn.assert_called_with(self.player2)
         self.view.on_player_start_turn.assert_called_with(self.player1)
         self.assertEquals(1, len(self.data_store.get_dice(self.player1)))
-        self.view.on_new_dice_amount.assert_called_with(self.player1, 1)
+        self.assertTrue(((self.player1, 1),{}) in 
+             self.view.on_new_dice_amount.call_args_list)
         self.view.on_player_start_turn.assert_called_with(self.player1)
         self.view.on_player_end_turn.assert_called_with(self.player2)
         self.view.on_challenge.assert_called_with(
@@ -249,6 +257,39 @@ class GameIntegrationTest(unittest.TestCase) :
             self.player1,
             {self.player1:player1dice, self.player2:player2dice}, 
             first_bid)     
+    
+    def testChallengeReshufflesDice(self) :
+        self.proxy_dispatcher.start_game()
+        first_bid = (2, 5)
+        self.proxy_dispatcher.make_bid(first_bid)
+        player1dice = [2, 5]
+        player2dice = [6, 4]
+        self.data_store.set_dice(self.player1, player1dice)
+        self.data_store.set_dice(self.player2, player2dice)
+        self.view.reset_mock()
+
+        self.proxy_dispatcher.make_challenge()
+
+        self.assertEquals(1, len(self.data_store.get_dice(self.player1)))
+        self.assertEquals(2, len(self.data_store.get_dice(self.player2)))
+        self.assertEquals(3, 
+            self.view.on_new_dice_amount.call_count)
+        self.assertEquals(self.player1, 
+            self.view.on_new_dice_amount.call_args_list[0][0][0])
+        self.assertEquals(self.player1, 
+            self.view.on_new_dice_amount.call_args_list[1][0][0])
+        self.assertEquals(self.player2, 
+            self.view.on_new_dice_amount.call_args_list[2][0][0])
+        self.assertEquals(2, self.view.on_set_dice.call_count)
+        self.assertEquals(self.player1, 
+            self.view.on_set_dice.call_args_list[0][0][0])
+        self.assertEquals(self.player2, 
+            self.view.on_set_dice.call_args_list[1][0][0])
+        self.view.on_challenge.assert_called_with(
+            self.player2, 
+            self.player1,
+            {self.player1:player1dice, self.player2:player2dice}, 
+            first_bid)
 
     def testChallengeResultingInFirstPlayerGettingDeactivated(self) :
         # Add a new player, don't want deactivation to end in a win
@@ -273,7 +314,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.view.on_bid_reset.assert_called_with()
         self.assertEquals(0, len(self.data_store.get_dice(self.player1)))
         self.assertTrue(not self.data_store.is_active(self.player1))
-        self.view.on_new_dice_amount.assert_called_with(self.player1, 0)
+        self.assertTrue(((self.player1, 0),{}) in 
+             self.view.on_new_dice_amount.call_args_list)
         self.view.on_player_start_turn.assert_called_with(self.player2)
         self.view.on_player_end_turn.assert_called_with(self.player2)
         self.view.on_challenge.assert_called_with(

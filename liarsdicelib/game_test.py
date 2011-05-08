@@ -33,6 +33,7 @@ from mock import Mock
 import game
 import game_views
 import game_data
+import game_common
 
 class GameObjectTest(unittest.TestCase) :
     
@@ -43,8 +44,9 @@ class GameObjectTest(unittest.TestCase) :
         self.win_check = Mock(spec=game.get_winner)
         self.win_hand = Mock(spec=game.on_win)
         self.bid_reset = Mock(spec=game.bid_reset)
+        self.reshuffle_dice = Mock(spec=game.reshuffle_dice)
         self.subject = game.Game(self.data, self.win_hand, self.dice_check, 
-        self.win_check, self.bid_reset)
+        self.win_check, self.bid_reset, self.reshuffle_dice)
 
     def testDeactivatePlayer(self) :
         player1 = "player"
@@ -293,6 +295,32 @@ class GameObjectTest(unittest.TestCase) :
         ret = self.subject.get_dice_map()
         self.assertEquals(ret_map, ret)
 
+    def testGettingFaceValues(self) :
+        lowest = 1
+        highest = 6
+        self.data.get_lowest_dice.return_value = lowest
+        self.data.get_highest_dice.return_value = highest
+
+        result = self.subject.get_face_values()
+
+        self.assertEquals(2, len(result))
+        self.assertEquals(lowest, result[0])
+        self.assertEquals(highest, result[1])
+
+    def testShufflingDice(self) :
+        players = ["player" for x in xrange(0, 3)]
+        self.data.get_players.return_value = players
+        lowest = 1
+        highest = 6
+        self.data.get_lowest_dice.return_value = lowest
+        self.data.get_highest_dice.return_value = highest
+        face_vals = (lowest, highest)
+
+        self.subject.shuffle_dice()
+
+        self.reshuffle_dice.assert_called_with(players, face_vals)
+
+
 class BidCheckerTest(unittest.TestCase) :
     
     def testCheckingBidSimple(self) :
@@ -340,6 +368,7 @@ class WinHandlerTest(unittest.TestCase) :
         self.subject(player1, player2, bid, self.game_obj)
         self.game_obj.reset_bid.assert_called_with()
         self.game_obj.remove_dice.assert_called_with(player2)
+        self.game_obj.shuffle_dice.assert_called_with()
         self.game_obj.get_dice.assert_called_with(player2)
         self.game_obj.set_current_player.assert_called_with(player2)
 
@@ -351,6 +380,7 @@ class WinHandlerTest(unittest.TestCase) :
         self.subject(player1, player2, bid, self.game_obj)
         self.game_obj.remove_dice.assert_called_with(player2)
         self.game_obj.reset_bid.assert_called_with()
+        self.game_obj.shuffle_dice.assert_called_with()
         self.game_obj.get_dice.assert_called_with(player2)
         self.game_obj.deactivate_player.assert_called_with(player2)
         self.game_obj.set_current_player.assert_called_with(player1)
@@ -370,6 +400,30 @@ class BidResetTest(unittest.TestCase) :
         self.game_obj.get_previous_player.assert_called_with()
         self.game_obj.set_bid(player1, None)
 
+class ReshuffleDiceTest(unittest.TestCase) :
+
+    def setUp(self) :
+        self.game_obj = Mock(spec=game.Game)
+        self.dice_roller = Mock(spec=game_common.roll_set_of_dice)
+        self.subject = game.reshuffle_dice
+
+    def testShufflingDice(self) :
+        player1 = "player1"
+        players = [player1]
+        face_vals = (1, 6)
+        num = 3
+        return_dice = [3] * num
+        total_players = len(players)
+        self.game_obj.num_of_dice.return_value = num
+        self.dice_roller.return_value = return_dice
+
+        self.subject(players, face_vals, self.game_obj,
+             self.dice_roller)
+
+        self.dice_roller.assert_called_with(num, face_vals)
+        self.game_obj.set_dice.assert_called_with(player1, 
+             return_dice)
+
 def suite() :
     """Return a test suite of all tests defined in this module"""
     test_suite = unittest.TestSuite()
@@ -379,6 +433,7 @@ def suite() :
     test_suite.addTests(loader.loadTestsFromTestCase(WinCheckerTest))
     test_suite.addTests(loader.loadTestsFromTestCase(WinHandlerTest))
     test_suite.addTests(loader.loadTestsFromTestCase(BidResetTest))
+    test_suite.addTests(loader.loadTestsFromTestCase(ReshuffleDiceTest))
     return test_suite
 
 
