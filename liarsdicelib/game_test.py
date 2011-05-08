@@ -126,8 +126,12 @@ class GameObjectTest(unittest.TestCase) :
         self.assertEquals(self.state, self.subject.get_state())
 
     def testResettingBid(self) :
+        players = ["player" for x in xrange(0, 3)]
+        self.data.get_players.return_value = players
+
         self.subject.reset_bid() 
-        self.bid_reset.assert_called_with(self.subject)
+
+        self.bid_reset.assert_called_with(players)
             
     def testGettingNumberOfDiceAPlayerHas(self) :
         player1 = "player"
@@ -393,11 +397,10 @@ class BidResetTest(unittest.TestCase) :
 
     def testResettingABid(self) :
         player1 = "player1"
-        self.game_obj.get_previous_player.return_value = player1
+        players = [player1]
         
-        self.subject(self.game_obj)
+        self.subject(players, self.game_obj)
 
-        self.game_obj.get_previous_player.assert_called_with()
         self.game_obj.set_bid(player1, None)
 
 class ReshuffleDiceTest(unittest.TestCase) :

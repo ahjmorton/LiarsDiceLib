@@ -72,6 +72,8 @@ class GameIntegrationTest(unittest.TestCase) :
         self.bid_checker = game.check_bids
         self.win_handler = game.on_win
         self.bid_reset = game.bid_reset
+        self.bid_reset = partial(self.bid_reset,
+                                 game=self.proxy_dispatcher)
         self.win_handler = partial(self.win_handler, 
                                    game=self.proxy_dispatcher)
         self.reshuffle_dice = game.reshuffle_dice

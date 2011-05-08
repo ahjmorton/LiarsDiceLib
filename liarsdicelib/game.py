@@ -72,10 +72,11 @@ the winner and the loser based on the bid"""
     else :
         game.set_current_player(loser)
 
-def bid_reset(game) :
+def bid_reset(players, game) :
     """Reset the current bid of the game, this occurs at the end
 of a challenge to set the bid to None"""
-    game.set_bid(game.get_previous_player(), None)
+    for player in players :
+        game.set_bid(player, None)
 
 def reshuffle_dice(players, face_vals, game, 
     dice_roller=roll_set_of_dice) :
@@ -259,7 +260,7 @@ with the current player"""
 
     def reset_bid(self) :
         """Reset the bid at the start of a round"""
-        self.bid_reset(self)
+        self.bid_reset(self.get_players())
 
     def shuffle_dice(self) :
         """Shuffle the dice currently with players"""

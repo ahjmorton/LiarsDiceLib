@@ -155,9 +155,9 @@ challenged, the winner and dice of each player"""
 def main() :
 
     #Initialise game data store and add players
-    starting_dice = 6
+    starting_dice = 8
     lowest_face = 1
-    highest_face = 6
+    highest_face = 20
     data_store = game_data.GameData(
         starting_dice, 
         lowest_face, 
@@ -173,7 +173,7 @@ def main() :
     data_store.add_game_view(view)
 
     #Initialise players
-    players = ["Player %i" % x for x in xrange(0, 6)]
+    players = ["Player %i" % x for x in xrange(0, 8)]
     for player in players :
         data_store.add_player(player)
 
@@ -184,6 +184,7 @@ def main() :
     win_handler = game.on_win
     win_handler = partial(win_handler, game=proxy_dispatcher)
     bid_reset = game.bid_reset
+    bid_reset = partial(bid_reset, game=proxy_dispatcher)
     reshuffle_dice = game.reshuffle_dice
     reshuffle_dice = partial(reshuffle_dice, game=proxy_dispatcher)
     
