@@ -31,7 +31,7 @@ class GameView(object) :
  interface"""
 
     
-    def on_game_start(self, player_list) :
+    def on_game_start(self, starting_player, player_list) :
         """This method is called when the game begins. It contains a list of pla
 yers who are in the game"""
         pass

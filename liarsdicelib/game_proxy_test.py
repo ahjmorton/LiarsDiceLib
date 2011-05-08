@@ -80,12 +80,13 @@ class ProxyGameTest(unittest.TestCase) :
         self.data.get_game_views.return_value = views
         player = "playernam"
         players = [player]
+        self.game.get_current_player.return_value = player
         self.data.get_all_players.return_value = players
 
         self.subject.start_game()
 
         self.game.start_game.assert_called_with()
-        view.on_game_start.assert_called_with(players)
+        view.on_game_start.assert_called_with(player, players)
         self.data.get_game_views.assert_called_with()
 
     def testEndingGame(self) :
@@ -235,11 +236,10 @@ class ProxyGameTest(unittest.TestCase) :
 
         self.subject.set_current_player(player)
 
-        self.data.get_game_views.assert_called_with()
+        self.assertTrue(not self.data.get_game_views.called)
         self.game.set_current_player.assert_called_with(player)
         self.game.get_current_player.assert_called_with()
-        view.on_player_start_turn.assert_called_with(player)
-    
+   
     def testOnWinning(self) :
         view = Mock(spec=game_views.GameView)
         views = [view]

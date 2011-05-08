@@ -65,8 +65,9 @@ Function should take one arguement"""
         """Start a game then burst to all game and player views"""
         self.game.start_game()
         player_names = self._get_all_players()
+        cur = self.game.get_current_player()
         self._burst_to_game_views(lambda view : 
-            view.on_game_start(player_names))
+            view.on_game_start(cur, player_names))
 
     def activate_players(self) :
         """Activate all players, inform all game views and players"""
@@ -91,8 +92,8 @@ to game views"""
             # Avoid this section if setting the first player
             self._burst_to_game_views(lambda view : 
                 view.on_player_end_turn(cur))
-        self._burst_to_game_views(lambda view : 
-             view.on_player_start_turn(player))
+            self._burst_to_game_views(lambda view : 
+                view.on_player_start_turn(player))
 
     def add_player(self, player) :
         """Add a player to the game and inform all game views"""

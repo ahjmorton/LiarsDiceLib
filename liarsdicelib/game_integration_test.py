@@ -100,14 +100,13 @@ class GameIntegrationTest(unittest.TestCase) :
                self.view.on_activation.call_args_list[0][0][0])        
         self.assertEquals(self.player2,
                self.view.on_activation.call_args_list[1][0][0])
-        self.view.on_game_start.assert_called_with(
+        self.view.on_game_start.assert_called_with(self.player1,
             [self.player1, self.player2])
         self.assertEquals(2, self.view.on_new_dice_amount.call_count) 
         self.assertEquals((self.player1, self.starting_dice),
                self.view.on_new_dice_amount.call_args_list[0][0]) 
         self.assertEquals((self.player2, self.starting_dice),
                self.view.on_new_dice_amount.call_args_list[1][0]) 
-        self.view.on_player_start_turn.assert_called_with(self.player1)
         dice_map = self.data_store.get_dice_map()
         self.assertEquals(2, len(dice_map))
         self.assertTrue(self.player1 in dice_map)
@@ -121,7 +120,8 @@ class GameIntegrationTest(unittest.TestCase) :
             self.assertTrue(((player,dice),{}) in 
                  self.view.on_set_dice.call_args_list)
         player_names = [self.player1, self.player2]
-        self.view.on_game_start.assert_called_with(player_names)
+        self.view.on_game_start.assert_called_with( \
+            self.player1, player_names)
             
         self.assertEquals(2, self.view.on_new_dice_amount.call_count)
         players = set(player_names)

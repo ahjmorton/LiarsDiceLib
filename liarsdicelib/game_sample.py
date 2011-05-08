@@ -35,18 +35,28 @@ import game_views
 import game_data
 import game_proxy
 
+def generate_face_value(current, highest, lowest) :
+    next_val = (current + 1) % highest
+    if next_val < lowest :
+        next_val = lowest
+    return next_val
+
 class RobotGameView(game_views.GameView) :
+    
+    __GAME_STARTED = "stated_game"
+    __GAME_ENDED = "end_game"
+    __GAME_CHALLENGED = "challenge"
 
-    def __init__(self, game_obj) :
+    def __init__(self, game_obj, face_val_gen) :
         self.game = game_obj
+        self.face_gen = face_val_gen
+        self.event_loop = list()
 
-    def make_bid(self, 
-
-    def on_game_start(self, player_list) :
+    def on_game_start(self, first_player, player_list) :
         """This method is called when the game begins. It contains a list of pla
 yers who are in the game"""
-        print "Game started with players : %s" % (player_list)
-        self.first_bid = (1, 1)
+        print "Game started first player %s out of %s" % (first_player, player_list)
+        self.event_loop.append(RobotGameView.__GAME_STARTED)
 
     def on_bid(self, player_name, bid) :
         """This method is called when a player bids with the players name and a 
@@ -58,6 +68,7 @@ bid"""
 challenged, the winner and dice of each player"""
         print "Challenge Bid: %s Dice map %s. Winner : %s Loser: %s" \
               % (bid, old_dice_map, winner, loser)
+        self.event_loop.append(RobotGameView.__GAME_CHALLENGED)
 
     def on_activation(self, player_name) :
         """This method is called when a player is made active"""
@@ -66,7 +77,7 @@ challenged, the winner and dice of each player"""
     def on_player_start_turn(self, player_name) :
         """This method is called when a player is made the current player"""
         print "%s started turn" % player_name
-    
+            
     def on_player_end_turn(self, player_name) :
         """This methodi s called when a player's turns ends"""
         print "%s ended turn" % player_name
@@ -87,6 +98,7 @@ challenged, the winner and dice of each player"""
         """This method is called when the game ends and gives the 
         players name"""
         print "Game over! Winner: %s" % winner_name
+        self.event_loop.append(RobotGameView.__GAME_ENDED)
     
     def on_set_dice(self, player_name, dice) :
         """This method is called when the dice are set for the player"""
@@ -101,8 +113,43 @@ challenged, the winner and dice of each player"""
         """This method is called when there is an error with the remote"""
         print "Error detected : %s" % value
 
+    def __create_bid(self) :
+        truths = [True, False]
+        current = self.game.get_previous_bid()
+        next_bid = list(current)
+        if random.choice(truths) :
+            next_bid[0] = next_bid[0] + 1
+        else :
+            next_bid[1] = self.face_gen(next_bid[1])
+        print next_bid
+        return next_bid
 
+    def go(self) :
+        current = self.event_loop[0]
+        event_loop = self.event_loop[1:]
+        if current is not RobotGameView.__GAME_STARTED :
+            raise Exception("first event is not game_started")
+        while RobotGameView.__GAME_ENDED not in self.event_loop:
+            if len(self.event_loop) > 0 :
+                current = self.event_loop[0]
+            else :
+                current = None
 
+            if current is RobotGameView.__GAME_STARTED or \
+               current is RobotGameView.__GAME_CHALLENGED  :
+                next_bid = (1, 1)
+                self.game.make_bid(next_bid)
+                
+            else :
+                if random.random() < 0.3  or \
+                    self.game.get_previous_bid()[0] >= \
+                    self.game.number_of_starting_dice() :
+                    self.game.make_challenge()
+                else :
+                    next_bid = self.__create_bid()
+                    self.game.make_bid(next_bid)
+            if len(self.event_loop) > 0 :
+                self.event_loop = self.event_loop[1:]
 def main() :
 
     #Initialise game data store and add players
@@ -117,7 +164,10 @@ def main() :
     #Create the proxy game objects with game views
     proxy = game_proxy.ProxyGame(None, data_store)
     proxy_dispatcher = game_proxy.ProxyDispatcher(None, proxy)
-    view = RobotGameView(proxy_dispatcher)
+    face_val_gen = partial(generate_face_value, \
+               highest = highest_face, \
+               lowest = lowest_face)
+    view = RobotGameView(proxy_dispatcher, face_val_gen)
     data_store.add_game_view(view)
 
     #Initialise players
@@ -148,6 +198,7 @@ def main() :
     proxy.game = game_obj
     proxy_dispatcher.game = game_obj
     proxy_dispatcher.start_game()
+    view.go()
 
 if __name__ == "__main__" :
     main()

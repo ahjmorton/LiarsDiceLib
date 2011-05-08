@@ -98,8 +98,8 @@ validity) then setting the next player"""
     def on_bid(self, player, bid) :
         """Accept the bid from the player without validation"""
         self.game.set_bid(player, bid)
-        self.game.set_current_player(self.game.get_next_player())
         self.game.set_state(self.next)
+        self.game.set_current_player(self.game.get_next_player())
 
     def on_challenge(self, challenger, challenged) :
         """Illegal state transition, throw an exception"""
