@@ -7,10 +7,16 @@ interface components.
 The doc folder contains a bunch of basic design documentation such as the
 projects goal and basic architecture.
 
-The src folder contains a single python module called game.py that
-does all the cool stuff, a unit test module (game_test.py) and an integration
-test module (game_integration_test.py).
-The run_all_tests.py module is a convience function to run both the unit tests
+The src folder contains a number of python modules that implement
+the game rules with extension points to addtional rules for varients.
+The primary interface that external code will interact with is the 
+Game interface in game.py and GameView in game_views.py.
+
+There is simple sample of a running game showing the expected output
+of a game as well as a unit test suite with integration test that
+tests everything except GameView
+
+The run_all_tests.py module is a convience function to run both the unit tests 
 and integration tests in a single action.
 
 To perform tests you will need Michael Foord python mock library available
