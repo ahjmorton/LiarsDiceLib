@@ -167,6 +167,19 @@ class BidGameStateTest(unittest.TestCase) :
         self.assertTrue(not self.game.set_state.called)
         self.game.set_bid.assert_called_with(player, cur_bid)
         self.game.set_current_player.assert_called_with(player2)
+    
+    def testOnBidPressureTest(self) :
+        cur_bid = (3, 4)
+        prev_bid = (3, 3)
+        player = "player"
+        player2 = "player"
+        self.game.get_previous_bid.return_value = prev_bid
+        self.game.get_next_player.return_value = player2
+        ret = self.subject.on_bid(player, cur_bid)
+        self.assertTrue(ret is None)
+        self.assertTrue(not self.game.set_state.called)
+        self.game.set_bid.assert_called_with(player, cur_bid)
+        self.game.set_current_player.assert_called_with(player2)
 
     def testOnBidThrowsIllegalBidException(self) :
         test_bid1 = (4, 3)

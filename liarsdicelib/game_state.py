@@ -124,7 +124,9 @@ It accepts bids and challenge and modifies game state accordingly"""
         """Take a bid, validate it against the previous bid then set the
 bid as the current bid and set the next player"""
         cur_bid = self.game.get_previous_bid()
-        if bid[0] >= cur_bid[0] and bid[1] > cur_bid[1] :
+        if cur_bid is None or \
+            (bid[0] > cur_bid[0] or \
+            (bid[0] == cur_bid[0] and bid[1] > cur_bid[1])) :
             self.game.set_bid(player, bid)
             self.game.set_current_player(self.game.get_next_player())
         else :

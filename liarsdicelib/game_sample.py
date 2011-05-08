@@ -121,7 +121,8 @@ challenged, the winner and dice of each player"""
             next_bid[0] = next_bid[0] + 1
         else :
             next_bid[1] = self.face_gen(next_bid[1])
-        print next_bid
+            if next_bid[1] == 1 :
+                next_bid[0] = next_bid[0] + 1
         return next_bid
 
     def go(self) :
@@ -134,14 +135,11 @@ challenged, the winner and dice of each player"""
                 current = self.event_loop[0]
             else :
                 current = None
-
-            if current is RobotGameView.__GAME_STARTED or \
-               current is RobotGameView.__GAME_CHALLENGED  :
+            if self.game.get_previous_bid() is None :
                 next_bid = (1, 1)
                 self.game.make_bid(next_bid)
-                
             else :
-                if random.random() < 0.3  or \
+                if random.random() < 0.3 or \
                     self.game.get_previous_bid()[0] >= \
                     self.game.number_of_starting_dice() :
                     self.game.make_challenge()

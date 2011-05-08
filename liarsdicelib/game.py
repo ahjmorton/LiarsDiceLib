@@ -64,6 +64,7 @@ def on_win(winner, loser, bid, game) :
     """Called at the end of a round to determine the effects for both
 the winner and the loser based on the bid"""
     game.remove_dice(loser)
+    game.set_bid(game.get_previous_player(), None)
     if len(game.get_dice(loser)) <= 0 :
         game.deactivate_player(loser)
         game.set_current_player(winner)
