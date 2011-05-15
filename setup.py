@@ -25,13 +25,13 @@ Contributor(s):
 Standard distutils build script
 """
 
-
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='liarsdicelib',
       description="""A pure Python library for the implementation of the game rules of Liars dice""",
       author="Andrew Morton",
       author_email="ahjmorton@gmail.com",
       url="https://github.com/ahjmorton/LiarsDiceLib",
+      license="MPL 1.1",
       packages=['liarsdicelib']
       )
