@@ -24,8 +24,10 @@ Contributor(s):
 ***** END LICENSE BLOCK *****
 Standard distutils build script
 """
-
-from setuptools import setup
+try :
+    from setuptools import setup
+except ImportError :
+    from distutils.core import setup
 
 setup(name='liarsdicelib',
       description="""A pure Python library for the implementation of the game rules of Liars dice""",
