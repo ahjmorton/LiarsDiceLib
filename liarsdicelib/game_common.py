@@ -32,7 +32,7 @@ def roll_set_of_dice(num, face_vals, rand=random) :
     """Roll a set of dice with values that are 
 face_vals[0] <= n <= face_valls[1].
 Source of randomness comes from prng module"""
-    random.seed()
+    rand.seed()
     ret_list = list()
     count = 0
     while count < num :

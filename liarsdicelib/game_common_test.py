@@ -49,6 +49,7 @@ class DiceRollerTest(unittest.TestCase) :
         self.assertTrue(reduce(lambda x, y: x and (y == ret), val, True))
         self.assertTrue(self.random.randint.called)
         self.assertTrue(self.random.randint.call_count == amount)
+        self.assertTrue(self.random.seed.called)
 
 def suite() :
     """Return a test suite of all tests defined in this module"""
