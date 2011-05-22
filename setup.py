@@ -35,6 +35,6 @@ setup(name='liarsdicelib',
       author_email="ahjmorton@gmail.com",
       url="https://github.com/ahjmorton/LiarsDiceLib",
       license="MPL 1.1",
-      packages=['liarsdicelib'],
+      packages=['lib'],
       version="0.0.1"
       )
